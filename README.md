@@ -101,3 +101,5 @@ Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商�
 主要開發：王宥傑；歡迎在 GitHub Issues 回報可重現的問題或提交 Pull Request。
 
 Play Store 中英文上架文案與圖像清單請見 [`docs/PLAY_STORE_LISTING_COPY.md`](docs/PLAY_STORE_LISTING_COPY.md)；上架流程、隱私政策與資料安全文件請見 [`docs/PLAY_STORE_RELEASE_GUIDE.zh-TW.md`](docs/PLAY_STORE_RELEASE_GUIDE.zh-TW.md)、[`docs/PRIVACY_POLICY.zh-TW.md`](docs/PRIVACY_POLICY.zh-TW.md) 與 [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md)。
+
+新個人開發者帳戶的 12 人／14 天封閉測試招募、回饋與正式版申請範本請見 [`docs/PLAY_CLOSED_TEST_PLAN.md`](docs/PLAY_CLOSED_TEST_PLAN.md)。

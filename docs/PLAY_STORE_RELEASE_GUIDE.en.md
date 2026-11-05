@@ -12,6 +12,8 @@ Do not claim diagnosis, treatment, disease detection, emergency monitoring, clin
 
 Play Console currently shows that the signed-in Google account does not yet have a developer account. A new personal developer account created after November 13, 2023 must run a closed test with at least 12 continuously opted-in testers for 14 days before it can apply for production access. Internal testing can begin earlier but does not replace this gate. See [Google Play's personal-account testing requirements](https://support.google.com/googleplay/android-developer/answer/14151465).
 
+Ready-to-use bilingual invitations, test cases, privacy-safe feedback fields, the daily evidence log, and production-access answer templates are in `docs/PLAY_CLOSED_TEST_PLAN.md`.
+
 ## Health apps declaration recommendation
 
 - Select **Health and fitness → Activity and Fitness** and **Health and fitness → Sleep Management**.

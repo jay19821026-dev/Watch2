@@ -120,3 +120,5 @@ All screenshots are demonstration screens supplied and confirmed by the owner as
 3. Upload only owner-authorized, release-signed bundles; never upload the GitHub Debug APKs or the current unsigned AABs.
 4. Complete the Health apps declaration and every Health Connect permission justification using `docs/DATA_SAFETY_DECLARATION.md`.
 5. Run Internal testing and the required closed test before applying for production access.
+
+Closed-test invitations, test cases, privacy-safe feedback fields, daily evidence log, and production-access answer templates are in `docs/PLAY_CLOSED_TEST_PLAN.md`.

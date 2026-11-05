@@ -14,6 +14,8 @@ GitHub Release 的 APK 是 Debug 側載測試版，不可當作 Play Store 正�
 
 目前 Play Console 顯示此 Google 帳戶尚未建立開發人員帳戶。若建立的是 2023-11-13 之後的新個人帳戶，正式公開前必須先完成封閉測試：至少 12 位測試者連續加入 14 天，之後再申請正式版存取權。Internal testing 可先進行，但不取代這項封閉測試門檻。參考：[Google Play 新個人帳戶測試要求](https://support.google.com/googleplay/android-developer/answer/14151465)。
 
+可直接使用的中英文招募文案、測試清單、回饋表、每日證據紀錄與正式版存取申請草稿見 `docs/PLAY_CLOSED_TEST_PLAN.md`。
+
 ## Health apps declaration 建議
 
 - 選取「健康與健身 → 活動與健身」及「健康與健身 → 睡眠管理」。

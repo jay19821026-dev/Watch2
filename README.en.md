@@ -46,6 +46,8 @@ Debug APKs use an Android development signature and are not Play Store releases.
 
 The ready-to-paste bilingual Play Store listing, console selections, release notes, and graphic-asset inventory are in [`docs/PLAY_STORE_LISTING_COPY.md`](docs/PLAY_STORE_LISTING_COPY.md). Release flow, privacy, Data safety, and Health apps declaration materials are in [`docs/PLAY_STORE_RELEASE_GUIDE.en.md`](docs/PLAY_STORE_RELEASE_GUIDE.en.md), [`docs/PRIVACY_POLICY.en.md`](docs/PRIVACY_POLICY.en.md), and [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md).
 
+The 12-tester/14-day closed-test recruitment, feedback, evidence, and production-access templates are in [`docs/PLAY_CLOSED_TEST_PLAN.md`](docs/PLAY_CLOSED_TEST_PLAN.md).
+
 ## Build
 
 Requirements: JDK 17, Android SDK 36, Google Maven, and Maven Central access.
