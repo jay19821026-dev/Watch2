@@ -1,0 +1,6 @@
+<resources>
+    <style name="WearTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#EF5350</item>
+    </style>
+</resources>

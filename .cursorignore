@@ -1,0 +1,7 @@
+artifacts/**
+.codex-remote-attachments/**
+.inspect-*/**
+**/*sensor-suite*.json
+**/*waveform*.csv
+**/*logcat*.txt
+**/*sensorservice*.txt

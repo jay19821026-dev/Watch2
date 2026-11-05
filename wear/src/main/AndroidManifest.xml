@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-feature android:name="android.hardware.type.watch" />
+    <uses-feature android:name="android.hardware.sensor.heartrate" android:required="true" />
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+    <uses-permission android:name="android.permission.BODY_SENSORS_BACKGROUND" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <queries>
+        <package android:name="com.google.android.wearable.assistant" />
+    </queries>
+    <application
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/app_icon"
+        android:label="Xiaomi Health Bridge"
+        android:roundIcon="@drawable/app_icon"
+        android:theme="@style/WearTheme">
+        <meta-data android:name="com.google.android.wearable.standalone" android:value="false" />
+        <uses-library android:name="com.google.android.wearable" android:required="true" />
+        <service
+            android:name=".PassiveHealthService"
+            android:permission="com.google.android.wearable.healthservices.permission.PASSIVE_DATA_BINDING"
+            android:exported="true" />
+        <service android:name=".WearInsightsListenerService" android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/health-insights" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".HealthSummaryTileService"
+            android:exported="true"
+            android:label="健康摘要"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+            <intent-filter>
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".HealthComplicationService"
+            android:directBootAware="true"
+            android:exported="true"
+            android:icon="@drawable/app_icon"
+            android:label="Health Bridge 心率與步數"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+            <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES" android:value="SHORT_TEXT,LONG_TEXT" />
+            <meta-data android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS" android:value="1800" />
+        </service>
+        <service android:name=".WearFileReceiverService" android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/file-transfer/" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".WearControlService"
+            android:exported="true"
+            android:foregroundServiceType="health">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/control/" />
+            </intent-filter>
+        </service>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
+        </provider>
+        <receiver
+            android:name=".StartupReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
+                <action android:name="android.intent.action.BATTERY_LOW" />
+                <action android:name="android.intent.action.BATTERY_OKAY" />
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+        <activity
+            android:name=".WearPowerSchedulerActivity"
+            android:exported="true"
+            android:icon="@drawable/power_scheduler_icon"
+            android:label="智慧省電"
+            android:taskAffinity="com.jaysato.xiaomihealthbridge.power"
+            android:launchMode="singleTop" />
+        <activity-alias
+            android:name=".WearPowerSchedulerLauncher"
+            android:exported="true"
+            android:enabled="true"
+            android:icon="@drawable/power_scheduler_icon"
+            android:label="智慧省電"
+            android:targetActivity=".WearPowerSchedulerActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity android:name=".WearSleepActivity" android:exported="true" />
+        <activity android:name=".WearHeartHistoryActivity" android:exported="true" />
+        <activity android:name=".WearRhythmActivity" android:exported="true" />
+        <activity android:name=".WearOpticalBpActivity" android:exported="true" android:launchMode="singleTop" />
+        <activity android:name=".WearHrvActivity" android:exported="true" />
+        <activity android:name=".WearChipHubActivity" android:exported="true" />
+        <activity android:name=".WearAppsActivity" android:exported="true" />
+        <activity android:name=".WearVitalsActivity" android:exported="true" />
+        <activity android:name=".BacktrackActivity" android:exported="true" />
+        <activity android:name=".CompassActivity" android:exported="true" />
+        <activity android:name=".WearEcgActivity" android:exported="true" android:launchMode="singleTop" />
+        <activity android:name=".WearMeasurePageActivity" android:exported="true" />
+        <activity android:name=".WearCalibrationActivity" android:exported="true" />
+        <activity android:name=".WearReadinessActivity" android:exported="true" />
+        <activity android:name=".WearNoiseActivity" android:exported="true" />
+        <activity android:name=".FallConfirmationActivity" android:exported="false" android:excludeFromRecents="true" />
+        <activity android:name=".WearGestureActivity" android:exported="true" />
+        <activity android:name=".WearWorkoutActivity" android:exported="true" />
+        <activity android:name=".WearHistoryActivity" android:exported="true" />
+        <activity
+            android:name=".WearMainActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

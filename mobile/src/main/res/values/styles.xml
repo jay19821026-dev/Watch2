@@ -1,0 +1,21 @@
+<resources>
+    <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:colorAccent">#92BFFF</item>
+        <item name="android:windowBackground">#050609</item>
+        <item name="android:navigationBarColor">#050609</item>
+        <item name="android:statusBarColor">#050609</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:alertDialogTheme">@style/BridgeDialog</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="BridgeDialog" parent="android:style/Theme.Material.Dialog.Alert">
+        <item name="android:colorAccent">#92BFFF</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:colorBackground">#1C1F27</item>
+        <item name="android:textColorPrimary">#F6F8FC</item>
+        <item name="android:textColorSecondary">#A1A9BA</item>
+        <item name="android:windowMinWidthMajor">88%</item>
+        <item name="android:windowMinWidthMinor">88%</item>
+    </style>
+</resources>

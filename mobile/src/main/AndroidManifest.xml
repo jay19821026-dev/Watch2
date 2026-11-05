@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY" />
+    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE" />
+    <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <uses-permission android:name="android.permission.health.WRITE_STEPS" />
+    <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+    <uses-permission android:name="android.permission.health.WRITE_DISTANCE" />
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.WRITE_TOTAL_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_EXERCISE" />
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE_ROUTE" />
+    <uses-permission android:name="android.permission.health.READ_WEIGHT" />
+    <uses-permission android:name="android.permission.health.WRITE_WEIGHT" />
+    <uses-permission android:name="android.permission.health.READ_BLOOD_PRESSURE" />
+    <uses-permission android:name="android.permission.health.WRITE_BLOOD_PRESSURE" />
+    <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE" />
+    <uses-permission android:name="android.permission.health.WRITE_RESTING_HEART_RATE" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY" />
+    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE_VARIABILITY" />
+    <uses-permission android:name="android.permission.health.READ_RESPIRATORY_RATE" />
+    <uses-permission android:name="android.permission.health.WRITE_RESPIRATORY_RATE" />
+    <uses-permission android:name="android.permission.health.READ_OXYGEN_SATURATION" />
+    <uses-permission android:name="android.permission.health.WRITE_OXYGEN_SATURATION" />
+    <uses-permission android:name="android.permission.health.READ_SLEEP" />
+    <uses-permission android:name="android.permission.health.WRITE_SLEEP" />
+    <uses-permission android:name="android.permission.health.READ_BODY_TEMPERATURE" />
+    <uses-permission android:name="android.permission.health.READ_ELEVATION_GAINED" />
+    <uses-permission android:name="android.permission.health.WRITE_ELEVATION_GAINED" />
+    <uses-permission android:name="android.permission.health.READ_FLOORS_CLIMBED" />
+    <uses-permission android:name="android.permission.health.WRITE_FLOORS_CLIMBED" />
+    <uses-permission android:name="android.permission.health.READ_HYDRATION" />
+    <uses-permission android:name="android.permission.health.WRITE_HYDRATION" />
+
+    <application
+        android:name=".HealthBridgeApplication"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/app_icon"
+        android:label="Xiaomi 手錶健康中心"
+        android:roundIcon="@drawable/app_icon"
+        android:theme="@style/AppTheme">
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
+        </provider>
+        <activity
+            android:name="com.jaysato.xiaomihealthbridge.PermissionsRationaleActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+        <activity-alias
+            android:name=".ViewPermissionUsageActivity"
+            android:exported="true"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE"
+            android:targetActivity="com.jaysato.xiaomihealthbridge.PermissionsRationaleActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
+        <activity
+            android:name="com.jaysato.xiaomihealthbridge.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="xiaomihealthbridge" android:host="control" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.jaysato.xiaomihealthbridge.CompetitorParityActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.ChipFeatureHubActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.EngineeringDebugActivity" android:exported="false" />
+        <activity-alias
+            android:name=".EngineeringDebugShellActivity"
+            android:targetActivity="com.jaysato.xiaomihealthbridge.EngineeringDebugActivity"
+            android:exported="true"
+            android:permission="android.permission.DUMP" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.VitalsHomeActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.HealthBrowseActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.HealthConclusionActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.IrregularRhythmActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.SleepSummaryActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.OpticalBpActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.UnavailableFeatureActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.MeasureResultActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.NoiseSummaryActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.MetricDetailActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.AiHealthAnalysisActivity" android:exported="false" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.PpgEvidenceActivity" android:exported="false" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.HealthCenterActivity" android:exported="false" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.WatchFeatureMapActivity" android:exported="true" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.SensorCalibrationCenterActivity" android:exported="false" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.ClinicalLabActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="xiaomihealthbridge" android:host="clinical-lab" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.jaysato.xiaomihealthbridge.WorkoutAnalysisActivity" android:exported="false" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.RawSensorDetailActivity" android:exported="true" />
+        <activity
+            android:name="com.jaysato.xiaomihealthbridge.PrivacyPolicyActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name="com.jaysato.xiaomihealthbridge.HeartRateDataListenerService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/heart-rate" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/health" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/control-status" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/raw-sensor" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/feature-snapshot" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/safety-alert" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/debug/status-response" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

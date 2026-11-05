@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Dark round tile -->
+    <path
+        android:fillColor="#1C1C1E"
+        android:pathData="M54,4c27.6,0 50,22.4 50,50s-22.4,50 -50,50 -50,-22.4 -50,-50 22.4,-50 50,-50z" />
+    <!-- Battery body -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#30D158"
+        android:strokeWidth="4"
+        android:pathData="M32,38h38c2.2,0 4,1.8 4,4v24c0,2.2 -1.8,4 -4,4H32c-2.2,0 -4,-1.8 -4,-4V42c0,-2.2 1.8,-4 4,-4z" />
+    <!-- Battery cap -->
+    <path
+        android:fillColor="#30D158"
+        android:pathData="M74,46h4c1.1,0 2,0.9 2,2v12c0,1.1 -0.9,2 -2,2h-4V46z" />
+    <!-- Charge fill -->
+    <path
+        android:fillColor="#30D158"
+        android:pathData="M34,44h26c1.1,0 2,0.9 2,2v16c0,1.1 -0.9,2 -2,2H34c-1.1,0 -2,-0.9 -2,-2V46c0,-1.1 0.9,-2 2,-2z" />
+    <!-- Leaf accent -->
+    <path
+        android:fillColor="#A8E6A1"
+        android:pathData="M58,28c8,2 14,8 16,16 -8,-2 -14,-8 -16,-16z" />
+</vector>

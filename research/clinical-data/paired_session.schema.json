@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Paired wearable research session metadata only",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "governance", "participant_code", "session_id", "device", "measurement", "reference", "synchronization", "condition", "artifact"],
+  "properties": {
+    "schema_version": {"const": 2},
+    "governance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["protocol_id", "ethics_status", "approval_code", "consent_status", "consent_at"],
+      "properties": {
+        "protocol_id": {"type": "string", "minLength": 1},
+        "ethics_status": {"const": "approved"},
+        "approval_code": {"type": "string", "minLength": 1},
+        "consent_status": {"const": "obtained"},
+        "consent_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "participant_code": {"type": "string", "pattern": "^P-[A-Z0-9]{6,12}$"},
+    "session_id": {"type": "string", "format": "uuid"},
+    "device": {
+      "type": "object", "additionalProperties": false,
+      "required": ["watch_model", "watch_firmware", "watch_os", "phone_os", "phone_build_sha256", "wear_build_sha256"],
+      "properties": {
+        "watch_model": {"const": "Xiaomi Watch 2 Pro"},
+        "watch_firmware": {"type": "string", "minLength": 1},
+        "watch_os": {"type": "string", "minLength": 1},
+        "phone_os": {"type": "string", "minLength": 1},
+        "phone_build_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "wear_build_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "measurement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["channel", "source", "permission", "unit", "mapping_status", "comparison_eligible", "sample_count", "sample_interval_ms", "jitter_ms", "start_at", "end_at", "time_basis"],
+      "properties": {
+        "channel": {"enum": ["HEART_RATE_API", "RAW_PPG", "SPO2", "ECG", "BIOZ", "SLEEP_STAGE"]},
+        "source": {"enum": ["HEALTH_SERVICES", "SENSOR_MANAGER", "HEALTH_CONNECT", "OEM_APP_EXPORT", "OTHER_DOCUMENTED"]},
+        "permission": {"const": "granted"},
+        "unit": {"enum": ["bpm", "percent", "mV", "ohm", "raw_adc", "sleep_stage_label", "unknown"]},
+        "mapping_status": {"enum": ["documented", "raw_only", "unknown"]},
+        "comparison_eligible": {"type": "boolean"},
+        "sample_count": {"type": "integer", "minimum": 1},
+        "sample_interval_ms": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "jitter_ms": {"type": ["number", "null"], "minimum": 0},
+        "start_at": {"type": "string", "format": "date-time"},
+        "end_at": {"type": "string", "format": "date-time"},
+        "time_basis": {"enum": ["wall_clock_synchronized", "monotonic_with_epoch_mapping", "relative_unverified"]}
+      }
+    },
+    "reference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["reference_code", "modality", "model", "unit", "calibration_status", "calibration_valid_from", "calibration_valid_through"],
+      "properties": {
+        "reference_code": {"type": "string", "pattern": "^REF-[A-Z0-9]{6,12}$"},
+        "modality": {"type": "string", "minLength": 1},
+        "model": {"type": "string", "minLength": 1},
+        "unit": {"enum": ["bpm", "percent", "mV", "ohm", "sleep_stage_label", "other_documented"]},
+        "calibration_status": {"enum": ["valid", "unknown", "expired"]},
+        "calibration_valid_from": {"type": "string", "format": "date-time"},
+        "calibration_valid_through": {"type": "string", "format": "date-time"}
+      }
+    },
+    "synchronization": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "start_offset_ms", "end_offset_ms", "max_allowed_error_ms"],
+      "properties": {
+        "method": {"type": "string", "minLength": 1},
+        "start_offset_ms": {"type": "number"},
+        "end_offset_ms": {"type": "number"},
+        "max_allowed_error_ms": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "condition": {
+      "type": "object", "additionalProperties": false,
+      "required": ["activity", "watch_worn", "charging"],
+      "properties": {
+        "activity": {"enum": ["REST", "WALK", "RUN", "CYCLE", "SLEEP", "OTHER_PREDECLARED"]},
+        "watch_worn": {"const": true},
+        "charging": {"const": false}
+      }
+    },
+    "artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["artifact_id", "sha256", "encrypted_at_rest"],
+      "properties": {
+        "artifact_id": {"type": "string", "format": "uuid"},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "encrypted_at_rest": {"const": true}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"measurement": {"properties": {"comparison_eligible": {"const": true}}}}},
+      "then": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "mapping_status": {"const": "documented"},
+              "unit": {"enum": ["bpm", "percent", "mV", "ohm", "sleep_stage_label"]},
+              "time_basis": {"enum": ["wall_clock_synchronized", "monotonic_with_epoch_mapping"]}
+            }
+          },
+          "reference": {"properties": {"calibration_status": {"const": "valid"}}}
+        }
+      }
+    }
+  ]
+}

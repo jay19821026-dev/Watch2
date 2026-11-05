@@ -1,0 +1,83 @@
+{
+  "nodes": [
+    {
+      "id": "hub",
+      "type": "file",
+      "file": "docs/Wear OS 健康資料完整性 QA.md",
+      "subpath": "#十代理工作與整合",
+      "x": -220,
+      "y": -280,
+      "width": 500,
+      "height": 420
+    },
+    {
+      "id": "chain",
+      "type": "text",
+      "text": "# 資料生命週期\n\nRaw Event → Acquisition Time → Snapshot → Data Layer → Phone Persist → Freshness → Quality → Calibration → Acceptance → Health Connect → UI\n\n**Raw ≠ Calibrated · Export ≠ Health Connect · Export ≠ UI**\n\n拒絕原因：no sensor / registration failed / no event / condition unmet / stale / transport rejected / quality rejected / raw unscaled / persistence failed / not rendered",
+      "x": 400,
+      "y": -280,
+      "width": 450,
+      "height": 320,
+      "color": "4"
+    },
+    {
+      "id": "team1",
+      "type": "text",
+      "text": "# PM 與裝置／QA\n\n**Lorentz** — PM、驗收順序\n**Harvey** — Wear LOW_MEMORY／資源\n**Maxwell** — 測試矩陣\n**Gödel** — Release／簽章／版本\n**Archimedes** — Android 官方文件\n\n輸出：版本配對、終態、逐通道證據、真機複測。",
+      "x": 960,
+      "y": -280,
+      "width": 420,
+      "height": 360,
+      "color": "5"
+    },
+    {
+      "id": "team2",
+      "type": "text",
+      "text": "# 資料與使用者通知\n\n**Heisenberg** — Data Layer／持久化／拒收分類\n**Feynman** — Health Connect／UI 數值一致\n**Arendt** — 通知與耗電路徑\n\n輸出：received ≠ persisted、細分 rejection、核對本地日彙總、只量實際推播。",
+      "x": 400,
+      "y": 180,
+      "width": 450,
+      "height": 340,
+      "color": "6"
+    },
+    {
+      "id": "team3",
+      "type": "text",
+      "text": "# 感測與醫療安全\n\n**Descartes** — sensor family／晶片文件／論文\n**Kant** — 演算法假設／醫療安全\n\n輸出：待證晶片映射不冒充 BOM；把研究估算與校準臨床輸出分開。",
+      "x": 960,
+      "y": 180,
+      "width": 420,
+      "height": 340,
+      "color": "3"
+    },
+    {
+      "id": "gate",
+      "type": "text",
+      "text": "# 目前 Gate：BLOCK\n\n- 手錶無線 ADB 已離線，無法從 Wear UI 重跑\n- Phone/Wear 版號需配對\n- 真機重複掃描尚未完成\n- LOW_MEMORY 根因未歸屬\n- 校準缺失的 raw data 不轉成醫療值\n\n**下一步**：重新連線 → UI 單輪 → 對 session 作端到端核對 → 修一項 → 定向回歸。",
+      "x": 400,
+      "y": 620,
+      "width": 450,
+      "height": 360,
+      "color": "1"
+    },
+    {
+      "id": "papers",
+      "type": "file",
+      "file": "docs/chip-and-paper-review-2026-09-25.md",
+      "x": 960,
+      "y": 620,
+      "width": 420,
+      "height": 320
+    }
+  ],
+  "edges": [
+    { "id": "e1", "fromNode": "hub", "fromSide": "right", "toNode": "chain", "toSide": "left", "label": "QA contract" },
+    { "id": "e2", "fromNode": "hub", "fromSide": "right", "toNode": "team1", "toSide": "left", "label": "independent review" },
+    { "id": "e3", "fromNode": "hub", "fromSide": "right", "toNode": "team2", "toSide": "left", "label": "pipeline + UX" },
+    { "id": "e4", "fromNode": "hub", "fromSide": "right", "toNode": "team3", "toSide": "left", "label": "evidence boundary" },
+    { "id": "e5", "fromNode": "team1", "fromSide": "bottom", "toNode": "gate", "toSide": "top", "label": "verify" },
+    { "id": "e6", "fromNode": "team2", "fromSide": "bottom", "toNode": "gate", "toSide": "left", "label": "fix + test" },
+    { "id": "e7", "fromNode": "team3", "fromSide": "bottom", "toNode": "papers", "toSide": "top", "label": "primary sources" },
+    { "id": "e8", "fromNode": "papers", "fromSide": "left", "toNode": "gate", "toSide": "right", "label": "no unverified calibration" }
+  ]
+}
