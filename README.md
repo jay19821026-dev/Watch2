@@ -69,6 +69,8 @@ Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商�
 
 完整用途、限制、授權與引用請見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。核心原則如下：
 
+資料庫 → 論文 → 演算法 → 實際程式檔案的一對一對照，請見 [`docs/ALGORITHM_DATASET_PAPER_MAP.md`](docs/ALGORITHM_DATASET_PAPER_MAP.md)。
+
 - PhysioNet ECG-ID：同取樣率下的尺度無關 ECG 頻譜參考，不是手錶校準檔。
 - MIT-BIH Noise Stress Test Database：描述性雜訊特徵比較，不用來直接判定手錶雜訊根因。
 - MIT-BIH Arrhythmia Database：離線 QRS 偵測器／標註管線基準，不代表腕式 ECG 或 AFib 臨床驗證。

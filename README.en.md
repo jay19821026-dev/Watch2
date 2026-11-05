@@ -59,6 +59,8 @@ Outputs are `mobile/build/outputs/apk/debug/mobile-debug.apk` and `wear/build/ou
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the complete purpose, limits, licenses, and citations. Principal offline references include PhysioNet ECG-ID, MIT-BIH Noise Stress Test Database, MIT-BIH Arrhythmia Database, Wrist PPG During Exercise, and optional PTB-XL comparisons. None is bundled in the source or APKs, and none provides device calibration.
 
+For a one-to-one dataset → paper → algorithm → implementation map, see [`docs/ALGORITHM_DATASET_PAPER_MAP.md`](docs/ALGORITHM_DATASET_PAPER_MAP.md).
+
 ## Privacy and evidence boundaries
 
 - The project does not scrape or redistribute the private Mi Fitness database.
