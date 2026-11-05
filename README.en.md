@@ -17,6 +17,8 @@ Current version: `3.13.44` (versionCode `154`). The source tree contains:
 
 ![Phone summary screen demonstration](docs/images/mobile-summary-demo.png)
 
+All screenshots are demo screens containing no personal data. More examples: [summary navigation](docs/images/mobile-summary-navigation-demo.png), [health metrics](docs/images/mobile-health-grid-demo.png), and [ECG research limitations](docs/images/ecg-research-limitations-demo.jpg).
+
 ## What it does
 
 - Uses Wear OS Health Services for supported heart-rate and activity data.

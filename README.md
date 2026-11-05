@@ -17,6 +17,8 @@ Xiaomi Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 
 ![手機版摘要畫面示範](docs/images/mobile-summary-demo.png)
 
+以上及下列畫面皆為示範資料，不含個人資料。更多畫面：[導覽摘要](docs/images/mobile-summary-navigation-demo.png) · [健康指標](docs/images/mobile-health-grid-demo.png) · [ECG 研究限制](docs/images/ecg-research-limitations-demo.jpg)。
+
 ## 這個專案能做什麼
 
 - 使用 Wear OS Health Services 量測或接收裝置支援的心率、活動等資料。
@@ -95,3 +97,5 @@ Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商�
 本專案原始碼採 [MIT License](LICENSE) 授權。第三方套件、文件、論文與資料庫維持其各自授權；MIT License 不會替第三方內容重新授權。Xiaomi、Wear OS、Android、Google、PhysioNet 及其他名稱與商標屬各自權利人，本專案未獲其背書。
 
 主要開發：王宥傑；歡迎在 GitHub Issues 回報可重現的問題或提交 Pull Request。
+
+Play Store、隱私政策與資料安全文件請見 [`docs/PLAY_STORE_RELEASE_GUIDE.zh-TW.md`](docs/PLAY_STORE_RELEASE_GUIDE.zh-TW.md)、[`docs/PRIVACY_POLICY.zh-TW.md`](docs/PRIVACY_POLICY.zh-TW.md) 與 [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md)。
