@@ -4,6 +4,19 @@ import java.time.Duration
 import java.time.Instant
 
 internal object SleepIntervalMath {
+    data class Summary(val sessionMinutes: Long, val sleepMinutes: Long?, val stagesComplete: Boolean)
+
+    fun summarize(sessions: List<SleepSessionValue>, from: Instant, until: Instant): Summary {
+        val sessionMinutes = unionMinutes(sessions.map { it.start to it.end }, from, until)
+        val stagesComplete = sessions.isNotEmpty() &&
+            HealthInsightInputPolicy.sleepStagesCoverSessions(sessions, from, until)
+        val sleepMinutes = if (stagesComplete) {
+            HealthInsightInputPolicy.sleepHours(sessions, from, until)
+                ?.let { (it * 60.0).toLong() }
+        } else null
+        return Summary(sessionMinutes, sleepMinutes, stagesComplete && sleepMinutes != null)
+    }
+
     fun unionMinutes(
         intervals: Iterable<Pair<Instant, Instant>>,
         from: Instant,

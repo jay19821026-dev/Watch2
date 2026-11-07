@@ -30,4 +30,36 @@ class SleepIntervalMathTest {
         )
         assertEquals(60L, minutes)
     }
+
+    @Test
+    fun completeStagesSubtractAwakeFromSleepButRetainSessionDuration() {
+        val end = midnight.plusSeconds(7_200)
+        val session = SleepSessionValue(
+            midnight, end,
+            awakeIntervals = listOf(SleepAwakeInterval(midnight.plusSeconds(1_800), midnight.plusSeconds(2_700))),
+            hasStageData = true,
+            stageIntervals = listOf(
+                SleepAwakeInterval(midnight, midnight.plusSeconds(1_800)),
+                SleepAwakeInterval(midnight.plusSeconds(1_800), midnight.plusSeconds(2_700)),
+                SleepAwakeInterval(midnight.plusSeconds(2_700), end)
+            )
+        )
+        assertEquals(SleepIntervalMath.Summary(120, 105, true), SleepIntervalMath.summarize(listOf(session), midnight, end))
+    }
+
+    @Test
+    fun partialStagesAndOverlappingSourcesDoNotClaimActualSleep() {
+        val end = midnight.plusSeconds(7_200)
+        val partial = SleepSessionValue(
+            midnight, end,
+            hasStageData = true,
+            stageIntervals = listOf(SleepAwakeInterval(midnight, midnight.plusSeconds(3_600)))
+        )
+        assertEquals(SleepIntervalMath.Summary(120, null, false), SleepIntervalMath.summarize(listOf(partial), midnight, end))
+        val overlapping = SleepSessionValue(midnight.plusSeconds(3_600), end)
+        assertEquals(
+            SleepIntervalMath.Summary(120, null, false),
+            SleepIntervalMath.summarize(listOf(partial, overlapping), midnight, end)
+        )
+    }
 }
