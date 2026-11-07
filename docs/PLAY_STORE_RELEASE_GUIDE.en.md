@@ -6,6 +6,8 @@ The GitHub APKs are debug sideload builds, not Play Store production binaries. G
 
 Create the Health & Fitness app in Play Console; securely create/back up an upload key; keep keys and passwords out of GitHub; configure `docs/release-signing.md`; and build `./gradlew :mobile:bundleRelease :wear:bundleRelease`. Verify application ID, version code, signing, permissions, and the current phone/Wear packaging rules. Complete bilingual listings, privacy URL, Data safety, Health apps declaration, content rating, target audience, ads, and app access. Validate installation, pairing, permissions, sync, deletion, and empty/error states through Internal testing on real hardware before staged rollout.
 
+The current 4.0 debug pair shares versionCode 155. Google's [Wear OS packaging instructions](https://developer.android.com/training/wearables/packaging) require unique version codes across phone and watch APKs and describe Multi-APK delivery for a phone + watch pair. Assign final codes after inspecting the target Play listing, then rebuild signed artifacts and verify the merged manifests and device targeting. Google's [developer verification documentation](https://developer.android.com/developer-verification/assets/pdfs/updates-to-play-console-for-android-developer-verification.pdf) also says a package name previously installed outside Play may require signing-key ownership proof in the Create app flow. Follow the actual Console prompt; never export or publish the private key.
+
 Do not claim diagnosis, treatment, disease detection, emergency monitoring, clinical accuracy, or medical-device status.
 
 ## New personal-account timeline
