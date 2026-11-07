@@ -113,6 +113,8 @@ The inspected watch manifest marks these top-level Activities `android:exported=
 3. **Next:** Run independent ECG raw capture while properly worn. Record event count, 16-field shape, source timestamps, simultaneous off-body state, timeouts and Data Layer acknowledgement. Do not turn the OEM synthetic 2 ms increments into an independently validated sample clock or mV/AF claims.
 4. **Next:** Verify SpO₂, heart rate, BioZ, temperature, sleep and activity through their public API or explicit OEM page, one at a time, with per-metric source/freshness. Mark unsupported and uncalibrated results honestly.
 
+**Research preview continuity correction / 研究預覽連續性修正：** The next Wear source revision requires strictly increasing Android ECG event timestamps and breaks the candidate line after an event gap greater than one second. This prevents disconnected raw-event batches from appearing continuous while retaining the OEM-observed 16-field/marker/on-body checks. The one-second threshold is a project presentation rule, not a Xiaomi sampling frequency, its typed-record 25-second acceptance condition, or a clinical signal-quality test. / 下一版 Wear 預覽遇到缺失、倒退或相隔超過一秒的事件時間戳就斷線；此為顯示規則，並非原廠取樣率或正式 ECG 紀錄判定。
+
 ## English conclusion
 
 The OEM watch APK bundles many feature modules, including ECG. The ECG UI is gated by a service-owned `ecgActivation` flag; the decompiled APK does not reveal why the current Watch 2 Pro is or is not activated. Version 4.0 independently exposes accessible public paths and a foreground OEM ECG entry, while preserving research-only raw evidence and the original gate. Clinical ECG, SpO₂ and body-composition outputs require device-specific calibration and validation beyond APK inspection.

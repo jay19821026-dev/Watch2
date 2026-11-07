@@ -1,10 +1,15 @@
 package com.jaysato.xiaomihealthbridge
 
 internal object EcgEventPreview {
+    // Presentation boundary only: a missing callback must not be drawn as continuous signal.
+    // This is not an OEM sample period or a validated ADC clock.
+    private const val MAX_PREVIEW_EVENT_GAP_NS = 1_000_000_000L
+
     /** Research-only packet preview from the first ten fields of each observed ECG event. */
-    fun oemPacketCandidates(rows: List<String>, contactStates: IntArray): List<Float> {
-        if (rows.size != contactStates.size) return emptyList()
+    fun oemPacketCandidates(rows: List<String>, contactStates: IntArray, eventTimestampsNs: LongArray): List<Float> {
+        if (rows.size != contactStates.size || rows.size != eventTimestampsNs.size) return emptyList()
         var result = ArrayList<Float>()
+        var previousTimestampNs = 0L
         val offset = (rows.size - 50).coerceAtLeast(0)
         for (index in offset until rows.size) {
             val row = rows[index]
@@ -12,9 +17,14 @@ internal object EcgEventPreview {
             val fields = row.split(',')
             if (fields.size != 16) return emptyList()
             val values = fields.map { it.trim().toFloatOrNull()?.takeIf { value -> value.isFinite() } ?: return emptyList() }
+            val timestampNs = eventTimestampsNs[index]
+            if (previousTimestampNs > 0L &&
+                (timestampNs <= previousTimestampNs || timestampNs - previousTimestampNs > MAX_PREVIEW_EVENT_GAP_NS)
+            ) result = ArrayList()
             // OEM checks both the packet marker and a separate on-body state.
-            if (values[10] == 1000f && contactStates[index] == 1) result.addAll(values.take(10))
+            if (timestampNs > 0L && values[10] == 1000f && contactStates[index] == 1) result.addAll(values.take(10))
             else result = ArrayList() // Do not draw continuity across missing/unknown contact.
+            previousTimestampNs = timestampNs
         }
         return result
     }
