@@ -31,10 +31,10 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.jaysato.xiaomihealthbridge"
+        applicationId = "net.ailisa.healthbridge"
         minSdk = 30
         targetSdk = 36
-        versionCode = playWearVersionCode ?: 169
+        versionCode = playWearVersionCode ?: 172
         versionName = "4.0.0"
     }
 

@@ -20,13 +20,13 @@ This is a **static code trace** of the Mi Fitness `3.59.2i` base APK installed o
 | Separate persistence / 分離儲存 | `MiParsedDataRecorder.recordEcg` | Creates an `EcgMedicalItemReport` with time, duration, sample frequency, average HR, symptoms, data source and analysis result. It stores the report separately from the original binary FDS data, keyed by device/source identity and record ID, then notifies the health page. The app's private storage is not read here. |
 | Display retrieval / 顯示取用 | `impl/internal/FitnessFDSDataGetter.java`, `getEcgRecordData`; `com/mi/fitness/ecg/EcgFilterAlgo.java` | Reloads original record bytes, parses again, feeds samples, **record-provided** frequency and data source to an OEM/native filter, then divides filtered output by `1000.0f` for its returned display array. The code alone does not prove the physical unit of that returned array or disclose the native filter's algorithm. |
 
-The `25`-second rule is observed only for an **OEM record containing its own declared duration, frequency and source-data list**. Applying it to our separate Sensor API events would require a validated mapping from each event to samples and a verified point clock, which we do not have. The official parser's `analysisResult` is device-record metadata and is not computed by Xiaomi Health Bridge.
+The `25`-second rule is observed only for an **OEM record containing its own declared duration, frequency and source-data list**. Applying it to our separate Sensor API events would require a validated mapping from each event to samples and a verified point clock, which we do not have. The official parser's `analysisResult` is device-record metadata and is not computed by AILISA Health Bridge.
 
 The installed **watch** APK follows a different, earlier path: `we/b.java` (`EcgSensorUtil.kt`) counts ECG sensor callbacks and does not forward its first 20 to the native algorithm. Our raw capture retains those callbacks for provenance; test 11 omits them only from the drawn candidate line. This watch-side warm-up is not the phone parser's 25-second record-acceptance rule. / 手錶端原廠程式先略過 20 個感測回呼；本專案保留原始資料，只在研究預覽省略。它與手機端 25 秒收件條件不同。
 
 上述 25 秒條件只適用於**帶有原廠報告欄位的紀錄**。不能把 4.0 的原始感測事件湊滿 25 秒就視為正式心電圖，也不能把原廠顯示路徑的 `/1000` 直接當成本專案的 raw code→mV 校準。
 
-## Comparison with Xiaomi Health Bridge 4.0 / 與本專案 4.0 比較
+## Comparison with AILISA Health Bridge 4.0 / 與本專案 4.0 比較
 
 | Concern / 項目 | OEM phone record / 原廠手機紀錄 | Our public path / 本專案公開介面 |
 |---|---|---|

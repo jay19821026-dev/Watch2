@@ -1,4 +1,4 @@
-# Xiaomi Health Bridge — Persistent Project Goal
+# AILISA Health Bridge — Persistent Project Goal
 
 Updated: 2026-11-07
 

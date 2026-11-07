@@ -1,8 +1,8 @@
 # Third-party data, literature, APIs, and software
 
-本文件記錄 Xiaomi Health Bridge 使用或參考的外部資料、論文、API 與套件。公開資料庫只供離線研究工具使用，不包含在原始碼或 APK；公開資料與論文不能取代 Xiaomi Watch 2 Pro 的裝置專屬校準或臨床驗證。
+本文件記錄 AILISA Health Bridge 使用或參考的外部資料、論文、API 與套件。公開資料庫只供離線研究工具使用，不包含在原始碼或 APK；公開資料與論文不能取代 Xiaomi Watch 2 Pro 的裝置專屬校準或臨床驗證。
 
-This file records external datasets, papers, APIs, and software used or consulted by Xiaomi Health Bridge. Public datasets are used only by offline research tools and are not bundled in the repository or APKs. They cannot substitute for device-specific calibration or clinical validation.
+This file records external datasets, papers, APIs, and software used or consulted by AILISA Health Bridge. Public datasets are used only by offline research tools and are not bundled in the repository or APKs. They cannot substitute for device-specific calibration or clinical validation.
 
 ## Public datasets / 公開資料庫
 
@@ -28,7 +28,7 @@ Additional catalogued datasets, including controlled-access [CardioWave-Portable
 - [WFDB header specification](https://physionet.org/physiotools/wag/header-5.htm)：每筆紀錄 ADC gain／baseline 與未校準訊號語意。
 - IEC 60601-2-25：診斷 ECG 安全／效能標準參考；標準全文不散布，也不聲稱本專案符合該標準。
 - Brandner, Tinsley & Graybeal, [smartwatch BIA versus four-compartment model](https://pubmed.ncbi.nlm.nih.gov/36462216/), DOI [10.1139/apnm-2022-0301](https://doi.org/10.1139/apnm-2022-0301); Polokhin et al., [wrist BIA and DXA reference](https://pmc.ncbi.nlm.nih.gov/articles/PMC9252175/), DOI [10.2478/joeb-2022-0006](https://doi.org/10.2478/joeb-2022-0006); and [miniature-electrode wrist BIA study](https://pmc.ncbi.nlm.nih.gov/articles/PMC7806851/), PMID 33441675：只供體成分驗證與電極接觸設計參考；未移植其公式，不能證明 Watch 2 Pro 百分比準確。
-- [FDA Samsung ECG Monitor App 510(k) K201168 summary](https://www.accessdata.fda.gov/cdrh_docs/pdf20/K201168.pdf) and [FDA device record](https://www.accessdata.fda.gov/SCRIPTS/cdrh/devicesatfda/index.cfm?db=pmn&id=K201168)：對照裝置專屬 ECG 導聯、訊號品質、節律與臨床參考測試；此核准屬 Samsung 指定產品，**不是** Xiaomi Health Bridge 或 Watch 2 Pro 的核准。
+- [FDA Samsung ECG Monitor App 510(k) K201168 summary](https://www.accessdata.fda.gov/cdrh_docs/pdf20/K201168.pdf) and [FDA device record](https://www.accessdata.fda.gov/SCRIPTS/cdrh/devicesatfda/index.cfm?db=pmn&id=K201168)：對照裝置專屬 ECG 導聯、訊號品質、節律與臨床參考測試；此核准屬 Samsung 指定產品，**不是** AILISA Health Bridge 或 Watch 2 Pro 的核准。
 - [FDA policy for device software functions and mobile medical applications](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/policy-device-software-functions-and-mobile-medical-applications) and [Digital Health Policy Navigator Step 7](https://www.fda.gov/medical-devices/digital-health-center-excellence/step-7-does-device-software-functions-dsf-and-mobile-medical-applications-mma-guidance-apply): regulatory context only; they do not determine this project's status or authorize an ECG diagnosis claim. / 僅供監管背景參考，不能據此宣稱本 App 已核准。
 
 ## Platform and hardware documentation / 平台與硬體文件

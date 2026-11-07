@@ -1,10 +1,10 @@
 # Google Play listing copy / 商店上架文案
 
 Author / 作者：Wang You-Jie（王宥傑）  
-Package / 套件：`com.jaysato.xiaomihealthbridge`  
+Package / 套件：`net.ailisa.healthbridge`  
 Category / 類別：Health & Fitness / 健康與健身  
-Website / 網站：`https://ailisa.net/portfolio/xiaomi-health-bridge`  
-Privacy policy / 隱私政策：`https://ailisa.net/privacy/xiaomi-health-bridge`
+Website / 網站：`https://ailisa.net/portfolio/ailisa-health-bridge`  
+Privacy policy / 隱私政策：`https://ailisa.net/privacy/ailisa-health-bridge`
 
 Support email / 支援信箱：`s4140666@gmail.com`
 
@@ -14,7 +14,7 @@ The text below is ready to paste into Play Console after checking it against the
 
 ### App name / 應用程式名稱
 
-`Xiaomi Health Bridge 健康橋接`
+`AILISA Health Bridge`
 
 ### Short description / 簡短說明
 
@@ -22,7 +22,9 @@ The text below is ready to paste into Play Console after checking it against the
 
 ### Full description / 完整說明
 
-Xiaomi Health Bridge 是由王宥傑開發的 Android 與 Wear OS 開源健康資料研究專案，協助使用者在手機與手錶之間查看、同步及整理自己授權的健康與健身紀錄。
+AILISA Health Bridge 是由王宥傑開發的 Android 與 Wear OS 開源健康資料研究專案，協助使用者在手機與手錶之間查看、同步及整理自己授權的健康與健身紀錄。
+
+本專案為獨立開發，支援 Xiaomi Watch 2 Pro 的相容性研究；與小米公司及 Mi Fitness 沒有官方關聯，也未獲其認可或贊助。
 
 主要功能：
 
@@ -48,7 +50,7 @@ https://github.com/jay19821026-dev/Watch2
 
 ### App name
 
-`Xiaomi Health Bridge`
+`AILISA Health Bridge`
 
 ### Short description
 
@@ -56,7 +58,9 @@ https://github.com/jay19821026-dev/Watch2
 
 ### Full description
 
-Xiaomi Health Bridge is an open-source Android and Wear OS health-data research project by Wang You-Jie. It helps users view, synchronize, and organize health and fitness records they explicitly authorize across a phone and a watch.
+AILISA Health Bridge is an open-source Android and Wear OS health-data research project by Wang You-Jie. It helps users view, synchronize, and organize health and fitness records they explicitly authorize across a phone and a watch.
+
+This is an independent compatibility research project for Xiaomi Watch 2 Pro. It is not affiliated with, endorsed by, or sponsored by Xiaomi or Mi Fitness.
 
 Key features:
 
@@ -104,7 +108,7 @@ https://github.com/jay19821026-dev/Watch2
 ## Graphic assets / 圖像素材
 
 - App icon / 應用程式圖示：`docs/images/play-app-icon-512.png` (512 × 512, 32-bit PNG with alpha; copied byte-for-byte from the mobile launcher source; 246 KiB)
-- Feature graphic / 功能宣傳圖：`docs/images/play-feature-graphic-1024x500-opaque.png` (1024 × 500, opaque 24-bit PNG; no personal data). This is an imagegen edit of the earlier illustration, preserving its title and layout; it is promotional art, not an app screenshot.
+- Feature graphic / 功能宣傳圖：`docs/images/play-feature-graphic-ailisa-1024x500.png` (1024 × 500, opaque 24-bit PNG; no personal data). It displays the independent AILISA product name and is promotional art, not an app screenshot.
 - Phone screenshots / 手機截圖，建議順序：
   1. `docs/images/play-phone-device-test17-1280x2276.jpg` — real test 17 phone Device page, captured on the paired Android phone with temporary 9:16 display sizing and JPEG encoding; no health readings or account identifiers are shown.
   2. `docs/images/mobile-summary-demo.png`

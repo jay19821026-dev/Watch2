@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <permission android:name="net.ailisa.healthbridge.permission.MIGRATE" android:protectionLevel="signature" />
+    <uses-permission android:name="net.ailisa.healthbridge.permission.MIGRATE" />
+    <queries><provider android:authorities="com.jaysato.xiaomihealthbridge.migration" /></queries>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY" />
@@ -43,9 +46,14 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/app_icon"
-        android:label="Xiaomi 手錶健康中心"
+        android:label="AILISA Health Bridge"
         android:roundIcon="@drawable/app_icon"
         android:theme="@style/AppTheme">
+        <provider
+            android:name="com.jaysato.xiaomihealthbridge.LegacyMigrationProvider"
+            android:authorities="${applicationId}.migration"
+            android:exported="true"
+            android:readPermission="net.ailisa.healthbridge.permission.MIGRATE" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.files"
@@ -82,7 +90,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="xiaomihealthbridge" android:host="control" />
+                <data android:scheme="ailisahealthbridge" android:host="control" />
             </intent-filter>
         </activity>
         <activity android:name="com.jaysato.xiaomihealthbridge.CompetitorParityActivity" android:exported="true" />
@@ -113,7 +121,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="xiaomihealthbridge" android:host="clinical-lab" />
+                <data android:scheme="ailisahealthbridge" android:host="clinical-lab" />
             </intent-filter>
         </activity>
         <activity android:name="com.jaysato.xiaomihealthbridge.WorkoutAnalysisActivity" android:exported="false" />

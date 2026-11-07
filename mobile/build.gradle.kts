@@ -16,6 +16,7 @@ val hasReleaseSigning = listOf(releaseStoreFile, releaseStorePassword, releaseKe
     .all { !it.isNullOrBlank() }
 val playMobileCode = providers.gradleProperty("PLAY_MOBILE_VERSION_CODE").orNull
 val playWearCode = providers.gradleProperty("PLAY_WEAR_VERSION_CODE").orNull
+val legacyMigrationBridge = providers.gradleProperty("LEGACY_MIGRATION_BRIDGE").orNull == "true"
 require((playMobileCode == null) == (playWearCode == null)) { "Provide both Play version codes together" }
 val playMobileVersionCode = playMobileCode?.toIntOrNull()
 val playWearVersionCode = playWearCode?.toIntOrNull()
@@ -31,10 +32,10 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.jaysato.xiaomihealthbridge"
+        applicationId = if (legacyMigrationBridge) "com.jaysato.xiaomihealthbridge" else "net.ailisa.healthbridge"
         minSdk = 28
         targetSdk = 36
-        versionCode = playMobileVersionCode ?: 169
+        versionCode = playMobileVersionCode ?: 172
         versionName = "4.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

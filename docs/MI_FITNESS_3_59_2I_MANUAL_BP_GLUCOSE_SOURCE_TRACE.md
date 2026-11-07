@@ -25,7 +25,7 @@ The inspected phone package is the installed `com.xiaomi.wearable` version `3.59
 
 The installed watch package `com.xiaomi.wear.fitness` (versionCode `2025091121`, SHA-256 `920459E3B2EBF569517E4294029705561E7BEAFF6CCA30EDB142E5A4F83B5965`) has named health modules for ECG, heart rate, SpO₂, stress, body composition, temperature and sleep, but no named `health/bloodpressure` or `health/bloodglucose` module. Module absence alone cannot exclude hidden or separately packaged functionality. No calibrated, permissioned Watch 2 Pro BP/glucose measurement path has been established by these inspected artifacts.
 
-Xiaomi Health Bridge 4.0 test 17 accepts **external cuff readings** in its phone blood-pressure page and labels glucose unavailable. It redirects legacy `optical_bp` result entries to the cuff page, suppresses old systolic/diastolic cache values in result policy, clears legacy BP formula fields during phone snapshot processing, and no longer serializes those fields on the watch. It does not call the OEM repositories or import OEM code. Unit tests check that old cached BP values remain hidden and stale BP keys are cleared.
+AILISA Health Bridge 4.0 test 17 accepts **external cuff readings** in its phone blood-pressure page and labels glucose unavailable. It redirects legacy `optical_bp` result entries to the cuff page, suppresses old systolic/diastolic cache values in result policy, clears legacy BP formula fields during phone snapshot processing, and no longer serializes those fields on the watch. It does not call the OEM repositories or import OEM code. Unit tests check that old cached BP values remain hidden and stale BP keys are cleared.
 
 本專案 test 17 的血壓頁僅供輸入外部袖帶讀值，血糖維持不可用；舊光學血壓結果與同步欄位不再對外顯示成 mmHg。這是根據原廠資料來源修正介面及資料流，並非移植原廠量測演算法。
 

@@ -1,10 +1,12 @@
-# Xiaomi Health Bridge
+# AILISA Health Bridge
 
 [繁體中文](README.md) | [English](README.en.md)
 
-Xiaomi Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案，目標是在 Xiaomi Watch 2 Pro 與手機之間建立可稽核的健康資料流程：手錶取得資料、保留來源與品質證據、透過 Wearable Data Layer 同步、由手機保存並在適用時寫入 Health Connect。
+AILISA Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案，目標是在 Xiaomi Watch 2 Pro 與手機之間建立可稽核的健康資料流程：手錶取得資料、保留來源與品質證據、透過 Wearable Data Layer 同步、由手機保存並在適用時寫入 Health Connect。
 
-![Xiaomi Health Bridge 手機與手錶研究介面示意](docs/images/health-bridge-hero.png)
+本專案由王宥傑獨立開發，與小米公司及 Mi Fitness 沒有官方關聯，也未獲其認可或贊助。Xiaomi Watch 2 Pro 僅用於指明研究與測試的相容裝置。
+
+![AILISA Health Bridge 手機與手錶研究介面示意](docs/images/health-bridge-hero.png)
 
 > 上圖為不含真實個資的示意圖；實際功能與支援項目以原始碼、裝置能力及 `SUPPORT_MATRIX.md` 為準。
 
@@ -41,12 +43,13 @@ Xiaomi Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 
 ## APK 安裝
 
-4.0.0 test 17 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/xiaomi-health-bridge#downloads) 或 [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.17) 下載：
+4.0.0 test 18 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) 或 [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.18) 下載：
 
-- `XiaomiHealthBridge-Mobile-4.0.0-vc169-test17-debug.apk`：安裝到 Android 手機
-- `XiaomiHealthBridge-Wear-4.0.0-vc169-test17-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
+- `AILISAHealthBridge-Mobile-4.0.0-vc172-test18-debug.apk`：安裝到 Android 手機
+- `AILISAHealthBridge-Wear-4.0.0-vc172-test18-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
+- `AILISAHealthBridge-Legacy-Migration-Bridge-vc172-test18-debug.apk`：先覆蓋安裝在舊版手機 App，以搬遷加密紀錄
 
-Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。已從 test 17 原始碼重建手機 170／手錶 171 的本機簽署 Play 候選 AAB，尚未上傳；Console 版本歷史、憑證與聲明也尚未核對。安裝前請核對 [test 17 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.17/SHA256SUMS-4.0.0-test.17.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
+Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。新套件識別碼為 `net.ailisa.healthbridge`，會與舊版並存；請先讀[搬遷指南](docs/PACKAGE_MIGRATION_4_0.en.md)，不要解除安裝舊版。先前 test 17 的本機簽署 Play 候選 AAB 屬於舊套件，不可當作新版上傳。安裝前請核對 [test 18 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.18/SHA256SUMS-4.0.0-test.18.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
 
 專案也提供 PowerShell 安裝腳本；它會建置目前版本、檢查套件名稱／版本／簽章，再以 `adb install -r` 保留既有 App 資料：
 
@@ -77,6 +80,8 @@ Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商�
 資料庫 → 論文 → 演算法 → 實際程式檔案的一對一對照，請見 [`docs/ALGORITHM_DATASET_PAPER_MAP.md`](docs/ALGORITHM_DATASET_PAPER_MAP.md)。
 
 Mi Fitness 9.8.348i 的 clean-room 靜態反組譯、資料管線差異、可合法借鏡功能與不可重用的專有邊界，請見 [`docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md`](docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md)。反組譯原始碼、模型與原生程式庫未納入本儲存庫。
+
+新提供的 Mi Fitness 3.53.0i XAPK 與 9.8.348i 對照，包含 Health Connect 寫入路徑、ECG 卡片條件、資料表差異與可採用的官方資料分享方式，見 [`docs/MI_FITNESS_3_53_0I_XAPK_COMPARISON.md`](docs/MI_FITNESS_3_53_0I_XAPK_COMPARISON.md)。
 
 已安裝的 Mi Fitness 3.59.2i 如何解析、驗證、儲存與顯示原廠 ECG 紀錄，及其與本專案 Android 原始感測事件的差異，請見 [`docs/MI_FITNESS_3_59_2I_ECG_RECORD_PIPELINE.md`](docs/MI_FITNESS_3_59_2I_ECG_RECORD_PIPELINE.md)。
 

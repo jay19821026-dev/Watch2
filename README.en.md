@@ -1,10 +1,12 @@
-# Xiaomi Health Bridge
+# AILISA Health Bridge
 
 [繁體中文](README.md) | [English](README.en.md)
 
-Xiaomi Health Bridge is an open-source Android phone + Wear OS research project by **王宥傑 (Wang You-Jie)**. It builds an auditable health-data path between Xiaomi Watch 2 Pro and Android: acquire data on the watch, retain provenance and quality evidence, synchronize through the Wearable Data Layer, persist on the phone, and write supported records to Health Connect.
+AILISA Health Bridge is an open-source Android phone + Wear OS research project by **王宥傑 (Wang You-Jie)**. It builds an auditable health-data path between Xiaomi Watch 2 Pro and Android: acquire data on the watch, retain provenance and quality evidence, synchronize through the Wearable Data Layer, persist on the phone, and write supported records to Health Connect.
 
-![Privacy-safe Xiaomi Health Bridge phone and watch research mockup](docs/images/health-bridge-hero.png)
+This independent project is not affiliated with, endorsed by, or sponsored by Xiaomi or Mi Fitness. Xiaomi Watch 2 Pro identifies the device used for compatibility research and testing.
+
+![Privacy-safe AILISA Health Bridge phone and watch research mockup](docs/images/health-bridge-hero.png)
 
 > The hero is a privacy-safe illustrative mockup. Actual features and support depend on the source, device capabilities, and `SUPPORT_MATRIX.md`.
 
@@ -42,12 +44,13 @@ ECG remains research-only unless device-specific lead mapping, ADC timing, and r
 
 ## APKs
 
-Matching 4.0.0 test 17 APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/xiaomi-health-bridge#downloads) or [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.17):
+Matching 4.0.0 test 18 APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) or [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.18):
 
-- `XiaomiHealthBridge-Mobile-4.0.0-vc169-test17-debug.apk` — Android phone
-- `XiaomiHealthBridge-Wear-4.0.0-vc169-test17-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
+- `AILISAHealthBridge-Mobile-4.0.0-vc172-test18-debug.apk` — Android phone
+- `AILISAHealthBridge-Wear-4.0.0-vc172-test18-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
+- `AILISAHealthBridge-Legacy-Migration-Bridge-vc172-test18-debug.apk` — update the old phone app before migrating encrypted records
 
-Debug APKs use an Android development signature and are not Play Store releases. Locally signed Play candidate AABs have been rebuilt from test 17 source with phone/Wear version codes 170/171, but have not been uploaded; Console version history, certificate enrollment, and declarations still need checking. Verify the [test 17 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.17/SHA256SUMS-4.0.0-test.17.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
+Debug APKs use an Android development signature and are not Play Store releases. The new `net.ailisa.healthbridge` package coexists with the old app. Read the [migration guide](docs/PACKAGE_MIGRATION_4_0.en.md) and keep the old installations. The earlier test 17 signed Play candidate AABs have the old package ID and must not be uploaded as the renamed app. Verify the [test 18 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.18/SHA256SUMS-4.0.0-test.18.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
 
 The ready-to-paste bilingual Play Store listing, console selections, release notes, and graphic-asset inventory are in [`docs/PLAY_STORE_LISTING_COPY.md`](docs/PLAY_STORE_LISTING_COPY.md). Release flow, privacy, Data safety, and Health apps declaration materials are in [`docs/PLAY_STORE_RELEASE_GUIDE.en.md`](docs/PLAY_STORE_RELEASE_GUIDE.en.md), [`docs/PRIVACY_POLICY.en.md`](docs/PRIVACY_POLICY.en.md), and [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md).
 
@@ -71,6 +74,8 @@ See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the complete purpose, l
 For a one-to-one dataset → paper → algorithm → implementation map, see [`docs/ALGORITHM_DATASET_PAPER_MAP.md`](docs/ALGORITHM_DATASET_PAPER_MAP.md).
 
 For the clean-room static review of Mi Fitness 9.8.348i—its data pipeline, differences from this project, independently reusable product concepts, and proprietary boundaries—see [`docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md`](docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md). Decompiled source, models, and native libraries are not included in this repository.
+
+The [Mi Fitness 3.53.0i XAPK comparison](docs/MI_FITNESS_3_53_0I_XAPK_COMPARISON.md) checks Health Connect writing, ECG card gates, database changes and a supported data-sharing route against the separate 9.8.348i build.
 
 For the Watch 2 Pro 4.0 watch-APK audit, ECG activation gate and feature-by-feature public entry points, see [`docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`](docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md).
 

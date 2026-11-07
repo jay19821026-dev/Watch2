@@ -1,8 +1,8 @@
-# Xiaomi Health Bridge 隱私權政策
+# AILISA Health Bridge 隱私權政策
 
 最後更新：2026-11-07　開發者：王宥傑
 
-Xiaomi Health Bridge 是 Android 手機與 Wear OS 手錶之間的開源健康資料研究工具。本 App 不是醫療器材，不提供診斷、治療或緊急監測。
+AILISA Health Bridge 是 Android 手機與 Wear OS 手錶之間的開源健康資料研究工具。本 App 不是醫療器材，不提供診斷、治療或緊急監測。
 
 ## 存取與用途
 

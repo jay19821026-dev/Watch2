@@ -5,13 +5,13 @@
 
 ## Executive summary / 摘要
 
-本文件比較使用者提供的 `Mi Fitness (Xiaomi Wear) 9.8.348i` APK 與 Xiaomi Health Bridge。分析只讀取 APK 的靜態程式結構；沒有登入小米帳號、沒有擷取個人健康資料、沒有呼叫小米伺服器，也沒有執行或移植小米的原生演算法。
+本文件比較使用者提供的 `Mi Fitness (Xiaomi Wear) 9.8.348i` APK 與 AILISA Health Bridge。分析只讀取 APK 的靜態程式結構；沒有登入小米帳號、沒有擷取個人健康資料、沒有呼叫小米伺服器，也沒有執行或移植小米的原生演算法。
 
-This document compares the user-supplied Mi Fitness 9.8.348i APK with Xiaomi Health Bridge. The review is static only: no Xiaomi account was used, no personal health data was extracted, no Xiaomi server was contacted, and no Xiaomi native algorithm was executed or copied.
+This document compares the user-supplied Mi Fitness 9.8.348i APK with AILISA Health Bridge. The review is static only: no Xiaomi account was used, no personal health data was extracted, no Xiaomi server was contacted, and no Xiaomi native algorithm was executed or copied.
 
-最重要的結論：Mi Fitness 是一條 OEM 專用資料管線，從裝置 SDK 同步資料、解析成型別化紀錄、寫入本機 Room 資料庫、產生聚合報表，再選擇性同步雲端。Xiaomi Health Bridge 則優先使用公開的 Wear OS Health Services、Android Health Connect、Android Sensor API 與 Google Wearable Data Layer，並針對未知映射、時鐘、單位與校準採 fail-closed 證據閘門。兩者目的不同，不能把 Mi Fitness 的欄位或演算法名稱當成 Watch 2 Pro 的公開協定或校準證據。
+最重要的結論：Mi Fitness 是一條 OEM 專用資料管線，從裝置 SDK 同步資料、解析成型別化紀錄、寫入本機 Room 資料庫、產生聚合報表，再選擇性同步雲端。AILISA Health Bridge 則優先使用公開的 Wear OS Health Services、Android Health Connect、Android Sensor API 與 Google Wearable Data Layer，並針對未知映射、時鐘、單位與校準採 fail-closed 證據閘門。兩者目的不同，不能把 Mi Fitness 的欄位或演算法名稱當成 Watch 2 Pro 的公開協定或校準證據。
 
-The key result is that Mi Fitness uses an OEM-specific pipeline: device-SDK synchronization, typed parsing, local Room persistence, report aggregation, and optional cloud synchronization. Xiaomi Health Bridge instead prioritizes public Wear OS Health Services, Android Health Connect, Android Sensor APIs, and the Google Wearable Data Layer, with fail-closed evidence gates for unknown mapping, clock, units, and calibration. An Mi Fitness field or algorithm name is not a public Watch 2 Pro protocol or calibration contract.
+The key result is that Mi Fitness uses an OEM-specific pipeline: device-SDK synchronization, typed parsing, local Room persistence, report aggregation, and optional cloud synchronization. AILISA Health Bridge instead prioritizes public Wear OS Health Services, Android Health Connect, Android Sensor APIs, and the Google Wearable Data Layer, with fail-closed evidence gates for unknown mapping, clock, units, and calibration. An Mi Fitness field or algorithm name is not a public Watch 2 Pro protocol or calibration contract.
 
 ## Examined artifact / 分析標的
 
@@ -47,7 +47,7 @@ Watch / wearable
 - Data is parsed through Xiaomi/Huami SDK result types before persistence. This differs from directly listening to Android `SensorEvent` values.
 - The APK manifest declares Bluetooth, connected-device foreground-service, activity-recognition and Xiaomi-specific permissions. Static search found no `androidx.health.connect`, `android.health.connect`, or `HealthConnectClient` references, and the manifest does not declare the ordinary Android `BODY_SENSORS` permission.
 
-Interpretation: for this build, the primary phone-side health path is OEM device sync, not evidence that Mi Fitness reads the same public Health Connect records or raw Android sensors used by Xiaomi Health Bridge.
+Interpretation: for this build, the primary phone-side health path is OEM device sync, not evidence that Mi Fitness reads the same public Health Connect records or raw Android sensors used by AILISA Health Bridge.
 
 ### 2. Local persistence / 本機資料庫
 
@@ -80,7 +80,7 @@ The APK contains proprietary native or model assets, including:
 
 The readable `MiParseModel` wrapper loads the TFLite asset locally, uses a float matrix input and produces four output classes. The APK alone does not establish the training dataset, class semantics, validation population, accuracy, license for reuse, or suitability for Watch 2 Pro. The ECG wrapper exposes a native `ecg_midev` function, but its native implementation and validation evidence are not a public algorithm specification.
 
-Therefore these binaries/models must not be copied into Xiaomi Health Bridge. Their presence is useful only as architectural evidence that Mi Fitness performs some sleep/ECG processing behind proprietary native/model boundaries.
+Therefore these binaries/models must not be copied into AILISA Health Bridge. Their presence is useful only as architectural evidence that Mi Fitness performs some sleep/ECG processing behind proprietary native/model boundaries.
 
 ### 5. Inter-app health provider / App 間資料介面
 
@@ -88,9 +88,9 @@ Mi Fitness contains a bound `HealthProviderService` and an AIDL-style interface 
 
 The service is protected by Xiaomi-specific permissions such as `com.xiaomi.wearable.permission.health_provider`; other providers also use Xiaomi default-read or signature/system permissions. A normal Play-distributed app signed by 王宥傑 cannot legitimately acquire those signature permissions. We must not bypass them, re-sign Mi Fitness, inject code, scrape its private database, or depend on undocumented Binder transaction codes.
 
-## Difference from Xiaomi Health Bridge / 與本專案寫法的差異
+## Difference from AILISA Health Bridge / 與本專案寫法的差異
 
-| Area | Mi Fitness 9.8.348i | Xiaomi Health Bridge | Engineering implication |
+| Area | Mi Fitness 9.8.348i | AILISA Health Bridge | Engineering implication |
 |---|---|---|---|
 | Acquisition | OEM Xiaomi/Huami SDK and proprietary Bluetooth/device stack | Wear OS Health Services, Health Connect, Android Sensor API | Our public API path is maintainable and Play-compatible, but cannot see OEM-only calibrated channels unless Xiaomi exposes them. |
 | Phone/watch transport | OEM device sync manager with per-type watermarks | Google Wearable Data Layer with per-session ordering, acknowledgement and retry | Keep our transport; borrow the per-metric watermark concept, not Xiaomi protocol code. |
@@ -164,7 +164,7 @@ The `EcgMedicalItemReport` constructor has a `500` default for its `sampleFreque
 
 Implementation check / 程式複核：`RawVitalsProbe.kt` labels a waveform rate only when the HAL reports a finite positive value; `BiomedicalCalibration.kt` requires a finite positive ECG rate before rate-dependent analysis, and the ECG research engine accepts a nullable rate. Its separate `≥500 samples/s` text is an ambulatory-ECG reference threshold, not a watch sensor clock. This review found no path that copies the OEM report constructor's `500` into this app's watch capture. / 已檢查現有 4.0 路徑，沒有把原廠資料模型的預設 500 當作手錶實測取樣率。
 
-Mi Fitness's proprietary model assets do not reveal a citable training paper or dataset. We must not invent one. Xiaomi Health Bridge's transparent algorithm provenance remains the authoritative public mapping:
+Mi Fitness's proprietary model assets do not reveal a citable training paper or dataset. We must not invent one. AILISA Health Bridge's transparent algorithm provenance remains the authoritative public mapping:
 
 - MIT-BIH Arrhythmia and Noise Stress Test for offline ECG detector/noise benchmarking.
 - ECG-ID and PTB-XL for scale-independent ECG research and cross-dataset checks.

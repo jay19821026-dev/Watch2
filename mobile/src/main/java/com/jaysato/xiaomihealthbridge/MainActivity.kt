@@ -300,7 +300,7 @@ class MainActivity : ComponentActivity() {
             addView(label("資料只在手錶、手機與 Health Connect 間流動。", 13f, "#8290AD").apply {
                 gravity = Gravity.CENTER; setPadding(0, dp(24), 0, 0)
             })
-            addView(label("Xiaomi 手錶健康中心 · 本機健康資料管理", 12f, "#75D5C8").apply {
+            addView(label("AILISA Health Bridge · 本機健康資料管理", 12f, "#75D5C8").apply {
                 gravity = Gravity.CENTER; setPadding(0, dp(8), 0, 0)
             })
         }
@@ -390,7 +390,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleControlIntent(intent: Intent?) {
-        val path = intent?.data?.takeIf { it.scheme == "xiaomihealthbridge" && it.host == "control" }
+        val path = intent?.data?.takeIf { it.scheme == "ailisahealthbridge" && it.host == "control" }
             ?.path?.takeIf { it.isNotBlank() } ?: return
         sendWatchCommand("/control$path")
     }
@@ -1546,6 +1546,27 @@ class MainActivity : ComponentActivity() {
         addView(cardLike("個人資料", "年齡、性別、身高體重與生理基本資料", "#8E7CFF") { showPhysiologyProfileDialog() }, margins(bottom = 10))
         addView(cardLike("健康趨勢分析", "本機規則與統計整理已同步資料；不作疾病診斷", "#FF6F8F") { startActivity(Intent(this@MainActivity, AiHealthAnalysisActivity::class.java)) }, margins(bottom = 10))
         addView(cardLike("資料與權限", "Health Connect 權限、來源與隱私說明", "#35A8FF") { selectPage(2) }, margins(bottom = 10))
+        addView(cardLike("匯入舊版資料", "從仍安裝的舊版搬入手機端加密感測紀錄與個人設定", "#8E7CFF") {
+            AlertDialog.Builder(this@MainActivity)
+                .setTitle("舊版資料搬遷")
+                .setMessage("請先安裝同一簽章的舊版搬遷橋接更新，並保留舊版 App。資料只在兩個 App 之間傳輸；原始紀錄與推導結果會在新版重新加密。Health Connect 權限需另外授予。")
+                .setNegativeButton("取消", null)
+                .setPositiveButton("開始匯入") { _, _ ->
+                    lifecycleScope.launch {
+                        runCatching { LegacyMigrationImporter.importFromInstalledLegacyApp(this@MainActivity) }
+                            .onSuccess { summary ->
+                                AlertDialog.Builder(this@MainActivity).setTitle("匯入完成")
+                                    .setMessage("紀錄 ${summary.sessions} 筆，原始樣本 ${summary.rawSamples} 筆，推導結果 ${summary.derivedResults} 筆。個人設定：${if (summary.profileImported) "已匯入" else "未變更"}。舊版資料仍保留。")
+                                    .setPositiveButton("確定", null).show()
+                            }
+                            .onFailure { error ->
+                                AlertDialog.Builder(this@MainActivity).setTitle("匯入未完成")
+                                    .setMessage("${error.message ?: error.javaClass.simpleName}\n舊版資料仍保留，可檢查橋接更新後重試。")
+                                    .setPositiveButton("確定", null).show()
+                            }
+                    }
+                }.show()
+        }, margins(bottom = 10))
         addView(cardLike("手機通知", "例行提醒可自行開啟；跌倒／SOS 緊急提醒保留", "#36C98F") {
             val enabled = MobileSafetyAlerts.areRoutineAlertsEnabled(this@MainActivity)
             AlertDialog.Builder(this@MainActivity)
@@ -1558,7 +1579,7 @@ class MainActivity : ComponentActivity() {
                 .setNegativeButton("取消", null)
                 .show()
         }, margins(bottom = 10))
-        addView(cardLike("關於本 App", "Xiaomi Health Bridge ${BuildConfig.VERSION_NAME}", "#36C98F") { startActivity(Intent(this@MainActivity, PrivacyPolicyActivity::class.java)) })
+        addView(cardLike("關於本 App", "AILISA Health Bridge ${BuildConfig.VERSION_NAME}", "#36C98F") { startActivity(Intent(this@MainActivity, PrivacyPolicyActivity::class.java)) })
     }
 
     private fun cardLike(title: String, subtitle: String, accent: String, click: () -> Unit) = featureRow("◆", title, subtitle, accent, click)

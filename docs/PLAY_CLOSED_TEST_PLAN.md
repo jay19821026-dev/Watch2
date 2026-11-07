@@ -1,15 +1,15 @@
 # Google Play closed-test plan / 封閉測試計畫
 
-App：Xiaomi Health Bridge  
+App：AILISA Health Bridge  
 Author / 作者：Wang You-Jie（王宥傑）  
-Package：`com.jaysato.xiaomihealthbridge`  
+Package：`net.ailisa.healthbridge`  
 Required gate / 必要門檻：at least 12 testers continuously opted in for 14 days / 至少 12 位測試者連續加入 14 天
 
 This plan is for a new personal Play developer account. The timer and tester eligibility are determined by Play Console, not by this document. Recruit more than 12 people (recommended: 15–20) so a single opt-out does not reset eligibility.
 
 ## 1. Track setup / 測試軌設定
 
-1. Create the app with the exact package name `com.jaysato.xiaomihealthbridge`.
+1. Create the app with the exact package name `net.ailisa.healthbridge`.
 2. Enroll in Play App Signing and upload only the owner-authorized, release-signed Mobile and Wear OS bundles.
 3. Create a Closed testing track named `closed-14-day`.
 4. Use a Google Group or tester email list with 15–20 consenting participants.
@@ -20,11 +20,11 @@ This plan is for a new personal Play developer account. The timer and tester eli
 
 ### Subject / 主旨
 
-`邀請參加 Xiaomi Health Bridge Android／Wear OS 封閉測試`
+`邀請參加 AILISA Health Bridge Android／Wear OS 封閉測試`
 
 ### Message / 內容
 
-您好，我是王宥傑，正在測試開源專案 Xiaomi Health Bridge。這是一款用於 Android 手機與 Wear OS 手錶健康資料整理的研究工具，不是醫療器材，也不提供診斷、治療或緊急監測。
+您好，我是王宥傑，正在測試開源專案 AILISA Health Bridge。這是一款用於 Android 手機與 Wear OS 手錶健康資料整理的研究工具，不是醫療器材，也不提供診斷、治療或緊急監測。
 
 測試需要您：
 
@@ -35,7 +35,7 @@ This plan is for a new personal Play developer account. The timer and tester eli
 
 測試加入連結：`[PLAY CLOSED-TEST OPT-IN URL]`
 
-隱私政策：https://ailisa.net/portfolio/xiaomi-health-bridge#privacy  
+隱私政策：https://ailisa.net/portfolio/ailisa-health-bridge#privacy  
 原始碼：https://github.com/jay19821026-dev/Watch2
 
 感謝協助。若不希望參與，請不要加入；已加入者也可隨時退出，但退出後可能不再計入 Google Play 的連續測試門檻。
@@ -44,11 +44,11 @@ This plan is for a new personal Play developer account. The timer and tester eli
 
 ### Subject
 
-`Invitation: Xiaomi Health Bridge Android/Wear OS closed test`
+`Invitation: AILISA Health Bridge Android/Wear OS closed test`
 
 ### Message
 
-Hello, I am Wang You-Jie, the developer of the open-source Xiaomi Health Bridge project. It is a research tool for organizing authorized health records across Android and Wear OS. It is not a medical device and does not provide diagnosis, treatment, or emergency monitoring.
+Hello, I am Wang You-Jie, the developer of the open-source AILISA Health Bridge project. It is a research tool for organizing authorized health records across Android and Wear OS. It is not a medical device and does not provide diagnosis, treatment, or emergency monitoring.
 
 To participate:
 
@@ -59,7 +59,7 @@ To participate:
 
 Opt-in link: `[PLAY CLOSED-TEST OPT-IN URL]`
 
-Privacy policy: https://ailisa.net/portfolio/xiaomi-health-bridge#privacy  
+Privacy policy: https://ailisa.net/portfolio/ailisa-health-bridge#privacy  
 Source: https://github.com/jay19821026-dev/Watch2
 
 Participation is voluntary. You may leave at any time, but leaving may make the account ineligible for Google Play's continuous-testing count.

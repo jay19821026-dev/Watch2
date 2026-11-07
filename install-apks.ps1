@@ -13,7 +13,7 @@ $buildToolsRoot = Join-Path $projectRoot ".tooling\android-sdk\build-tools"
 $latestBuildTools = Get-ChildItem -LiteralPath $buildToolsRoot -Directory | Sort-Object Name -Descending | Select-Object -First 1
 $aapt = if ($latestBuildTools) { Join-Path $latestBuildTools.FullName "aapt.exe" } else { $null }
 $apksigner = if ($latestBuildTools) { Join-Path $latestBuildTools.FullName "apksigner.bat" } else { $null }
-$appId = "com.jaysato.xiaomihealthbridge"
+$appId = "net.ailisa.healthbridge"
 
 foreach ($path in @($adb, $gradlew, $aapt, $apksigner)) {
     if (-not $path -or -not (Test-Path -LiteralPath $path)) {
@@ -67,8 +67,8 @@ function Read-ApkIdentity([string]$apkPath, [string]$expectedLabel) {
     }
 }
 
-$mobile = Read-ApkIdentity (Find-VariantApk "mobile" $Variant) "Xiaomi 手錶健康中心"
-$wear = Read-ApkIdentity (Find-VariantApk "wear" $Variant) "Xiaomi Health Bridge"
+$mobile = Read-ApkIdentity (Find-VariantApk "mobile" $Variant) "AILISA Health Bridge"
+$wear = Read-ApkIdentity (Find-VariantApk "wear" $Variant) "AILISA Health Bridge"
 if ($mobile.VersionName -ne $wear.VersionName -or $mobile.VersionCode -ne $wear.VersionCode) {
     throw "手機與手錶版本不一致；手機 $($mobile.VersionName)/$($mobile.VersionCode)，手錶 $($wear.VersionName)/$($wear.VersionCode)。未安裝。"
 }
