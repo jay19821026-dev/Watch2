@@ -28,6 +28,10 @@ The reconstructed `com/xiaomi/fitness/device/manager/DeviceModelExtKt.java`, met
 
 **實機手機版本交叉核對：** 已安裝的 `3.59.2i` 仍以產品 `features` 清單決定功能支援，ECG 卡片 `162` 仍檢查 `ecg`。這比只看先前提供的不同版本 APK 更有力；但尚未讀到此帳號與配對錶當下的產品清單，所以不能單靠反組譯斷言清單實際含有或缺少 `ecg`。
 
+**Product-list origin / 產品清單來源：** In this same installed phone APK, `DeviceRequest.getProductByCategory()` requests a product configuration from Mi Fitness's own service, passing locale, app version, device categories and a last-modified time. `ProductManagerRemoteImpl.update()` stores returned products by model and saves the list in Mi Fitness's private `files/config/product_<locale>.json` cache. It unconditionally merges an `androidFeature` list into `features`; a separate `whitelistFeature` merge depends on Mi Fitness's own product whitelist setting. `isSupportFeature()` then reads the resulting product's `features`. Thus the card test is **not a hardcoded comparison of the visible model name inside the APK**. The actual server response, cached Watch 2 Pro record and Watch 5 record were not accessed; static code cannot say which flags those records currently carry. No private service endpoint, cookie or account token is used by this project.
+
+**原廠產品清單的來源：** 已安裝手機程式會按語系、App 版本與更新時間向原廠服務取得產品設定，按機型保存到 Mi Fitness 私有的 `product_<locale>.json` 快取，再合併 Android 功能與有條件的白名單功能。ECG 卡片檢查的是這份結果的 `features`，不是單看畫面上的機型名稱。尚未取得此帳號實際的 Watch 2 Pro 或 Watch 5 產品紀錄，不能斷言兩者當前的旗標差異。
+
 | Phone code / 手機程式碼 | Concrete local evidence / 具體證據 | Availability finding / 可用性判斷 |
 |---|---|---|
 | ECG / 心電圖 | `health/ecg/`; `Feature.ECG="ecg"`; device settings card type `162` checks `"ecg"`; reminder type `181` checks `"electrocardiogram"`; `health/ecg/net/EcgApiService.java` handles activation/account flow. | Owner reports **no ECG card** for paired Watch 2 Pro. The bundled module and reminder flag do not override that observation. |
@@ -68,6 +72,10 @@ On 2026-11-08, `adb shell dumpsys sensorservice` on the connected owner's **Xiao
 For this watch, the ECG, PPG, SpO₂, HR, BioZ and temperature paths are therefore **present in the Android sensor inventory**. The phone APK's blood-pressure and blood-glucose modules remain separate claims; neither follows from the barometer nor from these channels. A missing OEM card may indeed be a software/product gate for a particular feature, but this inventory does not identify every upstream rule.
 
 就這隻手錶而言，ECG、PPG、血氧相關、心率、BioZ 與溫度通道有實機證據。手機 APK 裡的血壓與血糖模組是另外的資料路徑；氣壓計不能當血壓計。原廠卡片缺席可能涉及軟體或產品設定，但上述清單尚不能指出每一道上游閘門。
+
+**Hardware-lock finding / 硬體鎖定判斷：** No hardware block has been observed on this Watch 2 Pro's **raw Android ECG sensor path**: the live device exposes type `65573`, and the project has received raw events through that path. This finding is scoped to access to raw events. It does not establish that OEM ECG recording, calibration, report generation, account activation, or every other sensor feature is available without a separate firmware, service, or product gate.
+
+**結論：** 目前沒有觀察到這隻 Watch 2 Pro 的**原始 Android ECG 感測器路徑**被硬體封鎖；實機宣告 `65573`，本專案也曾從該路徑收到原始事件。這個結論只涵蓋原始事件存取，不能延伸成原廠心電圖報告、校準、帳戶啟用或其他全部功能均已解鎖。那些路徑仍須逐項量測。
 
 ## OEM switches on this watch / 原廠手錶端的開關
 
