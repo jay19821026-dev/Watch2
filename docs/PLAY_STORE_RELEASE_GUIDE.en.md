@@ -1,12 +1,12 @@
 # Google Play Release Guide
 
-Developer/author: Wang You-Jie (王宥傑) · Package: `com.jaysato.xiaomihealthbridge` · Current source: 4.0.0 (155)
+Developer/author: Wang You-Jie (王宥傑) · Package: `com.jaysato.xiaomihealthbridge` · Current source: 4.0.0 test 17 (Debug code 169 on both devices)
 
 The GitHub APKs are debug sideload builds, not Play Store production binaries. Google Play requires a release-signed Android App Bundle and Play App Signing.
 
-Create the Health & Fitness app in Play Console; securely create/back up an upload key; keep keys and passwords out of GitHub; configure `docs/release-signing.md`; and build `./gradlew :mobile:bundleRelease :wear:bundleRelease`. Verify application ID, version code, signing, permissions, and the current phone/Wear packaging rules. Complete bilingual listings, privacy URL, Data safety, Health apps declaration, content rating, target audience, ads, and app access. Validate installation, pairing, permissions, sync, deletion, and empty/error states through Internal testing on real hardware before staged rollout.
+After Play Console enables app creation, create the Health & Fitness app. A local candidate upload key exists outside Git; back up the key and portable password recovery material securely before enrollment. Test 17 source has produced signed local candidate AABs with mobile/Wear codes 170/171. Verify application ID, final version codes, upload-certificate enrollment, permissions, and the live phone/Wear packaging path in Console. Complete bilingual listings, privacy URL, Data safety, Health apps declaration, content rating, target audience, ads, and app access. Validate installation, pairing, permissions, sync, deletion, and empty/error states through Internal testing on real hardware before staged rollout.
 
-The current 4.0 debug pair shares versionCode 155. Google's [Wear OS packaging instructions](https://developer.android.com/training/wearables/packaging) require unique version codes across phone and watch APKs and describe Multi-APK delivery for a phone + watch pair. Assign final codes after inspecting the target Play listing, then rebuild signed artifacts and verify the merged manifests and device targeting. Google's [developer verification documentation](https://developer.android.com/developer-verification/assets/pdfs/updates-to-play-console-for-android-developer-verification.pdf) also says a package name previously installed outside Play may require signing-key ownership proof in the Create app flow. Follow the actual Console prompt; never export or publish the private key.
+The test 17 Debug pair shares versionCode 169 and is for sideload testing only. Google's [Wear OS packaging instructions](https://developer.android.com/training/wearables/packaging) require unique version codes across phone and watch artifacts and describe Multi-APK delivery for a phone + watch pair. The signed candidate AABs use distinct 170/171 codes, but the exact first-release path and final version history still require Console inspection. Google's [developer verification documentation](https://developer.android.com/developer-verification/assets/pdfs/updates-to-play-console-for-android-developer-verification.pdf) says a package name previously installed outside Play may require signing-key ownership proof in the Create app flow. Follow the actual Console prompt; never export or publish the private key.
 
 Do not claim diagnosis, treatment, disease detection, emergency monitoring, clinical accuracy, or medical-device status.
 
@@ -18,8 +18,8 @@ Ready-to-use bilingual invitations, test cases, privacy-safe feedback fields, th
 
 ## Health apps declaration recommendation
 
-- Select **Health and fitness → Activity and Fitness** and **Health and fitness → Sleep Management**.
-- Do not select medical-device, clinical-decision-support, disease-management, emergency-monitoring, diagnosis, or treatment categories.
+- Select **Health and fitness → Activity and Fitness**, **Sleep Management**, and **Stress Management, Relaxation, Mental Acuity** for the currently visible features, then verify the final AAB and actual form before submission. See [Google's category definitions](https://support.google.com/googleplay/android-developer/answer/14738291).
+- No medical-device authorization or diagnostic/treatment/emergency claim is established. Review whether the visible manual BP record and related guidance trigger any other medical category in the actual Console form; do not prefill an unsupported No answer.
 - Justify every Health Connect permission using a visible in-app feature and ensure the Play declaration matches the signed AAB merged manifest.
-- Public privacy-policy URL: `https://ailisa.net/portfolio/xiaomi-health-bridge#privacy`.
+- Public privacy-policy URL: `https://ailisa.net/privacy/xiaomi-health-bridge`.
 - Use `docs/DATA_SAFETY_DECLARATION.md` for the detailed answer matrix and permission-purpose text.
