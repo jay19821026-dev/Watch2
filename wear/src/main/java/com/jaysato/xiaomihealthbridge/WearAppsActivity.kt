@@ -24,7 +24,7 @@ class WearAppsActivity : ComponentActivity() {
             AppTile("運動", "記錄訓練", "▶", Color(0xFF30D158)) { open(WearWorkoutActivity::class.java) },
             AppTile("噪音", "聽力暴露", "dB", Color(0xFFFFD60A)) { open(WearNoiseActivity::class.java) },
             AppTile("體溫", "腕部溫度趨勢", "°", Color(0xFFFF9F0A)) { startActivity(WearMeasurePageActivity.intent(this, WearMeasurePageActivity.Mode.TEMPERATURE)) },
-            AppTile("血壓", "光學研究估計", "BP", Color(0xFFFF2D55)) { open(WearOpticalBpActivity::class.java) },
+            AppTile("血壓", "此錶不提供量測 · 袖帶說明", "BP", Color(0xFFFF2D55)) { open(WearOpticalBpActivity::class.java) },
             AppTile("睡眠", "總時長 · 無假分期", "Zzz", Color(0xFF5E5CE6)) { open(WearSleepActivity::class.java) },
             AppTile("PPG", "光學原始訊號", "P", Color(0xFFFF453A)) { startActivity(WearMeasurePageActivity.intent(this, WearMeasurePageActivity.Mode.PPG)) },
             AppTile("BioZ", "生物阻抗研究通道", "Z", Color(0xFF5E5CE6)) { startActivity(WearMeasurePageActivity.intent(this, WearMeasurePageActivity.Mode.BIOZ)) },

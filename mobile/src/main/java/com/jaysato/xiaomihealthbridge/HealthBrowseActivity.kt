@@ -83,7 +83,7 @@ class HealthBrowseActivity : ComponentActivity() {
             Item("行動能力", "氣壓高度 · 指南針", Color.rgb(90, 200, 250)) {
                 it.startActivity(Intent(it, RawSensorDetailActivity::class.java).putExtra("kind", "pressure"))
             },
-            Item("血壓", "光學研究估計 · ACC/AHA 對照", Color.rgb(255, 45, 85)) {
+            Item("血壓", "外部袖帶紀錄 · 參考分類", Color.rgb(255, 45, 85)) {
                 it.startActivity(Intent(it, OpticalBpActivity::class.java))
             },
             Item("聽力／噪音", "手錶量測的噪音紀錄與校正狀態", Color.rgb(255, 204, 0)) {

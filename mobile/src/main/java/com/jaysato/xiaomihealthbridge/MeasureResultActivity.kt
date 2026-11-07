@@ -35,6 +35,11 @@ class MeasureResultActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val kind = intent.getStringExtra(EXTRA_KIND) ?: latestKind(this) ?: "ppg"
+        if (kind == "optical_bp") {
+            startActivity(Intent(this, OpticalBpActivity::class.java))
+            finish()
+            return
+        }
         val raw = RawSensorStore.open(this@MeasureResultActivity)
         val feature = getSharedPreferences(WearDataProcessor.FEATURE_PREFS, MODE_PRIVATE)
         val title = titleFor(kind)
@@ -93,9 +98,6 @@ class MeasureResultActivity : ComponentActivity() {
         } else if (OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
             "MAX86178／LifeQ 光學原始封包不是心率。只有品質合格、未過期的研究估算才顯示脈率；不作疾病診斷。"
         } else when (kind) {
-            "optical_bp" -> raw.getString("optical_bp_advice", null)
-                ?: raw.getString("optical_bp_conclusion", null)
-                ?: "研究估計 · 請以袖帶複核"
             else -> raw.getString("${kind}_formula_note", null)
                 ?: raw.getString("hrv_research_formula_note", null)
                 ?: raw.getString("${kind}_summary", null)
@@ -205,7 +207,6 @@ class MeasureResultActivity : ComponentActivity() {
             "spo2", "spo2_raw", "oxygen_saturation" -> "/control/oxygen-now"
             "body_temperature", "body_temperature_raw", "temperature" -> "/control/temperature-now"
             "off_body", "off_wrist" -> "/control/off-body-now"
-            "optical_bp" -> "/control/optical-bp-now"
             "ppg", "hrv_research", "max_hr", "heart_rate_raw", "lifeq_ott" -> "/control/ppg-now"
             else -> null
         }
@@ -292,12 +293,7 @@ class MeasureResultActivity : ComponentActivity() {
         ): Pair<String, String> {
             fun f(key: String) = raw.getFloat(key, Float.NaN).takeIf { it.isFinite() }
             return when (kind) {
-                "optical_bp" -> {
-                    val sbp = f("optical_bp_sbp")
-                    val dbp = f("optical_bp_dbp")
-                    if (sbp != null && dbp != null) "%.0f/%.0f".format(sbp, dbp) to "mmHg"
-                    else "—" to "mmHg"
-                }
+                "optical_bp" -> "—" to ""
                 "ppg", "max_hr", "heart_rate_raw", "lifeq_ott" -> {
                     if (OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
                         (opticalEstimate?.let { "%.0f".format(it) } ?: "—") to "研究估算 bpm"
@@ -371,16 +367,7 @@ class MeasureResultActivity : ComponentActivity() {
 
         private fun detailLine(kind: String, raw: android.content.SharedPreferences): String {
             if (kind == "optical_bp") {
-                val cat = raw.getString("optical_bp_category", null)
-                val method = raw.getString("optical_bp_method", null)
-                val conf = raw.getString("optical_bp_confidence", null)
-                return buildString {
-                    cat?.let { append(it) }
-                    method?.let { if (isNotEmpty()) append(" · "); append(it) }
-                    conf?.let { if (isNotEmpty()) append(" · 置信度 "); append(it) }
-                    if (isEmpty()) append("光學血壓研究估計")
-                    append(" · 已同步手機")
-                }
+                return "此手錶沒有經驗證的血壓量測；請使用外部袖帶讀值。"
             }
             val samples = rawValueCount(raw, kind)
             val status = raw.getString("${kind}_status", null)
@@ -448,6 +435,15 @@ internal object MeasureResultValuePolicy {
         nowMillis: Long,
         timestampSource: String? = null
     ): Presentation {
+        if (kind == "optical_bp") {
+            return Presentation(
+                value = "—",
+                unit = "",
+                isCurrent = false,
+                headline = "手錶血壓量測不可用",
+                guidance = "舊版光學估計不具備裝置級驗證；請在血壓頁輸入外部袖帶讀值。"
+            )
+        }
         val state = SensorDisplayState.from(
             samples = samples,
             status = status.orEmpty(),

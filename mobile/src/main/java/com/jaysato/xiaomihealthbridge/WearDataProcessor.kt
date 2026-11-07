@@ -908,8 +908,7 @@ object WearDataProcessor {
                     listOf(
                         "formula_pi_percent", "formula_relative_ac_dc", "formula_pulse_bpm", "formula_ratio_r",
                         "formula_rmssd_ms", "formula_nrmssd", "formula_sdnn_ms",
-                        "formula_pnn50", "formula_cvrr", "formula_altitude_m", "formula_pressure_hpa",
-                        "formula_sbp_mmhg", "formula_dbp_mmhg"
+                        "formula_pnn50", "formula_cvrr", "formula_altitude_m", "formula_pressure_hpa"
                     ).forEach { key ->
                         if (data.containsKey(key)) putFloat("${kind}_$key", data.getDouble(key).toFloat())
                     }
@@ -1818,16 +1817,19 @@ object WearDataProcessor {
 }
 
 internal object RawWaveformFormulaPolicy {
+    private val legacyBpDerivedKeys = listOf(
+        "formula_sbp_mmhg", "formula_dbp_mmhg", "formula_bp_category",
+        "formula_bp_method", "formula_bp_confidence", "formula_bp_advice"
+    )
     val opticalDerivedKeys = listOf(
         "formula_pi_percent", "formula_relative_ac_dc", "formula_pulse_bpm", "formula_ratio_r", "formula_rmssd_ms",
         "formula_nrmssd", "formula_sdnn_ms", "formula_pnn50", "formula_cvrr", "formula_stress_score"
     )
 
     val sessionDerivedKeys = opticalDerivedKeys + listOf(
-        "formula_altitude_m", "formula_pressure_hpa", "formula_sbp_mmhg", "formula_dbp_mmhg",
-        "formula_note", "formula_citations", "formula_bp_category", "formula_bp_method",
-        "formula_bp_confidence", "formula_bp_advice", "formula_rr_count"
-    )
+        "formula_altitude_m", "formula_pressure_hpa", "formula_note", "formula_citations",
+        "formula_rr_count"
+    ) + legacyBpDerivedKeys
 
     fun mayRunOpticalAlgorithms(kind: String): Boolean = kind == "ppg"
 
@@ -1844,7 +1846,8 @@ internal object RawWaveformFormulaPolicy {
         channelMappingVerified && wearQualified
 
     fun keysToClearForSnapshot(kind: String, presentKeys: Set<String>): List<String> = buildList {
-        addAll(sessionDerivedKeys.filterNot(presentKeys::contains).map { "${kind}_$it" })
+        addAll(sessionDerivedKeys.filter { it in legacyBpDerivedKeys || it !in presentKeys }
+            .map { "${kind}_$it" })
         if (kind in SENSOR_EVENT_METADATA_KINDS) {
             val eventMetadataFields = listOf(
                 "event_timestamps_ns" to "event_timestamps_ns",

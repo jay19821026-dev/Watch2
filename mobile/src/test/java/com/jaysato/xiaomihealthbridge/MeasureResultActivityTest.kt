@@ -129,4 +129,23 @@ class MeasureResultActivityTest {
         assertEquals("—", result.value)
         assertEquals("量測時間未知或無效，不能確認為目前值", result.headline)
     }
+
+    @Test
+    fun legacyOpticalBloodPressureNeverDisplaysCachedMillimetersOfMercury() {
+        val result = MeasureResultValuePolicy.present(
+            kind = "optical_bp",
+            value = "128/82",
+            unit = "mmHg",
+            samples = 120,
+            status = "has_data",
+            measuredAtMillis = now - 1_000L,
+            nowMillis = now,
+            timestampSource = HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE
+        )
+
+        assertFalse(result.isCurrent)
+        assertEquals("—", result.value)
+        assertEquals("", result.unit)
+        assertEquals("手錶血壓量測不可用", result.headline)
+    }
 }

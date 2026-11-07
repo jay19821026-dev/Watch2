@@ -246,7 +246,7 @@ class MainActivity : ComponentActivity() {
             addView(actionButton("他錶功能對照（Apple／Galaxy／Pixel）") {
                 startActivity(Intent(this@MainActivity, CompetitorParityActivity::class.java))
             }, margins(bottom = 10))
-            addView(actionButton("光學血壓（研究分析＋建議）") {
+            addView(actionButton("血壓（記錄外部袖帶讀值）") {
                 startActivity(Intent(this@MainActivity, OpticalBpActivity::class.java))
             }, margins(bottom = 10))
             addView(actionButton("目前未提供的功能（血糖／睡眠分期）") {
@@ -260,7 +260,7 @@ class MainActivity : ComponentActivity() {
             addView(actionButton("啟動手錶體表溫度量測") { sendWatchCommand("/control/temperature-now") }, margins(top = 10))
             addView(actionButton("啟動手錶 SpO₂ 感測") { sendWatchCommand("/control/oxygen-now") }, margins(top = 10))
             addView(actionButton("啟動 PPG 原始波形擷取") { sendWatchCommand("/control/ppg-now") }, margins(top = 10))
-            addView(actionButton("啟動手錶光學血壓研究量測") { sendWatchCommand("/control/optical-bp-now") }, margins(top = 10))
+            addView(actionButton("查看手錶血壓限制說明") { sendWatchCommand("/control/optical-bp-now") }, margins(top = 10))
             addView(actionButton("啟動 ECG 研究量測") { sendWatchCommand("/control/ecg-now") }, margins(top = 10))
             addView(actionButton("啟動 BioZ 原始波形擷取") { sendWatchCommand("/control/bioz-now") }, margins(top = 10))
             addView(actionButton("檢查離腕／佩戴狀態") { sendWatchCommand("/control/off-body-now") }, margins(top = 10))

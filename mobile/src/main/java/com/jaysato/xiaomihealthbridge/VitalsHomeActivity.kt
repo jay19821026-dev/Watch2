@@ -322,7 +322,7 @@ class VitalsHomeActivity : ComponentActivity() {
         root.addView(navButton("晶片與資料", Color.rgb(48, 176, 199)) {
             startActivity(Intent(this, ChipFeatureHubActivity::class.java))
         })
-        root.addView(navButton("光學血壓（研究分析＋建議）", Color.rgb(255, 45, 85)) {
+        root.addView(navButton("血壓（外部袖帶紀錄）", Color.rgb(255, 45, 85)) {
             startActivity(Intent(this, OpticalBpActivity::class.java))
         })
         root.addView(navButton("目前未提供的功能（血糖／睡眠分期）", Color.rgb(142, 142, 147)) {

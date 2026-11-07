@@ -56,7 +56,7 @@ object HealthRiskScreening {
         val systolic = cuff.getFloat("manual_cuff_sbp", Float.NaN)
         val diastolic = cuff.getFloat("manual_cuff_dbp", Float.NaN)
         if (time <= 0L || now - time !in 0..SEVEN_DAYS_MILLIS || systolic !in 70f..250f || diastolic !in 35f..150f) {
-            return Result("高血壓風險", "需要新鮮袖帶讀值", "只接受 7 天內手動輸入的袖帶紀錄；腕錶光學血壓估值不作疾病篩查。", "坐姿休息 5 分鐘後，用經驗證上臂式血壓計重複測量並記錄。")
+            return Result("高血壓風險", "需要新鮮袖帶讀值", "只接受 7 天內手動輸入的袖帶紀錄；本 App 不由腕錶光學資料推算血壓。", "坐姿休息 5 分鐘後，用經驗證上臂式血壓計重複測量並記錄。")
         }
         val elevated = systolic >= 130f || diastolic >= 80f
         return if (elevated) {

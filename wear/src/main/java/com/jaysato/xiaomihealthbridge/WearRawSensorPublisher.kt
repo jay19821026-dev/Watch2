@@ -24,13 +24,7 @@ object WearRawSensorPublisher {
         val pressureHpa: Double? = null,
         val stressScore: Int? = null,
         val note: String? = null,
-        val citations: String? = null,
-        val sbpMmHg: Double? = null,
-        val dbpMmHg: Double? = null,
-        val bpCategory: String? = null,
-        val bpMethod: String? = null,
-        val bpConfidence: String? = null,
-        val bpAdvice: String? = null
+        val citations: String? = null
     )
 
     fun publish(
@@ -137,12 +131,6 @@ object WearRawSensorPublisher {
                 f.stressScore?.let { dataMap.putInt("formula_stress_score", it) }
                 f.note?.let { dataMap.putString("formula_note", it) }
                 f.citations?.let { dataMap.putString("formula_citations", it) }
-                f.sbpMmHg?.let { dataMap.putDouble("formula_sbp_mmhg", it) }
-                f.dbpMmHg?.let { dataMap.putDouble("formula_dbp_mmhg", it) }
-                f.bpCategory?.let { dataMap.putString("formula_bp_category", it) }
-                f.bpMethod?.let { dataMap.putString("formula_bp_method", it) }
-                f.bpConfidence?.let { dataMap.putString("formula_bp_confidence", it) }
-                f.bpAdvice?.let { dataMap.putString("formula_bp_advice", it) }
             }
             dataMap.putLong("timestamp", now)
             dataMap.putLong("producer_sequence", sequence)

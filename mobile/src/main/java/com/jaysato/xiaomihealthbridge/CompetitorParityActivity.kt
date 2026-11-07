@@ -129,7 +129,7 @@ class CompetitorParityActivity : ComponentActivity() {
         }
 
         root.addView(Button(this).apply {
-            text = "開啟光學血壓"
+            text = "開啟外部袖帶血壓紀錄"
             isAllCaps = false; textSize = 14f; setTextColor(Color.WHITE)
             background = GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
@@ -168,7 +168,7 @@ class CompetitorParityActivity : ComponentActivity() {
         Row("睡眠", "分期＋總時長", "分期＋血氧", "Fitbit 分期", "總時長專頁；分期誠實不可用", "部分"),
         Row("氣壓高度", "高度計", "氣壓", "氣壓", "ISA 高度公式＋專屬頁", "部分"),
         Row("指南針／運動", "指南針／健身", "運動／BIA", "Fitbit 運動", "指南針／返航／運動頁", "可用"),
-        Row("血壓", "高血壓趨勢（部分區）", "袖帶校準 BP（核准區）", "趨勢／外接", "光學 BP 研究 API＋ACC/AHA 分析／建議＋袖帶校正", "研究（非核准袖帶）"),
+        Row("血壓", "高血壓趨勢（部分區）", "袖帶校準 BP（核准區）", "趨勢／外接", "僅外部袖帶手動紀錄＋參考分類；手錶無血壓估算", "外部紀錄"),
         Row("血糖", "外接", "外接", "研究／外接", "無 CGM API；槽位誠實不可用", "不可用"),
         Row("聽力／噪音", "Noise／聽力健康", "環境噪音（部分）", "噪音／暴露", "手錶噪音頁＋參考校正", "部分"),
         Row("準備度", "Vitals／Recovery", "能量分數", "Readiness／Recovery", "手機洞察→手錶準備度", "研究"),

@@ -634,7 +634,7 @@ class WearMainActivity : ComponentActivity() {
                 .getString(PassiveRegistration.KEY_STATUS, null)
                 ?.let { append("背景同步狀態：$it\n") }
             append("\n研究／誠實標示：\n")
-            append("光學血壓：✓ PPG 研究估計（非袖帶核准裝置）\n")
+            append("血壓：此錶無經驗證的量測；可在手機記錄外部袖帶讀值\n")
             append("無法開啟：臨床 ECG 診斷、REM／深睡分期、小米 PAI／壓力私有演算法、Health Services 標準 SpO₂／HRV")
         }
         updateQuarantineAction()

@@ -17,7 +17,7 @@
 | 運動 | Fitness／Workout | 運動 | Exercise | 運動頁對齊開始／暫停／結束 |
 | 體溫 | Wrist temp | 皮膚溫 | 皮膚溫 | 體溫量測結果 |
 | 體成分 | — | BIA | — | BioZ 結果（無 Ω 誠實） |
-| BP | 部分區趨勢 | 袖帶校準 BP | 趨勢／外接 | **光學血壓研究 API**＋ACC/AHA 分析／建議＋袖帶校正 |
+| BP | 部分區趨勢 | 袖帶校準 BP | 趨勢／外接 | 外部袖帶手動紀錄＋參考分類；手錶不顯示光學估計 |
 | 血糖 | 外接 | 外接 | 研究 | 功能槽位＋不可用說明（不造假） |
 
 **Current override (2026-10-10):** Wear BP page is informational only and does not start sensors or estimate mmHg. Phone BP categories apply to recorded cuff/Health Connect readings only. Earlier checklist items below describing a watch optical-BP estimate are historical and superseded.
@@ -29,11 +29,11 @@
 | App 格 | 表盤→App 列表圖示 | **Apps 格**：心率／ECG／血氧／HRV／PPG／睡眠／運動／體溫／BioZ／壓力／血壓／指南針 |
 | 量測中 | 全螢幕波形＋接觸提示 | 全螢幕量測；**有數值才結束** |
 | 結果 | 大字分類＋Done | 大字結果＋臨床結論＋同步手機 |
-| Vitals | 夜間指標一覽 | 手錶 Vitals 摘要頁（含光學血壓入口） |
+| Vitals | 夜間指標一覽 | 手錶 Vitals 摘要頁（血壓入口僅顯示限制說明） |
 
 ## 誠實不可用（仍保留功能槽位與對齊 UI）
 
-臨床 AF 診斷、未校準 SpO₂%、BIA 體脂、PSG 睡眠分期、核准袖帶光學 BP、PAI——UI 顯示「此裝置／API 不可用」或研究標籤，不灌假醫療數值。光學血壓為研究估計並標 disclaimer。
+臨床 AF 診斷、未校準 SpO₂%、BIA 體脂、PSG 睡眠分期、手錶血壓、PAI——UI 顯示「此裝置／API 不可用」或研究標籤，不灌假醫療數值。血壓只使用外部袖帶紀錄；舊光學估值不得再顯示為 mmHg。
 
 ## 實作進度
 

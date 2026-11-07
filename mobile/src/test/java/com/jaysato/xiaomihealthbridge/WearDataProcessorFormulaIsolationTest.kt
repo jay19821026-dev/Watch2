@@ -110,6 +110,16 @@ class WearDataProcessorFormulaIsolationTest {
     }
 
     @Test
+    fun legacyBloodPressureFieldsAreClearedEvenWhenOldWatchResendsThem() {
+        val present = setOf("formula_sbp_mmhg", "formula_dbp_mmhg", "formula_bp_category")
+        val removed = RawWaveformFormulaPolicy.keysToClearForSnapshot("ppg", present)
+
+        assertTrue("ppg_formula_sbp_mmhg" in removed)
+        assertTrue("ppg_formula_dbp_mmhg" in removed)
+        assertTrue("ppg_formula_bp_category" in removed)
+    }
+
+    @Test
     fun unqualifiedHrvSourceClearsOnlyWhenItsMeasurementIsNotOlderThanStoredSource() {
         val previous = HrvResearchSnapshotPolicy.keysToClear.associateWith { "old" }
 
