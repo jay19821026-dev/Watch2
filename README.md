@@ -71,6 +71,8 @@ Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商�
 
 資料庫 → 論文 → 演算法 → 實際程式檔案的一對一對照，請見 [`docs/ALGORITHM_DATASET_PAPER_MAP.md`](docs/ALGORITHM_DATASET_PAPER_MAP.md)。
 
+Mi Fitness 9.8.348i 的 clean-room 靜態反組譯、資料管線差異、可合法借鏡功能與不可重用的專有邊界，請見 [`docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md`](docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md)。反組譯原始碼、模型與原生程式庫未納入本儲存庫。
+
 - PhysioNet ECG-ID：同取樣率下的尺度無關 ECG 頻譜參考，不是手錶校準檔。
 - MIT-BIH Noise Stress Test Database：描述性雜訊特徵比較，不用來直接判定手錶雜訊根因。
 - MIT-BIH Arrhythmia Database：離線 QRS 偵測器／標註管線基準，不代表腕式 ECG 或 AFib 臨床驗證。

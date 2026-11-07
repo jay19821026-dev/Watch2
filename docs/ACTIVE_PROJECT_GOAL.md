@@ -1,6 +1,6 @@
 # Xiaomi Health Bridge — Persistent Project Goal
 
-Updated: 2026-10-14
+Updated: 2026-11-07
 
 ## Mission
 
@@ -160,6 +160,14 @@ Finish and maintain one usable Xiaomi Watch 2 Pro (Wear OS 5) + Android health b
 - Release notes, signing status, installable artifacts, and known limitations
 - Per-metric support matrix, versioned protocol contract, data inventory, privacy policy evidence, and acceptance matrix with `PASS / FAIL / NOT_RUN`
 - `docs/AI_GOAL_REVIEW_2026-10-14.md` recording reviewer consensus, disagreements, and unresolved evidence
+- `docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md` recording a clean-room, static comparison of the user-supplied Mi Fitness APK against this project, including reusable product concepts, protected interfaces, and prohibited proprietary reuse
+
+## Clean-room interoperability review
+
+- Static analysis of a user-supplied companion APK may be used to understand observable data flow, storage boundaries, public integration surfaces, and product behavior.
+- Decompiled Xiaomi source, native libraries, embedded models, cloud endpoints, keys, device-authentication material, and signature-protected interfaces are reference evidence only and must not be copied or shipped.
+- Reusable work must be independently implemented from public Android APIs, user-authorized exports, documented interoperability contracts, and peer-reviewed/public sources.
+- Reverse engineering must not weaken the evidence gates above: an OEM field name, table, model, or native function is not proof of Watch 2 Pro sensor mapping, units, calibration, algorithm validity, or permission to access another app's private data.
 
 ## Completion rule
 

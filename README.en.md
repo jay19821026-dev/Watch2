@@ -65,6 +65,8 @@ See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the complete purpose, l
 
 For a one-to-one dataset → paper → algorithm → implementation map, see [`docs/ALGORITHM_DATASET_PAPER_MAP.md`](docs/ALGORITHM_DATASET_PAPER_MAP.md).
 
+For the clean-room static review of Mi Fitness 9.8.348i—its data pipeline, differences from this project, independently reusable product concepts, and proprietary boundaries—see [`docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md`](docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md). Decompiled source, models, and native libraries are not included in this repository.
+
 ## Privacy and evidence boundaries
 
 - The project does not scrape or redistribute the private Mi Fitness database.
