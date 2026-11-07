@@ -1,7 +1,7 @@
 # Play Store release status / Play 商店發行狀態
 
 Last verified / 最後驗證：2026-11-08
-Last built bundle / 上次已建置 AAB：4.0.0（手機 `versionCode 156`、手錶 `157`；含 test 4 手錶 ECG 配戴狀態研究預覽的原始碼，候選 upload key 簽章，尚未上傳 Play）
+Last built bundle / 上次已建置 AAB：4.0.0（手機 `versionCode 156`、手錶 `157`；含 test 5 手機原廠啟用說明與 test 4 手錶 ECG 研究預覽，候選 upload key 簽章，尚未上傳 Play）
 Current source / 目前原始碼：4.0.0 (`versionCode 155`；尚未上傳 Play)
 Package / 套件：`com.jaysato.xiaomihealthbridge`
 
@@ -12,7 +12,7 @@ Package / 套件：`com.jaysato.xiaomihealthbridge`
 - Output files: `mobile/build/outputs/bundle/release/mobile-release.aab` and `wear/build/outputs/bundle/release/wear-release.aab`.
 - The bilingual public privacy policy now resolves at `https://ailisa.net/privacy/xiaomi-health-bridge` (HTTP 200 verified 2026-11-07); the project page links to it. Use this direct URL in the Play listing.
 - A new candidate upload keystore was generated **outside Git** on 2026-11-07. Its public certificate SHA-256 is `CA:BC:F3:70:D8:4A:2E:4D:BF:72:CE:B9:AF:2D:71:20:12:F4:04:05:89:86:34:95:3E:01:B7:FA:2C:FD:EE:A8`. Both AABs were rebuilt with this key; `jarsigner -verify -verbose -certs` reports `jar verified` and the `CN=Wang You-Jie, OU=Independent Developer, O=AILISA, C=TW` signer for both. This is not yet a registered Play upload certificate.
-- SHA-256 of the **2026-11-08 test 4 source rebuild** signed candidate AABs: mobile `A6EFA3F025566DD1F9ACF0BF8D9BF5B0BD7BFAC1893BF1BD4B187F9818CD357A`; Wear `D51DE183B42AA5CA0B8211BD597A451CD9465C844701D926D8C0D6D4088F4626`. `jarsigner -verify -certs` returned `jar verified` for both. The candidate upload key identity is recorded above; it is not yet registered in Play Console.
+- SHA-256 of the **2026-11-08 test 5 source rebuild** signed candidate AABs: mobile `0F3CCF6144DA99C8BB793308E985D1452854FC3F37A1AE6F1E1771C5163EC845`; Wear `D8B4FE3CAECC22308813074F59B58DA21FE39D9763D65ECC34A192822D1A521F`. `jarsigner -verify -certs` returned `jar verified` for both, and both release bundle tasks passed. The candidate upload key identity is recorded above; it is not yet registered in Play Console.
 - The public sideload test APKs use the separate Android Debug certificate SHA-256 `0C:35:A3:70:03:2B:FE:70:6E:F5:4E:C6:A7:89:BC:DC:7E:53:D1:9C:94:B4:44:FA:6B:67:02:7A:3C:B8:75:0F`. `apksigner verify --print-certs` confirmed it on both released APKs. Preserve this distinction if Console asks for proof that the package name was previously installed outside Play.
 - The 4.0.0 release variant now excludes the manual APK-install permission and receiver, and hides the phone/watch APK-transfer controls. Debug builds retain the manual test flow. Both variants compiled on 2026-11-07; inspect final signed manifests again before upload.
 - These are signed **candidate** AABs. The owner must back up the keystore and password recovery material, confirm the package-name ownership path and upload certificate in Play Console, complete declarations and testing, and verify device delivery before production publication.
