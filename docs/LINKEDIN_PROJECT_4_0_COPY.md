@@ -30,5 +30,5 @@ An open-source Android phone and Xiaomi Watch 2 Pro / Wear OS project by Wang Yo
 
 ## Evidence before posting / 發布前核對
 
-- Test 18 source and APKs use the public name AILISA Health Bridge and new package `net.ailisa.healthbridge`; the GitHub Release and updated ailisa.net page are prepared but must be verified after publication. The phone migration bridge completed one on-device import; keep the old app until the owner checks counts. The paired watch remains below the 40% install threshold, so test 18 Wear UI, sensors and bidirectional sync are unverified. Do not claim ECG was unlocked or any derived metric clinically validated.
+- Test 18 source and APKs use the public name AILISA Health Bridge and new package `net.ailisa.healthbridge`; the GitHub Release APKs and updated ailisa.net page returned HTTP 200 after publication on 2026-11-08. The phone migration bridge completed one on-device import; keep the old app until the owner checks counts. The paired watch remains below the 40% install threshold, so test 18 Wear UI, sensors and bidirectional sync are unverified. Do not claim ECG was unlocked or any derived metric clinically validated.
 - Add the project to the user's own LinkedIn profile only after the authenticated profile and destination fields can be verified. Record the resulting project URL after saving.
