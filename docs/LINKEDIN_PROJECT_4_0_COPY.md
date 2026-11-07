@@ -31,6 +31,6 @@ An open-source Android phone and Xiaomi Watch 2 Pro / Wear OS project by Wang Yo
 ## Evidence before posting / 發布前核對
 
 - The 4.0.0 test 9 prerelease and both APK assets are live; all three public downloads were fetched again and matched their local SHA-256: https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.9
-- The public bilingual page is live at Site version 176; HTTP 200, test 9 links, and both APK hashes were checked: https://ailisa.net/portfolio/xiaomi-health-bridge
+- The public bilingual page is live at Site version 177; HTTP 200, test 9 links, both APK hashes, and the installed-phone ECG pipeline document link were checked: https://ailisa.net/portfolio/xiaomi-health-bridge
 - The test 9 phone and watch APKs installed and launched on the owner's connected pair on 2026-11-08. The watch-side OEM ECG entry previously showed activation guidance; the owner reports no Mi Fitness ECG card. Actual on-wrist SpO₂/temperature/stress capture and bidirectional sync remain unverified; do not claim that ECG was unlocked or any derived metric clinically validated.
 - Add the project to the user's own LinkedIn profile only after the authenticated profile and destination fields can be verified. Record the resulting project URL after saving.
