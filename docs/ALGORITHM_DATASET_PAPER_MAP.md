@@ -1,7 +1,7 @@
 # Algorithm, dataset, and paper provenance / 演算法、資料庫與論文溯源
 
 作者 / Author: 王宥傑 (Wang You-Jie)
-最後更新 / Last updated: 2026-11-07
+最後更新 / Last updated: 2026-11-08
 
 本文件說明資料來源、使用的演算法及程式位置。公開資料庫只供離線研究工具使用，不包含在 App、APK 或 Git 儲存庫；App 即時資料來自使用者授權的 Health Connect、Wear OS Health Services 或裝置感測器。
 
@@ -20,6 +20,7 @@ This document identifies data sources, algorithms, and implementations. Public d
 | Charlton et al., wearable PPG review, PMC7612541 | PPG morphology、motion artifact、signal quality 與驗證設計背景。 | 研究文件與工程邊界；未複製臨床 classifier | Review 不能提供通用腕式校準或醫療宣稱。 |
 | Takazawa PMID 9719069; J-SHIPP PMID 26911232; VascAgeNet PMID 34951543 | 探索性 vascular-age 研究背景。 | `ResearchClinicalEvidence.kt` 與 health-analysis 文件 | 不宣稱本裝置或個人已有驗證的血管年齡。 |
 | MAX86178 datasheet / MAXREFDES106 | ECG/PPG/BioZ AFE 能力與校準缺口分析。 | `research/max86178-calibration-evidence.md`, `docs/MAX86178_CALIBRATION_EVIDENCE_2026-10-10.md` | 不證明零售手錶的寄存器、導聯、增益、時鐘或 raw-code→mV；不得移植 MAX30003 公式。 |
+| Installed Xiaomi Health watch APK, SHA-256 `920459E3…A4F83B5965` | **程式結構對照，非論文或公開資料庫**：ECG 65573 事件的前 10 欄、索引 10 標記、離腕條件與 native 分析邊界。 | `wear/.../EcgEventPreview.kt`, `WearEcgActivity.kt`; detailed evidence in `WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`. | 只修正研究預覽的欄位選擇；未移入原廠程式碼／函式庫，未取得其訓練資料、校準、醫療驗證或使用權。 |
 
 ## Runtime algorithms / App 執行期演算法
 
@@ -28,6 +29,7 @@ This document identifies data sources, algorithms, and implementations. Public d
 - `mobile/.../BiomedicalCalibration.kt`: ECG/PPG/BioZ/溫度證據閘門；映射、取樣時鐘、增益或校準未驗證時封鎖生理單位。
 - `mobile/.../AlgorithmicInsightsEngine.kt`: 確定性彙整已授權的 Health Connect 紀錄；執行時不查詢或訓練 PhysioNet。
 - `benchmark_ecg_qrs.py` / `benchmark_wrist_ppg.py`: 可重現離線 benchmark；Android App 不會呼叫。
+- `wear/.../EcgEventPreview.kt`: 依目前手錶上原廠 APK 的靜態行為，僅將符合 16 欄且索引 10 標記為 1000 的原始事件前 10 欄展示為**未校準候選值**；研究頁明示尚無同步離腕狀態、可信 mV 或節律判讀。此行為來源是 APK 對照，不是公開論文，也不代表取得原廠演算法。
 
 ## Newly reviewed external sources / 新查核的外部來源
 

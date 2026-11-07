@@ -305,14 +305,15 @@ class WearEcgActivity : ComponentActivity() {
         val rows = if (active) snapshot.eventRawValueRows.takeLast(120) else snapshot.eventRawValueRows
         val decoded = EcgRawEventDecoder.decode(rows)
         val structureConclusion = EcgEventStructureInterpreter.interpret(rows.size, decoded.layoutComparison)
-        val eventPreview = EcgEventPreview.firstField(snapshot.eventRawValueRows)
+        val eventPreview = EcgEventPreview.oemPacketCandidates(snapshot.eventRawValueRows)
         chart.setSamples(eventPreview)
-        chart.contentDescription = "ECG 原始事件欄位 0 候選值預覽；橫軸事件序號；欄位映射未驗證，不代表 ECG 波形"
+        chart.contentDescription = "ECG 最近連續原始封包的前 10 欄候選值預覽；僅含第 11 欄標記 1000 的事件，但未核對離腕狀態、時鐘與單位；不代表已校準 ECG 波形"
         chart.visibility = if (eventPreview.size >= 2) View.VISIBLE else View.GONE
         headline.text = if (active) "量測中 · ${snapshot.eventCount} 個 Sensor API 事件" else "已保存 ${snapshot.eventCount} 個原始事件"
         val layout = decoded.layoutComparison
         detail.text = buildString {
             append("欄位映射：未驗證（${decoded.status}）；原始保存：${snapshot.eventRawValuesStatus}。近期預覽 ${rows.size} 列 × 16 欄 = ${decoded.inspectedFieldValueCount} 個欄位數值；前 10 欄假設候選 ${decoded.candidateValueCount} 個，不是已解碼 ECG 樣本。\n")
+            append("原廠 APK 對照：此裝置的原廠程式讀取感測器 65573、每列前 10 欄，並在第 11 欄（索引 10）為 1000 且離腕感測器回報配戴時才交由原廠演算法處理。近期 ${EcgEventPreview.oemMarkerCount(rows)}/${rows.size} 列有 1000 標記；本 APP 未同步驗證離腕狀態，故僅顯示原始候選值，不作接觸品質、mV 或節律判斷。\n")
             append("排列假設相鄰差絕對中位數：列優先 ${layout?.rowMajorMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}；欄優先 ${layout?.columnMajorMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}。同列 ${layout?.withinRowMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}；跨列邊界 ${layout?.rowBoundaryMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}。只是數值排列比較，不驗證欄位映射。\n")
             append("第 12 欄（索引 11）僅作計數器假設檢查：+10 ${layout?.counterPlusTenTransitions ?: 0} 次、重置／重複 ${layout?.counterResetTransitions ?: 0} 次、其他遞增 ${layout?.otherCounterTransitions ?: 0} 次；不據此認定語義。\n")
             append("封包結構結論：${structureConclusion.headline}\n")
