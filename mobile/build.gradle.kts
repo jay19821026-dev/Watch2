@@ -34,7 +34,7 @@ android {
         applicationId = "com.jaysato.xiaomihealthbridge"
         minSdk = 28
         targetSdk = 36
-        versionCode = playMobileVersionCode ?: 163
+        versionCode = playMobileVersionCode ?: 166
         versionName = "4.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
