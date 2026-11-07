@@ -74,6 +74,8 @@ Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商�
 
 Mi Fitness 9.8.348i 的 clean-room 靜態反組譯、資料管線差異、可合法借鏡功能與不可重用的專有邊界，請見 [`docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md`](docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md)。反組譯原始碼、模型與原生程式庫未納入本儲存庫。
 
+已安裝的 Mi Fitness 3.59.2i 如何解析、驗證、儲存與顯示原廠 ECG 紀錄，及其與本專案 Android 原始感測事件的差異，請見 [`docs/MI_FITNESS_3_59_2I_ECG_RECORD_PIPELINE.md`](docs/MI_FITNESS_3_59_2I_ECG_RECORD_PIPELINE.md)。
+
 Watch 2 Pro 4.0 原廠手錶 APK、ECG 啟用閘門與功能入口逐項盤點，請見 [`docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`](docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md)。
 
 手機共用 APK 的完整功能類別、產品功能鍵與這隻 Watch 2 Pro 即時感測器清單的中英文對照，請見 [`docs/OEM_APK_CAPABILITY_BREAKDOWN.md`](docs/OEM_APK_CAPABILITY_BREAKDOWN.md)。
