@@ -28,11 +28,11 @@ class IrregularRhythmActivity : ComponentActivity() {
             setBackgroundColor(Color.rgb(242, 242, 247))
         }
         root.addView(TextView(this).apply {
-            text = "心律通知"; textSize = 34f; setTextColor(Color.BLACK)
+            text = "ECG 心電圖"; textSize = 34f; setTextColor(Color.BLACK)
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "最近一筆研究結果（歷史記錄，不代表即時心律）；非醫療 AF 診斷"
+            text = "手錶原始 ECG 研究量測與最近紀錄；不提供醫療診斷"
             textSize = 14f; setTextColor(Color.rgb(90, 90, 100))
             setPadding(0, dp(6), 0, dp(18))
         })
@@ -43,6 +43,11 @@ class IrregularRhythmActivity : ComponentActivity() {
             setPadding(0, 0, 0, dp(10))
         }
         root.addView(commandFeedback)
+        root.addView(card(
+            "原廠 ECG 啟用",
+            "原廠啟用狀態由手錶內的 Xiaomi 健康服務與手機 Mi Fitness 管理。本 App 不會修改原廠狀態。若手錶顯示 Activation Guidance，請在 Mi Fitness 查找 ECG 卡片；若沒有，無法由此卡片啟用原廠 ECG。下方可獨立擷取原始感測事件。",
+            Color.rgb(90, 90, 100)
+        ))
 
         val title = raw.getString("ecg_rhythm_title", null)
         val detail = raw.getString("ecg_rhythm_detail", null)

@@ -5,11 +5,21 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class EcgConsumerStatusTest {
-    @Test fun insufficientEvidenceRemainsMeasuring() {
+    @Test fun idleCardDoesNotClaimMeasurementIsRunning() {
+        val result = EcgConsumerStatus.classify(false, null, false)
+        assertEquals(EcgConsumerStatus.State.IDLE, result.state)
+        assertEquals("尚未量測", result.label)
+    }
+    @Test fun savedRawEvidenceIsNotShownAsAnActiveMeasurement() {
         assertEquals(
-            EcgConsumerStatus.State.MEASURING,
+            EcgConsumerStatus.State.UNDETERMINED,
             EcgConsumerStatus.classify(false, "規則", true).state
         )
+    }
+
+    @Test fun activeMeasurementIsExplicit() {
+        assertEquals(EcgConsumerStatus.State.MEASURING,
+            EcgConsumerStatus.classify(false, null, false, measurementInProgress = true).state)
     }
 
     @Test fun eligibleRegularRhythmIsNormal() {

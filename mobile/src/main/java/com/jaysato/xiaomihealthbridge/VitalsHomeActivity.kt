@@ -238,10 +238,10 @@ class VitalsHomeActivity : ComponentActivity() {
             startActivity(Intent(this, MetricDetailActivity::class.java).putExtra("metric", "oxygen"))
         })
         root.addView(tile(
-            "ECG",
+            "ECG 心電圖",
             if (ecgAvailability == SensorResultAvailability.RESULT_AVAILABLE) ecgDisplayValue(raw)
             else ecgAvailability?.label ?: "待量測",
-            EcgHomeCardPresentationPolicy.supportingText(ecg?.valueText, ecgAvailability),
+            EcgHomeCardPresentationPolicy.supportingText(ecg?.valueText, ecgAvailability) + "\n獨立原始量測；原廠 ECG 須由 Mi Fitness 啟用。",
             Color.rgb(52, 199, 89), measurementPath = "/control/ecg-now"
         ) {
             startActivity(Intent(this, IrregularRhythmActivity::class.java))
