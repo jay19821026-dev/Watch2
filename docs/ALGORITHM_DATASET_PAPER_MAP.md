@@ -3,9 +3,9 @@
 作者 / Author: 王宥傑 (Wang You-Jie)
 最後更新 / Last updated: 2026-11-08
 
-本文件說明資料來源、使用的演算法及程式位置。公開資料庫只供離線研究工具使用，不包含在 App、APK 或 Git 儲存庫；App 即時資料來自使用者授權的 Health Connect、Wear OS Health Services 或裝置感測器。
+本文件說明資料來源、使用的演算法及程式位置。表中的公開資料庫分為「已執行離線基準」、「描述性比較」及「僅評估候選」；列入表格不表示已用來訓練、驗證或校準手錶。資料檔不包含在 App、APK 或 Git 儲存庫；App 即時資料來自使用者授權的 Health Connect、Wear OS Health Services 或裝置感測器。
 
-This document identifies data sources, algorithms, and implementations. Public datasets are used only by offline research tools and are not bundled in the app, APKs, or repository. Runtime data comes from user-authorized Health Connect, Wear OS Health Services, or device sensors.
+This document identifies data sources, algorithms, and implementations. Listed public datasets include completed offline benchmarks, descriptive comparisons, and candidates reviewed only for future work; listing is not proof of model training, watch validation, or calibration. Dataset files are not bundled in the app, APKs, or repository. Runtime data comes from user-authorized Health Connect, Wear OS Health Services, or device sensors.
 
 **OEM provenance boundary / 原廠來源界線：** 反組譯可看出手錶 `libfitness` ECG native 函式與手機 `mi_stage_model_0_1_1.tflite` 睡眠模型存在，也可追蹤輸入與輸出介面；APK 沒有可核驗的訓練資料清單、原廠校準係數、臨床驗證報告或對應論文。不能將本表的 MIT-BIH、PPG-DaLiA 或其他公開資料庫寫成小米原廠演算法的來源。Those OEM dataset and paper origins are **unknown from the inspected binaries**, not silently attributed to an open study.
 
@@ -27,6 +27,14 @@ This document identifies data sources, algorithms, and implementations. Public d
 | Same installed Xiaomi Health watch APK; `Spo2ViewModel`, `TemperatureViewModel` and OEM English resources | Test 15 uses **OEM acquisition guidance and result-path structure**, not a paper-derived clinical algorithm: wrist contact and stillness for SpO₂; ten-minute wear, dry wrist/watch, and avoiding charging/recent high-power use for skin temperature. Service `20485` integer and `20500` float results are distinct from Android raw events. | `WearMeasurePageActivity.kt` preparation tips; [SpO₂/temperature source trace](OEM_SPO2_TEMPERATURE_SOURCE_TRACE.md). | The OEM integer/float decoders are not applied to our raw HAL values; the OEM °C range and service error codes are not treated as raw-sensor calibration or validity thresholds. No proprietary result, calibration or paper is imported. |
 | Installed Mi Fitness phone APK 3.59.2i, SHA-256 `D7B0A2B4…9229CFBE2` | **OEM data-flow evidence, not an algorithm or public dataset**: ECG parser carries a report sampling frequency, rejects records shorter than 25 seconds, stores report metadata separately from original bytes, and later calls a private ECG filter for display. / 原廠資料流證據，非演算法或公開資料庫。 | [ECG record pipeline audit](MI_FITNESS_3_59_2I_ECG_RECORD_PIPELINE.md); compare our `EcgHalEventResearchDecoder` and `WearDataProcessor`. | The phone's typed OEM record is distinct from our Android type-65573 raw events. Its sample frequency, filter, and display scaling cannot calibrate our events; no OEM code or data is incorporated. / 不得拿原廠取樣率、濾波器或顯示比例校準本專案原始事件。 |
 | Installed Mi Fitness phone APK 3.59.2i, same SHA-256 | **OEM sleep report structure, not an imported algorithm or dataset**: separates sleep/wake durations and includes stage intervals only when the parser reports them; a private native sleep algorithm parses source bytes. | [Sleep record comparison](MI_FITNESS_3_59_2I_SLEEP_RECORD_PIPELINE.md); `SleepSummaryActivity.kt` and `SleepIntervalMath.kt` use Health Connect stages with the existing completeness gate. | No Xiaomi sleep source bytes, native algorithm, score, stage validation or training data are used. Incomplete public stages remain session time, not estimated sleep or REM/deep. |
+
+## Reproducible use status / 實際使用狀態
+
+| Source | Current evidence / 目前證據 | Interpretation / 解讀 |
+|---|---|---|
+| Wrist PPG During Exercise v1.0.0 | The local, ignored `wrist-ppg-benchmark-clean-venv.json` records 59/59 checksum matches, 19/19 records processed and 218 reference-valid 30-second windows. The peak-count baseline emitted estimates for 103/218 windows (47.2%); MAE was 37.11 bpm for emitted windows. Its exploratory quality screen accepted 0/218 windows. Reproduction steps and the source/registry/lock fingerprints are in [research instructions](../research/clinical-data/README.md). | **Failed transferability baseline**, not evidence of usable Xiaomi pulse-rate accuracy. The dataset used other sensors; relative-zero alignment is unverified, and no watch sample was paired to its chest ECG. / 已執行但成績不足，不能宣稱小米心率準確。 |
+| MIT-BIH Arrhythmia v1.0.0 | The QRS benchmark runner and tests exist, but the current local `mitdb` directory has no complete signal set and no `mitdb-xqrs.json` result. | The method is implemented; a reproducible dataset run and result are **not currently verified**. Do not cite a detector sensitivity or PPV for this project until the dataset and run are complete. / 目前不能宣稱已完成 MIT-BIH 結果。 |
+| Other rows in the traceability matrix | Each row states whether it is a descriptive comparison, an implementation reference, or a candidate only. OEM APK traces are product-behavior evidence rather than public datasets or licensed algorithms. | None supplies a Watch 2 Pro calibration profile, OEM training corpus, or clinical validation. / 不能把文獻或 APK 名稱當成裝置校準證明。 |
 
 ## Runtime algorithms / App 執行期演算法
 
