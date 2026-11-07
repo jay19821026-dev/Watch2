@@ -114,12 +114,12 @@ class WearMeasurePageActivity : ComponentActivity() {
         TEMPERATURE(
             "TEMPERATURE RAW", "溫度感測器原始值", "#FFB347",
             RawVitalsProbe.Kind.BODY_TEMPERATURE, WearControlService.ACTION_MEASURE_TEMPERATURE, 1,
-            "原廠體溫頁會監看離腕狀態；本頁需確認佩戴才標示原始擷取完成。單位與轉換未驗證，不顯示攝氏或判定體溫。"
+            "原廠說明建議佩戴至少 10 分鐘、保持手腕與手錶乾燥，避免充電或高耗電操作後立即量測。本頁另需確認佩戴才標示原始擷取完成；原始值單位未驗證，不顯示攝氏或判定體溫。"
         ),
         SPO2(
             "SpO₂ RAW", "血氧原始通道", "#56AEFF",
             RawVitalsProbe.Kind.SPO2, null, 8,
-            "原廠血氧頁會監看離腕狀態；本頁需公開感測器回報已佩戴才將原始封包標為完成。HAL 單位未驗證，不寫入百分比歷史。"
+            "請讓手錶貼合皮膚、收緊錶帶並保持手腕靜止。原廠血氧頁也會監看離腕狀態；本頁需確認佩戴才標示原始擷取完成。HAL 單位未驗證，不寫入百分比歷史。"
         ),
         SUITE(
             "SENSOR SUITE", "全感測器掃描", "#56AEFF",

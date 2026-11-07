@@ -29,6 +29,7 @@ Xiaomi Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 - 提供公開 ECG／PPG 資料庫的離線比較與演算法基準工具。
 - 4.0 新增血氧手動／主動／自動紀錄方式篩選，以及手錶上由使用者點擊的原廠功能入口；原廠是否啟用仍以原廠畫面為準。
 - test 14 依原廠手錶程式釐清「呼吸練習」是引導式練習，新增手錶首頁入口；它與 BioZ 呼吸速率研究分開，不將練習心率當作呼吸率。
+- test 15 依已安裝原廠程式的血氧及體溫流程改善量測前提示，並[逐步對照原廠服務結果與 Android 原始事件](docs/OEM_SPO2_TEMPERATURE_SOURCE_TRACE.md)；原始值仍不冒充百分比或攝氏溫度。
 
 ## 重要醫療聲明
 
@@ -38,12 +39,12 @@ Xiaomi Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 
 ## APK 安裝
 
-4.0.0 test 14 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/xiaomi-health-bridge#downloads) 或 [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.14) 下載：
+4.0.0 test 15 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/xiaomi-health-bridge#downloads) 或 [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.15) 下載：
 
-- `XiaomiHealthBridge-Mobile-4.0.0-vc162-test14-debug.apk`：安裝到 Android 手機
-- `XiaomiHealthBridge-Wear-4.0.0-vc162-test14-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
+- `XiaomiHealthBridge-Mobile-4.0.0-vc163-test15-debug.apk`：安裝到 Android 手機
+- `XiaomiHealthBridge-Wear-4.0.0-vc163-test15-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
 
-Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。先前依 test 12 原始碼建置的 Play 候選 AAB 尚未上傳，已被此版原始碼取代。安裝前請核對 [test 14 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.14/SHA256SUMS-4.0.0-test.14.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
+Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。先前依 test 12 原始碼建置的 Play 候選 AAB 尚未上傳，已被此版原始碼取代。安裝前請核對 [test 15 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.15/SHA256SUMS-4.0.0-test.15.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
 
 專案也提供 PowerShell 安裝腳本；它會建置目前版本、檢查套件名稱／版本／簽章，再以 `adb install -r` 保留既有 App 資料：
 
