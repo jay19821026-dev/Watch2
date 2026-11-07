@@ -66,9 +66,9 @@ For this watch, the ECG, PPG, SpO₂, HR, BioZ and temperature paths are therefo
 
 ## OEM switches on this watch / 原廠手錶端的開關
 
-The installed watch's `LocalData` parcel contains separate fields for `assistSleep`, `sleepBreathQuality`, `bloodOxygenMonitor`, `heartRateMonitor`, `stressMonitor`, `stand_reminder_on`, and `ecgActivation`, along with alert thresholds and goals. In the installed privileged service, reconstructed `o8/a.java` reads them from its private `local_data` preferences using keys `assistSleep`, `sleepBreathQuality`, `bloodOxygenMonitor`, `heart_rate_monitor`, `stress_monitor`, `stand_reminder_on`, and `ecg_activation_status`. These are **configuration/activation state values**, distinct from physical sensor presence. The observed reads do not identify which phone command or server decision writes each value.
+The installed watch's `LocalData` parcel contains separate fields for `assistSleep`, `sleepBreathQuality`, `bloodOxygenMonitor`, `heartRateMonitor`, `stressMonitor`, `stand_reminder_on`, and `ecgActivation`, along with alert thresholds and goals. In the installed privileged service, reconstructed `o8/a.java` reads them from its private `local_data` preferences using keys `assistSleep`, `sleepBreathQuality`, `bloodOxygenMonitor`, `heart_rate_monitor`, `stress_monitor`, `stand_reminder_on`, and `ecg_activation_status`. These are **configuration/activation state values**, distinct from physical sensor presence. A further trace of `WhsService.java` finds writers for several monitoring settings: the service receives a structured configuration message, stores the value, and forwards a compact command to a lower device layer. This establishes a genuine software-controlled monitoring route on this watch. The reconstructed code does not establish that every control is open to third-party apps or reveal every upstream phone/account rule.
 
-這隻手錶的原廠服務確實把「輔助睡眠、睡眠呼吸品質、全天血氧、心率監測、壓力監測、久坐提醒、ECG 啟用」當作各自的設定或啟用狀態保存。這支持你指出的「手機 App 有些功能是在開關手錶既有功能」。目前已定位讀取位置，但**尚未逐一確認寫入命令**；不能把設定欄位等同校準完成或把 `false` 全改 `true` 當成有效量測。
+這隻手錶的原廠服務確實把「輔助睡眠、睡眠呼吸品質、全天血氧、心率監測、壓力監測、久坐提醒、ECG 啟用」當作各自的設定或啟用狀態保存。進一步追到部分寫入流程：原廠服務接收設定訊息後，會保存開關，並向更底層轉送設定命令。這是「手機 App 操作既有手錶功能」的直接程式證據。ECG 啟用的上游寫入路徑仍未定位；不能把設定欄位等同校準完成或把 `false` 全改 `true` 當成有效量測。
 
 | OEM setting/state | Local preference key | Runtime meaning established by inspection |
 |---|---|---|
@@ -80,7 +80,28 @@ The installed watch's `LocalData` parcel contains separate fields for `assistSle
 | Stand reminder / 久坐提醒 | `stand_reminder_on` | Stored reminder toggle, not a physiological sensor. |
 | ECG activation / ECG 啟用 | `ecg_activation_status` | Stored activation state; on this watch the visible OEM page requested phone ECG-card activation. |
 
+Concrete write trace: in the installed service's `WhsService.java`, `syncSpo2Config` persists `bloodOxygenMonitor` and an oxygen warning goal, then calls a lower-layer configuration path; `syncHeartRateConfig` persists `assistSleep` and `sleepBreathQuality`, and updates `heart_rate_monitor` separately. The service's `handleCloseOrOpenHealthAllMonitor` reads current values for SpO₂, stress, HR and both sleep options and forwards their states during monitor resume. A second service source file `whs_service/s.java` also writes HR, sleep, SpO₂ and stress settings. These are observations of OEM behavior, **not** a supported third-party control protocol; this project does not replay private messages or alter the OEM service.
+
+具體寫入路徑：`WhsService.java` 的血氧設定流程保存全天監測與警示門檻；心率設定流程保存輔助睡眠、睡眠呼吸品質和心率監測設定；重新啟動監測時會讀取並下送已保存的狀態。`whs_service/s.java` 另有心率、睡眠、血氧、壓力設定寫入。這些是原廠內部流程觀察，不是可對第三方保證的介面。
+
 This is a stronger distinction than simply counting APK classes: the **same installed watch** advertises the relevant sensor channels and stores separate OEM feature switches. To establish a specific software lock as the only obstacle, each switch still needs a traced writer and a successful device measurement after activation. / 相較只數 APK 類別，這是更直接的實機證據；但要證明某項功能「只差軟體鎖」，仍須追到該開關的寫入來源，並驗證開啟後的量測結果。
+
+## Watch 5 identity hypothesis / 模擬手錶 5 身分的假設
+
+Xiaomi's [Watch 5 product page](https://www.mi.com/sg/product/xiaomi-watch-5/) advertises ECG reports and says the watch firmware and Mi Fitness app must be updated. Its [Watch 5 FAQ](https://www.mi.com/uk/support/faq/details/KA-667495/) also states that the Watch 5 does **not** support body-temperature or body-composition measurement. Therefore “all Watch 5 functions” is not a superset of the channels present on this Watch 2 Pro, and the models cannot be treated as interchangeable feature profiles.
+
+小米官方 Watch 5 頁面列出 ECG，但官方 FAQ 又指出 Watch 5 不支援體溫和體成分量測；這隻 Watch 2 Pro 卻有溫度和 BioZ 通道。因此「套用 Watch 5 的全部功能」不是把這隻錶現有能力全部打開的等價操作。
+
+| Layer to test / 待測層 | Existing evidence / 現有證據 | Prediction if only the phone product features were changed / 只改手機產品功能清單的預期 |
+|---|---|---|
+| Phone ECG card | The supplied APK's card type `162` checks product `features.contains("ecg")`; the owner currently sees no card for Watch 2 Pro. | A product record containing `ecg` passes **this card visibility check**. Other checks and official activation still apply. |
+| Watch raw ECG channel | This actual Watch 2 Pro advertises sensor type `65573`; prior owner-device testing recorded raw events. | No model spoof is required to establish the raw Android sensor path. |
+| OEM ECG measurement | This actual watch's OEM ECG entry showed activation guidance; privileged service stores `ecg_activation_status`. | Phone card visibility alone does not set the watch service flag or validate the OEM analysis. |
+| Other monitoring toggles | The installed service stores and forwards SpO₂, HR, sleep and stress settings. | Each can have its own product/phone/service gate; an ECG feature flag does not automatically enable them. |
+
+**Static simulation result so far:** evaluation of the decompiled card predicate gives `features.contains("ecg") = true` for a hypothetical eligible product record; the real Watch 2 Pro still has a visible OEM activation gate, and raw ECG events were already obtainable. This is a **two-layer counterexample** to “change the model name and everything unlocks.” No Watch 5 product record, phone APK, pairing identity, private service preference or medical output was modified. A real device-identity change would additionally risk pairing and cloud state and would not isolate which gate caused the outcome. The next discriminating evidence is the paired phone's actual product feature list and the OEM service's activation writer.
+
+**目前靜態模擬結論：** 按手機程式的判斷式，假設產品清單含 `ecg`，該卡片可通過這一關；Watch 2 Pro 的原始 ECG 通道本來就可見，但原廠量測仍顯示啟用提示。這證明至少有不同層的軟體狀態，尚不能說改一個機型名稱就全開。本次未更改手錶身分、配對資料、原廠服務或醫療輸出。
 
 ## Installed watch packages / 這隻手錶實際安裝的模組
 
