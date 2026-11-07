@@ -106,7 +106,7 @@ Record only aggregate operational evidence:
 
 | Date | Play Console eligible/opted-in count | Release version | New failures | Fix/reference | Notes |
 |---|---:|---|---:|---|---|
-| YYYY-MM-DD | 0 | 3.13.44 (154) | 0 | — | Test not started |
+| YYYY-MM-DD | 0 | 4.0.0 (155), only after release signing | 0 | — | Test not started |
 
 Keep screenshots of the Play Console count in a private owner-controlled location. Do not publish tester email addresses or account lists in GitHub.
 

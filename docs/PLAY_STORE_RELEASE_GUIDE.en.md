@@ -1,6 +1,6 @@
 # Google Play Release Guide
 
-Developer/author: Wang You-Jie (王宥傑) · Package: `com.jaysato.xiaomihealthbridge` · Version: 3.13.44 (154)
+Developer/author: Wang You-Jie (王宥傑) · Package: `com.jaysato.xiaomihealthbridge` · Current source: 4.0.0 (155)
 
 The GitHub APKs are debug sideload builds, not Play Store production binaries. Google Play requires a release-signed Android App Bundle and Play App Signing.
 
@@ -10,7 +10,7 @@ Do not claim diagnosis, treatment, disease detection, emergency monitoring, clin
 
 ## New personal-account timeline
 
-Play Console currently shows that the signed-in Google account does not yet have a developer account. A new personal developer account created after November 13, 2023 must run a closed test with at least 12 continuously opted-in testers for 14 days before it can apply for production access. Internal testing can begin earlier but does not replace this gate. See [Google Play's personal-account testing requirements](https://support.google.com/googleplay/android-developer/answer/14151465).
+The personal Play Console developer account exists, but the last direct Console check found identity-document review pending and **Create app** disabled. No approval email was found in the connected Gmail search on 2026-11-07; that search alone cannot prove the Console state. Recheck the Console after Google notifies the owner. A new personal developer account created after November 13, 2023 must run a closed test with at least 12 continuously opted-in testers for 14 days before it can apply for production access. Internal testing can begin earlier but does not replace this gate. See [Google Play's personal-account testing requirements](https://support.google.com/googleplay/android-developer/answer/14151465) and [current project release status](PLAY_STORE_RELEASE_STATUS.md).
 
 Ready-to-use bilingual invitations, test cases, privacy-safe feedback fields, the daily evidence log, and production-access answer templates are in `docs/PLAY_CLOSED_TEST_PLAN.md`.
 

@@ -81,11 +81,11 @@ https://github.com/jay19821026-dev/Watch2
 
 ### zh-TW
 
-`3.13.44 首次公開測試版：提供 Android 手機與 Wear OS 手錶健康資料整理、Health Connect 權限與來源顯示、同步狀態、非診斷性趨勢摘要，以及完整中英文隱私與研究溯源文件。`
+`4.0.0 測試版：新增血氧 Health Connect 紀錄的量測方式篩選，並在手錶提供由使用者點擊的原廠功能入口。保留健康資料來源、同步狀態與研究限制；原廠 ECG 是否啟用仍由 Mi Fitness 與手錶服務決定。`
 
 ### en-US
 
-`3.13.44 initial public test release: Android and Wear OS health-record organization, Health Connect permissions and source display, synchronization status, non-diagnostic trend summaries, and complete bilingual privacy and research-traceability documentation.`
+`4.0.0 test release: Adds Health Connect SpO₂ recording-method filters and user-tapped OEM feature links on the watch. Health-data provenance, sync status, and research limits remain visible. Mi Fitness and the OEM watch service determine whether ECG is activated.`
 
 ## Console selections / 管理中心選項
 
