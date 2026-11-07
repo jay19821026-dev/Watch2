@@ -1,18 +1,18 @@
 # Play Store release status / Play 商店發行狀態
 
-Last verified / 最後驗證：2026-11-07
-Last built bundle / 上次已建置 AAB：4.0.0（手機 `versionCode 156`、手錶 `157`；候選 upload key 簽章，尚未上傳 Play）
+Last verified / 最後驗證：2026-11-08
+Last built bundle / 上次已建置 AAB：4.0.0（手機 `versionCode 156`、手錶 `157`；依目前含手機 ECG 卡片的程式碼重新建置，候選 upload key 簽章，尚未上傳 Play）
 Current source / 目前原始碼：4.0.0 (`versionCode 155`；尚未上傳 Play)
 Package / 套件：`com.jaysato.xiaomihealthbridge`
 
 ## Verified / 已驗證
 
-- `:mobile:bundleRelease` and `:wear:bundleRelease` both build successfully with JDK 17 / Android SDK 36.
+- `:mobile:bundleRelease` and `:wear:bundleRelease` both build successfully with the configured Android toolchain. The latest candidate rebuild on 2026-11-08 passed both bundle tasks and release vital lint.
 - A Play-versioning verification build also passed on 2026-11-07 with `PLAY_MOBILE_VERSION_CODE=156` and `PLAY_WEAR_VERSION_CODE=157`. `aapt dump badging` confirmed these codes in the respective unsigned release APKs. These are example codes pending Console history inspection, not uploaded artifacts.
 - Output files: `mobile/build/outputs/bundle/release/mobile-release.aab` and `wear/build/outputs/bundle/release/wear-release.aab`.
 - The bilingual public privacy policy now resolves at `https://ailisa.net/privacy/xiaomi-health-bridge` (HTTP 200 verified 2026-11-07); the project page links to it. Use this direct URL in the Play listing.
 - A new candidate upload keystore was generated **outside Git** on 2026-11-07. Its public certificate SHA-256 is `CA:BC:F3:70:D8:4A:2E:4D:BF:72:CE:B9:AF:2D:71:20:12:F4:04:05:89:86:34:95:3E:01:B7:FA:2C:FD:EE:A8`. Both AABs were rebuilt with this key; `jarsigner -verify -verbose -certs` reports `jar verified` and the `CN=Wang You-Jie, OU=Independent Developer, O=AILISA, C=TW` signer for both. This is not yet a registered Play upload certificate.
-- SHA-256 of the current signed candidate AABs: mobile `80A8D988718E31C7954E065AFE6A1F2CC1D600934146231B6739EE548AF69617`; Wear `02ED28236979BE9EC87137A63E03C405A095D3D394713BB0636E4AC2FAB062A7`.
+- SHA-256 of the **2026-11-08 rebuilt** signed candidate AABs: mobile `3A86E17BE733BBC736EE88790A4025292008083C343583A6C1139B37E0740F04`; Wear `84C1146E8F7B7D6E1578A4E522892D022EC663E324BFF80330CFED196BB8C0B6`. `jarsigner -verify -certs` returned `jar verified` for both, and `keytool -printcert -jarfile` showed the same candidate upload certificate SHA-256 on each.
 - The public sideload test APKs use the separate Android Debug certificate SHA-256 `0C:35:A3:70:03:2B:FE:70:6E:F5:4E:C6:A7:89:BC:DC:7E:53:D1:9C:94:B4:44:FA:6B:67:02:7A:3C:B8:75:0F`. `apksigner verify --print-certs` confirmed it on both released APKs. Preserve this distinction if Console asks for proof that the package name was previously installed outside Play.
 - The 4.0.0 release variant now excludes the manual APK-install permission and receiver, and hides the phone/watch APK-transfer controls. Debug builds retain the manual test flow. Both variants compiled on 2026-11-07; inspect final signed manifests again before upload.
 - These are signed **candidate** AABs. The owner must back up the keystore and password recovery material, confirm the package-name ownership path and upload certificate in Play Console, complete declarations and testing, and verify device delivery before production publication.
@@ -26,6 +26,8 @@ Package / 套件：`com.jaysato.xiaomihealthbridge`
 - Contact-phone verification is blocked until the identity review and other required verification steps are approved.
 - The **Create app** action is disabled with the visible reason that account verification must be completed first.
 - No application has been created, no AAB has been uploaded, and no Health apps declaration has been submitted.
+
+As of 2026-11-08, a search of the connected Gmail account found no newer Google Play developer verification message. This does **not** prove the Console review is still pending; the current Console UI has not been rechecked. Do not treat this email search as approval or rejection.
 
 個人開發者帳戶已建立，但 Google 仍在審查身分文件。審查完成前無法驗證聯絡電話，也無法建立應用程式；因此目前不能進入商店資訊、健康 App 聲明、測試軌或 AAB 上傳頁面。這是 Google 帳戶驗證閘門，不是 Android 專案建置失敗。
 
