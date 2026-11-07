@@ -1,6 +1,6 @@
 # OEM SpO₂ and temperature source trace / 原廠血氧與體溫資料路徑
 
-Author / 作者：王宥傑 (Wang You-Jie)  
+Author / 作者：王宥傑 (Wang You-Jie)
 Inspected / 查核：2026-11-08
 
 ## Exact artifacts / 來源
