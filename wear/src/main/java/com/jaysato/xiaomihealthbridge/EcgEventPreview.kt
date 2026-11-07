@@ -4,14 +4,23 @@ internal object EcgEventPreview {
     // Presentation boundary only: a missing callback must not be drawn as continuous signal.
     // This is not an OEM sample period or a validated ADC clock.
     private const val MAX_PREVIEW_EVENT_GAP_NS = 1_000_000_000L
+    const val OEM_OBSERVED_WARMUP_EVENTS = 20
 
     /** Research-only packet preview from the first ten fields of each observed ECG event. */
-    fun oemPacketCandidates(rows: List<String>, contactStates: IntArray, eventTimestampsNs: LongArray): List<Float> {
-        if (rows.size != contactStates.size || rows.size != eventTimestampsNs.size) return emptyList()
+    fun oemPacketCandidates(
+        rows: List<String>, contactStates: IntArray, eventTimestampsNs: LongArray, totalEventCount: Int
+    ): List<Float> {
+        if (rows.size != contactStates.size || rows.size != eventTimestampsNs.size || totalEventCount < rows.size) return emptyList()
         var result = ArrayList<Float>()
         var previousTimestampNs = 0L
         val offset = (rows.size - 50).coerceAtLeast(0)
         for (index in offset until rows.size) {
+            // The OEM watch path ignores its first 20 ECG callbacks. Retain them in raw storage;
+            // omit them only from this OEM-informed candidate display.
+            if (totalEventCount - rows.size + index < OEM_OBSERVED_WARMUP_EVENTS) {
+                result = ArrayList()
+                continue
+            }
             val row = rows[index]
             if (row.length > 512) return emptyList()
             val fields = row.split(',')

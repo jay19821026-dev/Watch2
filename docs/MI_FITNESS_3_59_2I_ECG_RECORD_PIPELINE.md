@@ -22,6 +22,8 @@ This is a **static code trace** of the Mi Fitness `3.59.2i` base APK installed o
 
 The `25`-second rule is observed only for an **OEM record containing its own declared duration, frequency and source-data list**. Applying it to our separate Sensor API events would require a validated mapping from each event to samples and a verified point clock, which we do not have. The official parser's `analysisResult` is device-record metadata and is not computed by Xiaomi Health Bridge.
 
+The installed **watch** APK follows a different, earlier path: `we/b.java` (`EcgSensorUtil.kt`) counts ECG sensor callbacks and does not forward its first 20 to the native algorithm. Our raw capture retains those callbacks for provenance; the next research-preview source revision omits them only from the drawn candidate line. This watch-side warm-up is not the phone parser's 25-second record-acceptance rule. / 手錶端原廠程式先略過 20 個感測回呼；本專案保留原始資料，只在研究預覽省略。它與手機端 25 秒收件條件不同。
+
 上述 25 秒條件只適用於**帶有原廠報告欄位的紀錄**。不能把 4.0 的原始感測事件湊滿 25 秒就視為正式心電圖，也不能把原廠顯示路徑的 `/1000` 直接當成本專案的 raw code→mV 校準。
 
 ## Comparison with Xiaomi Health Bridge 4.0 / 與本專案 4.0 比較
