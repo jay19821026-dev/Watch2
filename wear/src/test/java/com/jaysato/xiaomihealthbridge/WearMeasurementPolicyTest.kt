@@ -11,6 +11,15 @@ import org.junit.Test
 
 class WearMeasurementPolicyTest {
     @Test
+    fun researchStressRequiresConfirmedWearOpticalSignalAndEnoughIntervals() {
+        assertTrue(WearMeasurementPolicy.canPublishResearchStressScore(true, true, 5))
+        assertFalse(WearMeasurementPolicy.canPublishResearchStressScore(false, true, 5))
+        assertFalse(WearMeasurementPolicy.canPublishResearchStressScore(null, true, 5))
+        assertFalse(WearMeasurementPolicy.canPublishResearchStressScore(true, false, 5))
+        assertFalse(WearMeasurementPolicy.canPublishResearchStressScore(true, true, 4))
+    }
+
+    @Test
     fun dedicatedPpgRequiresExtendedRawValueTarget() {
         assertEquals(1024, WearMeasurePageActivity.Mode.PPG.minSamples)
     }

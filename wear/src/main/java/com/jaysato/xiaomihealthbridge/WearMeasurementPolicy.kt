@@ -137,6 +137,9 @@ internal object WearMeasurementPolicy {
 
     fun hasEnoughRrIntervalsForHrv(rrCount: Int): Boolean = rrCount >= MIN_HRV_RR_INTERVALS
 
+    fun canPublishResearchStressScore(worn: Boolean?, opticalValid: Boolean, rrCount: Int): Boolean =
+        worn == true && opticalValid && hasEnoughRrIntervalsForHrv(rrCount)
+
     fun shouldFinishRawPpgCapture(samples: Int, waveform: List<Float>): Boolean =
         samples >= MIN_RAW_PPG_CAPTURE_SAMPLES &&
             ChipCalibrationProfiles.assessOpticalWaveform(waveform).valid

@@ -403,7 +403,7 @@ class MeasureResultActivity : ComponentActivity() {
                     }
                 }
                 status?.let { append(" · $it") }
-                stress?.let { append(" · 壓力分數 $it") }
+                stress?.let { append(" · 研究壓力分數 $it（非原廠）") }
                 append(" · 已同步手機")
             }
         }

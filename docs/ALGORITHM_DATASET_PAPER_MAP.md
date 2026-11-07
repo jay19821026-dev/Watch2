@@ -18,11 +18,12 @@ This document identifies data sources, algorithms, and implementations. Public d
 | ECG-ID v1.0.0; DOI `10.13026/C2J01F` | 尺度無關 ECG 頻譜與形態研究參考。 | `research/clinical-data/` registry 與離線比較流程 | 不是 Xiaomi 校準檔、導聯等效證據或 AF 陰性對照。 |
 | Wrist PPG During Exercise v1.0.0; DOI `10.13026/C2PQ1X`; Jarchi & Casson, *Data* 2017, DOI `10.3390/data2010001` | 腕式 PPG 心率方法對胸前 ECG R-peak 標註；動作 session 比較。 | `benchmark_wrist_ppg.py`, `test_benchmark_wrist_ppg.py` | 八位參與者與不同硬體不能證明 Xiaomi 準確度、校準或族群表現。 |
 | Orphanidou et al., IEEE JBHI 2015, DOI `10.1109/JBHI.2014.2338351` | 簡化平均 beat/pulse template-correlation SQI；參考門檻 ECG `0.66`、PPG `0.86`。 | `ClinicalReferenceTables.kt`, `SensorHealthAlgorithms.kt`, `BiomedicalCalibration.kt`, `health-engine/` tests | 簡化工程 SQI，不是論文完整驗證系統或醫療品質認證；只用於拒絕／標示研究輸出。 |
+| Project-authored HRV stress heuristic / 本專案自訂 HRV 壓力啟發式；**無對應訓練資料庫或已驗證論文公式** | `nRMSSD = RMSSD / meanRR`；`70 × clamp(1 − nRMSSD/0.20, 0, 1)` 加 `30 × clamp((bpm−50)/50, 0, 1)`，缺 bpm 時心率項為 15，最後限制 0–100。 | `health-engine/.../HealthAlgorithmEngine.kt::researchStressScore`; watch publication in `WearHrvActivity.kt` and `WearMeasurePageActivity.kt`. OEM stress APK is used **only** to inform the separate on-body gate. | Coefficients `0.20`, `70/30`, `50` and `15` are project choices, **not** derived from Xiaomi, Orphanidou, a clinical dataset or a validated stress instrument. This score must not be presented as OEM stress, a diagnosis or a blood-pressure value. |
 | PTB-XL (PhysioNet) | 選用的跨資料庫尺度無關統計與泛化檢查。 | registry/research workflow；資料由使用者下載至 `.local-research-data/` | 12 導程臨床 ECG 不等於腕式單導程／不透明 HAL event。 |
 | Charlton et al., wearable PPG review, PMC7612541 | PPG morphology、motion artifact、signal quality 與驗證設計背景。 | 研究文件與工程邊界；未複製臨床 classifier | Review 不能提供通用腕式校準或醫療宣稱。 |
 | Takazawa PMID 9719069; J-SHIPP PMID 26911232; VascAgeNet PMID 34951543 | 探索性 vascular-age 研究背景。 | `ResearchClinicalEvidence.kt` 與 health-analysis 文件 | 不宣稱本裝置或個人已有驗證的血管年齡。 |
 | MAX86178 datasheet / MAXREFDES106 | ECG/PPG/BioZ AFE 能力與校準缺口分析。 | `research/max86178-calibration-evidence.md`, `docs/MAX86178_CALIBRATION_EVIDENCE_2026-10-10.md` | 不證明零售手錶的寄存器、導聯、增益、時鐘或 raw-code→mV；不得移植 MAX30003 公式。 |
-| Installed Xiaomi Health watch APK, SHA-256 `920459E3…A4F83B5965` | **程式結構對照，非論文或公開資料庫**：ECG 65573 事件欄位與離腕條件；血氧與體溫量測頁的佩戴檢查；兩者有別於原始感測器的原廠服務結果。 | `wear/.../EcgEventPreview.kt`, `RawVitalsProbe.kt`, `WearEcgActivity.kt`, `WearMeasurePageActivity.kt`; detailed evidence in `WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`. | 只修正研究預覽的欄位選擇、佩戴狀態與完成條件；未移入原廠程式碼／函式庫，未取得其訓練資料、校準、醫療驗證或使用權。 |
+| Installed Xiaomi Health watch APK, SHA-256 `920459E3…A4F83B5965` | **程式結構對照，非論文或公開資料庫**：ECG 65573 事件欄位與離腕條件；血氧、體溫和壓力量測頁的佩戴檢查；有型別原廠服務結果與原始感測器分離。 | `wear/.../EcgEventPreview.kt`, `RawVitalsProbe.kt`, `WearEcgActivity.kt`, `WearMeasurePageActivity.kt`, `WearHrvActivity.kt`; detailed evidence in `WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`. | 只修正研究預覽的欄位選擇、佩戴狀態與完成條件；原廠 `20486` 是心理壓力而非血壓。未移入原廠程式碼／函式庫，未取得其訓練資料、校準、醫療驗證或使用權。 |
 
 ## Runtime algorithms / App 執行期演算法
 
@@ -33,6 +34,7 @@ This document identifies data sources, algorithms, and implementations. Public d
 - `benchmark_ecg_qrs.py` / `benchmark_wrist_ppg.py`: 可重現離線 benchmark；Android App 不會呼叫。
 - `wear/.../EcgEventPreview.kt` 與 `RawVitalsProbe.kt`: 依目前手錶上原廠 APK 的靜態行為，僅將符合 16 欄、索引 10 精確等於 1000、且同一事件有近期 Android 離腕感測器配戴狀態的前 10 欄展示為**未校準候選值**。原廠程式是將索引 10 轉整數後比較 1000；本專案採較嚴格的精確比較和自行設定的 60 秒狀態時效。研究頁明示離腕不等於電極接觸，也無可信 mV 或節律判讀。此行為來源是 APK 對照，不是公開論文，也不代表取得原廠演算法。
 - `wear/.../WearMeasurePageActivity.kt` 與 `RawVitalsProbe.kt`: 原廠血氧及體溫量測頁均在配戴值非 `1.0f` 時停止；本 App 的公開原始通道因此只在近期且時間對齊的 Android 類型 34 已佩戴事件下標示擷取完成。離腕或未知仍保留有限原始資料，但不輸出 SpO₂ 百分比、攝氏體溫或醫療結論。原廠 SpO₂ 類型 `20485` 與體溫類型 `20500` 的有型別服務結果並未移入本 App；此行為來源是原廠 APK 對照，不是論文或資料庫。
+- `wear/.../WearHrvActivity.kt`、`WearMeasurePageActivity.kt` 與 `RawVitalsProbe.kt`: 原廠 `StressMeasuringActivity` 於離腕時中止；本 App 的**自訂** HRV 研究壓力分數只在近期確認配戴、光學波形通過本專案品質檢查且 RR 間隔至少五筆時顯示並同步。此閘門來自原廠操作流程對照，分數公式仍是本專案啟發式，未移植原廠 `20486` 的結果或演算法。
 
 ## Newly reviewed external sources / 新查核的外部來源
 

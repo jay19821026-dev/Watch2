@@ -154,7 +154,13 @@ class WearHrvActivity : ComponentActivity() {
         val snap = session.stop(stopReason)
         val optical = ClinicalSensorFormulas.opticalFromWaveform(snap.waveform.toList(), snap.sampleRateHz)
         val hrv = ClinicalSensorFormulas.hrvFromRr(optical.rrIntervalsMs)
-        val line = ClinicalSensorFormulas.summaryLine(optical, hrv, null)
+        val stressScore = if (WearMeasurementPolicy.canPublishResearchStressScore(
+                snap.worn,
+                ChipCalibrationProfiles.assessOpticalWaveform(snap.waveform.toList()).valid,
+                hrv.rrCount
+            )) ClinicalSensorFormulas.researchStressScore(hrv.nRmssd, hrv.bpm ?: optical.pulseRateBpm)
+            else null
+        val line = ClinicalSensorFormulas.summaryLine(optical, hrv, null, stressScore)
         headline.text = when {
             WearMeasurementPolicy.hasEnoughRrIntervalsForHrv(hrv.rrCount) -> "HRV 研究估算完成"
             snap.samples > 0 -> "原始訊號已取得；目前不能估算 HRV"
@@ -175,7 +181,7 @@ class WearHrvActivity : ComponentActivity() {
                     pnn50 = hrv.pNn50,
                     cvrr = hrv.cvRr,
                     rrCount = hrv.rrCount,
-                    stressScore = ClinicalSensorFormulas.researchStressScore(hrv.nRmssd, hrv.bpm ?: optical.pulseRateBpm),
+                    stressScore = stressScore,
                     note = optical.note,
                     citations = hrv.citations.joinToString(" | ")
                 )

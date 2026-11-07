@@ -722,7 +722,11 @@ class WearMeasurePageActivity : ComponentActivity() {
             )
             else -> null
         }
-        val formulaLine = ClinicalSensorFormulas.summaryLine(optical, hrv, pressure)
+        val stressScore = if (WearMeasurementPolicy.canPublishResearchStressScore(
+                snapshot.worn, opticalCaptureUsable, hrv?.rrCount ?: 0
+            )) ClinicalSensorFormulas.researchStressScore(hrv?.nRmssd, hrv?.bpm ?: optical?.pulseRateBpm)
+            else null
+        val formulaLine = ClinicalSensorFormulas.summaryLine(optical, hrv, pressure, stressScore)
         val conclusion = when (mode) {
             Mode.HEART_RATE -> WearHealthConclusion.forHeartRateBpm(
                 WearMeasurementPolicy.directHeartRateBpm(snapshot) ?: optical?.pulseRateBpm
@@ -869,7 +873,7 @@ class WearMeasurePageActivity : ComponentActivity() {
                     rrCount = hrv?.rrCount,
                     altitudeM = pressure?.altitudeM,
                     pressureHpa = pressure?.pressureHpa,
-                    stressScore = ClinicalSensorFormulas.researchStressScore(hrv?.nRmssd, hrv?.bpm ?: optical?.pulseRateBpm),
+                    stressScore = stressScore,
                     note = listOfNotNull(optical?.note, pressure?.note).joinToString(" | ").ifBlank { null },
                     citations = hrv?.citations?.joinToString(" | ")
                 )

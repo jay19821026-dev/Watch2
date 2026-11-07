@@ -640,7 +640,7 @@ class RawSensorDetailActivity : ComponentActivity() {
                         }
                     }
                     if (formulaEligibility.showHrvMetrics && prefs.contains("${kind}_formula_stress_score")) {
-                        bits += "壓力指數 ${prefs.getInt("${kind}_formula_stress_score", 0)}"
+                        bits += "研究壓力分數 ${prefs.getInt("${kind}_formula_stress_score", 0)}（非原廠）"
                     }
                     addView(label(bits.joinToString(" · ").ifBlank { "—" }, 14f, Color.WHITE), margins(top = 8))
                     if (formulaEligibility.showOpticalMetrics || formulaEligibility.showHrvMetrics || formulaEligibility.showEcgPulse) {

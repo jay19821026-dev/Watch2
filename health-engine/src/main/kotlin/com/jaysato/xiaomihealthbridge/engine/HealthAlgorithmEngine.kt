@@ -120,7 +120,10 @@ object HealthAlgorithmEngine {
         )
     }
 
-    fun summaryLine(optical: OpticalMetrics?, hrv: HrvMetrics?, pressure: PressureMetrics?): String =
+    fun summaryLine(
+        optical: OpticalMetrics?, hrv: HrvMetrics?, pressure: PressureMetrics?,
+        qualifiedStressScore: Int? = null
+    ): String =
         buildString {
             optical?.perfusionIndexPercent?.let { append("PI ${"%.2f".format(it)}% · ") }
             optical?.relativeAcDcRatio?.let { append("相對 AC/DC ${"%.4f".format(it)} · ") }
@@ -129,7 +132,7 @@ object HealthAlgorithmEngine {
             hrv?.rmssdMs?.let { append("RMSSD ${"%.0f".format(it)}ms · ") }
             hrv?.nRmssd?.let { append("nRMSSD ${"%.3f".format(it)} · ") }
             hrv?.sdnnMs?.let { append("SDNN ${"%.0f".format(it)}ms · ") }
-            researchStressScore(hrv?.nRmssd, hrv?.bpm)?.let { append("壓力指數 $it · ") }
+            qualifiedStressScore?.let { append("研究壓力分數 $it · ") }
             pressure?.altitudeM?.let { append("高度 ${"%.1f".format(it)}m · ") }
             if (isEmpty()) append("尚無公式輸出") else setLength(length - 3)
         }
