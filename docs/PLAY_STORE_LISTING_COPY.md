@@ -104,7 +104,7 @@ https://github.com/jay19821026-dev/Watch2
 ## Graphic assets / 圖像素材
 
 - App icon / 應用程式圖示：`docs/images/play-app-icon-512.png` (512 × 512, 32-bit PNG with alpha; copied byte-for-byte from the mobile launcher source; 246 KiB)
-- Feature graphic / 功能宣傳圖：`docs/images/play-feature-graphic-1024x500.png` (1024 × 500; no personal data)
+- Feature graphic / 功能宣傳圖：`docs/images/play-feature-graphic-1024x500-opaque.png` (1024 × 500, opaque 24-bit PNG; no personal data). This is an imagegen edit of the earlier illustration, preserving its title and layout; it is promotional art, not an app screenshot.
 - Phone screenshots / 手機截圖，建議順序：
   1. `docs/images/mobile-summary-demo.png`
   2. `docs/images/mobile-summary-detail-demo.png`
@@ -115,7 +115,7 @@ https://github.com/jay19821026-dev/Watch2
 
 All screenshots are demonstration screens supplied and confirmed by the owner as containing no personal data. Recheck status-bar identifiers and all visible values before the final upload.
 
-**Asset preflight, 2026-11-08 / 素材預檢：** Google Play's [official preview-asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151) require screenshots to be JPEG or 24-bit PNG without alpha, with a longest side no more than twice the shortest; Wear OS requires at least one current-version app-only screenshot at 1:1 and at least 384 × 384. The supplied phone demos are 1280 × 2772 (ratio 2.166) and stored as 32-bit PNG with alpha; the ECG limitations image is 591 × 1280 (ratio 2.166). They are useful for the website but **not yet validated Play uploads**. The feature graphic is 1024 × 500 but stored as 32-bit PNG with partially transparent pixels, while Play requires JPEG or opaque 24-bit PNG. No current-version Wear OS screenshot is in this folder. Capture/prepare compliant assets from the actual test 17 interface before submission; do not present a mockup as a live screenshot. / 手機示範圖比例與像素格式尚不合規；功能圖有透明像素，且缺 test 17 手錶實際介面截圖。上傳前須製作合規素材並核對畫面版本。
+**Asset preflight, 2026-11-08 / 素材預檢：** Google Play's [official preview-asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151) require screenshots to be JPEG or 24-bit PNG without alpha, with a longest side no more than twice the shortest; Wear OS requires at least one current-version app-only screenshot at 1:1 and at least 384 × 384. The supplied phone demos are 1280 × 2772 (ratio 2.166) and stored as 32-bit PNG with alpha; the ECG limitations image is 591 × 1280 (ratio 2.166). They are useful for the website but **not yet validated Play uploads**. The revised feature graphic now meets the 1024 × 500 opaque 24-bit PNG format requirement. No current-version Wear OS screenshot is in this folder. Capture/prepare compliant screenshots from the actual test 17 interface before submission; do not present a mockup as a live screenshot. / 宣傳圖已製成不透明 24-bit PNG；手機示範圖比例與像素格式尚不合規，且缺 test 17 手錶實際介面截圖。
 
 ## Final pre-submit checks / 最終送審前檢查
 
