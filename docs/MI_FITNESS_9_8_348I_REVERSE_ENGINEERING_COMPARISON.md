@@ -162,6 +162,8 @@ In the same 9.8.348i reconstructed tree, `health/ecg/EcgViewModel.java` pages th
 
 The `EcgMedicalItemReport` constructor has a `500` default for its `sampleFrequency` argument. A class default is not a measured ADC clock, an OEM calibration certificate, or a Watch 2 Pro-specific property. Version 4.0 therefore keeps its Android raw ECG preview on an index/time-unknown axis until **the actual stream's clock and field mapping** are independently verified. The public PhysioNet references below are independent benchmarks only; no APK method names identify Xiaomi's training papers or datasets. / `500` 是類別預設參數，不能拿來替這隻手錶填 500 Hz，更不能據此換算 mV、RR 或房顫結果。
 
+Implementation check / 程式複核：`RawVitalsProbe.kt` labels a waveform rate only when the HAL reports a finite positive value; `BiomedicalCalibration.kt` requires a finite positive ECG rate before rate-dependent analysis, and the ECG research engine accepts a nullable rate. Its separate `≥500 samples/s` text is an ambulatory-ECG reference threshold, not a watch sensor clock. This review found no path that copies the OEM report constructor's `500` into this app's watch capture. / 已檢查現有 4.0 路徑，沒有把原廠資料模型的預設 500 當作手錶實測取樣率。
+
 Mi Fitness's proprietary model assets do not reveal a citable training paper or dataset. We must not invent one. Xiaomi Health Bridge's transparent algorithm provenance remains the authoritative public mapping:
 
 - MIT-BIH Arrhythmia and Noise Stress Test for offline ECG detector/noise benchmarking.
