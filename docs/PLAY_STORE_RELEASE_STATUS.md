@@ -1,7 +1,7 @@
 # Play Store release status / Play 商店發行狀態
 
 Last verified / 最後驗證：2026-11-07
-Last built bundle / 上次已建置 AAB：4.0.0（手機 `versionCode 156`、手錶 `157`；未簽章的 Play 配置驗證產物）
+Last built bundle / 上次已建置 AAB：4.0.0（手機 `versionCode 156`、手錶 `157`；候選 upload key 簽章，尚未上傳 Play）
 Current source / 目前原始碼：4.0.0 (`versionCode 155`；尚未上傳 Play)
 Package / 套件：`com.jaysato.xiaomihealthbridge`
 
@@ -10,11 +10,13 @@ Package / 套件：`com.jaysato.xiaomihealthbridge`
 - `:mobile:bundleRelease` and `:wear:bundleRelease` both build successfully with JDK 17 / Android SDK 36.
 - A Play-versioning verification build also passed on 2026-11-07 with `PLAY_MOBILE_VERSION_CODE=156` and `PLAY_WEAR_VERSION_CODE=157`. `aapt dump badging` confirmed these codes in the respective unsigned release APKs. These are example codes pending Console history inspection, not uploaded artifacts.
 - Output files: `mobile/build/outputs/bundle/release/mobile-release.aab` and `wear/build/outputs/bundle/release/wear-release.aab`.
-- `jarsigner -verify -verbose -certs` reports **`jar is unsigned`** for both current outputs because no authorized release keystore is configured.
+- A new candidate upload keystore was generated **outside Git** on 2026-11-07. Its public certificate SHA-256 is `CA:BC:F3:70:D8:4A:2E:4D:BF:72:CE:B9:AF:2D:71:20:12:F4:04:05:89:86:34:95:3E:01:B7:FA:2C:FD:EE:A8`. Both AABs were rebuilt with this key; `jarsigner -verify -verbose -certs` reports `jar verified` and the `CN=Wang You-Jie, OU=Independent Developer, O=AILISA, C=TW` signer for both. This is not yet a registered Play upload certificate.
+- SHA-256 of the current signed candidate AABs: mobile `80A8D988718E31C7954E065AFE6A1F2CC1D600934146231B6739EE548AF69617`; Wear `02ED28236979BE9EC87137A63E03C405A095D3D394713BB0636E4AC2FAB062A7`.
+- The public sideload test APKs use the separate Android Debug certificate SHA-256 `0C:35:A3:70:03:2B:FE:70:6E:F5:4E:C6:A7:89:BC:DC:7E:53:D1:9C:94:B4:44:FA:6B:67:02:7A:3C:B8:75:0F`. `apksigner verify --print-certs` confirmed it on both released APKs. Preserve this distinction if Console asks for proof that the package name was previously installed outside Play.
 - The 4.0.0 release variant now excludes the manual APK-install permission and receiver, and hides the phone/watch APK-transfer controls. Debug builds retain the manual test flow. Both variants compiled on 2026-11-07; inspect final signed manifests again before upload.
-- Therefore these AABs are build-verification artifacts only and must not be uploaded as a production release.
+- These are signed **candidate** AABs. The owner must back up the keystore and password recovery material, confirm the package-name ownership path and upload certificate in Play Console, complete declarations and testing, and verify device delivery before production publication.
 
-手機與手錶 Release AAB 均可成功建置，但目前兩者皆未簽章；只能證明建置流程可用，不能上傳為正式商店版本。
+手機與手錶 Release AAB 均已使用同一把候選 upload key 簽章；目前尚未完成 Play Console 註冊、聲明及實機測試，也尚未上傳。
 
 ## Play Console account gate / Play Console 帳戶閘門
 
@@ -30,9 +32,9 @@ Package / 套件：`com.jaysato.xiaomihealthbridge`
 
 1. Wait for Google's identity-document approval email; then the owner completes the required contact-phone verification in Play Console.
 2. Create the app only after the console enables that action.
-3. Create or obtain the owner's upload keystore and securely retain its password/recovery material.
-4. Configure `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, and `RELEASE_KEY_PASSWORD` outside Git.
-5. Rebuild both bundles and require `jarsigner` to report a verified signature with the intended upload certificate.
+3. **Candidate key generated:** securely back up the keystore and password recovery material outside this Windows profile before enrolling it in Play. The local DPAPI-encrypted password files are not a portable backup.
+4. **Candidate build complete:** use `scripts/build-play-signed.ps1` with the external signing directory and version codes to rebuild without checking secrets into Git. Recheck the final Console version history before assigning permanent codes.
+5. **Candidate signature verified:** compare the AAB signer fingerprint with the upload certificate shown in Play Console after enrollment; do not assume the candidate key is accepted until Console confirms it.
 6. Decide and validate the Google Play multi-device packaging/release strategy for the phone and Wear OS artifacts; do not assume two independent artifacts with the same application ID can be uploaded without the current Play Console rules and configuration.
    Google's [Wear OS packaging guide](https://developer.android.com/training/wearables/packaging) requires a **unique versionCode across form factors** and directs phone + watch APK publishing through Multi-APK delivery. The 4.0 sideload test APKs both have `versionCode 155`, so they are **not** a valid final phone/Wear Play upload pair. Allocate distinct, monotonically safe Play codes after checking the Console's existing artifacts; rebuild and verify both signed outputs. The test release does not establish Play artifact readiness.
    The same official guide asks for the same package name and a watch `android.hardware.type.watch` feature; the repository currently declares these, but final merged manifests and Play device targeting still require inspection.
