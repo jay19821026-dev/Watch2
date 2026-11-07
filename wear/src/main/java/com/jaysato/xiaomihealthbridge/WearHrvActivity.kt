@@ -2,6 +2,7 @@ package com.jaysato.xiaomihealthbridge
 
 import com.jaysato.xiaomihealthbridge.engine.HealthAlgorithmEngine as ClinicalSensorFormulas
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -40,7 +41,7 @@ class WearHrvActivity : ComponentActivity() {
                 setPadding(0, dp(6), 0, dp(6))
             })
             addView(TextView(context).apply {
-                text = "對標 Apple／Galaxy／Pixel 的 HRV・壓力體驗；有足夠 RR 後自動結束"
+                text = "公開感測通道的 HRV 研究估算；與原廠壓力量測分開。有足夠 RR 後自動結束。"
                 textSize = 11f; gravity = Gravity.CENTER; setTextColor(Color.rgb(150, 158, 178))
             })
             addView(TextView(context).apply {
@@ -59,8 +60,24 @@ class WearHrvActivity : ComponentActivity() {
                 ).apply { cornerRadius = dp(8).toFloat() }
                 setOnClickListener { startCapture() }
             }.also { startButton = it }, LinearLayout.LayoutParams(-1, dp(50)).apply { topMargin = dp(14) })
+            addView(Button(context).apply {
+                text = "查看原廠壓力量測"; isAllCaps = false; textSize = 13f
+                contentDescription = "開啟小米健康的原廠壓力頁面"
+                setOnClickListener {
+                    stopCapture(publish = false, stopReason = "opened_oem_stress")
+                    val result = runCatching {
+                        startActivity(Intent().setClassName(
+                            "com.xiaomi.wear.fitness",
+                            "com.xiaomi.wear.fitness.health.stress.StressMainActivity"
+                        ))
+                    }
+                    if (result.isFailure) {
+                        detail.text = "原廠壓力頁無法開啟；請從小米健康手動查看。"
+                    }
+                }
+            }, LinearLayout.LayoutParams(-1, dp(50)).apply { topMargin = dp(8) })
             addView(TextView(context).apply {
-                text = "研究參考，非醫療壓力診斷。睡眠分期／臨床 HRV 標準需 PSG／醫用設備。"
+                text = "本頁的 HRV／壓力研究值不是小米的壓力分數，也不是醫療診斷。"
                 textSize = 11f; setTextColor(Color.rgb(255, 190, 120)); setPadding(0, dp(14), 0, 0)
             })
         }
