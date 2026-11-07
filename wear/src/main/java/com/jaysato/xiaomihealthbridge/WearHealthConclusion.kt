@@ -40,9 +40,12 @@ object WearHealthConclusion {
         return "結論：氣壓資料已取得；高度僅為標準大氣公式估算，非實際海拔／爬升"
     }
 
-    fun forBioz(samples: Int): String =
-        if (samples > 0) "結論：僅原始 BioZ·不輸出體脂％"
-        else "結論：尚無 BioZ"
+    fun forBioz(samples: Int, worn: Boolean?): String = when {
+        samples <= 0 -> "結論：尚無 BioZ"
+        worn == false -> "結論：離腕時的 BioZ 原始事件僅供研究；不輸出體脂％"
+        worn == null -> "結論：佩戴狀態未確認；BioZ 原始事件僅供研究，不輸出體脂％"
+        else -> "結論：已佩戴且有 BioZ 原始事件；電極接觸與單位未驗證，不輸出體脂％"
+    }
 
     fun forPpg(samples: Int, pulseBpm: Double?): String {
         if (samples <= 0) return "結論：尚無 PPG"

@@ -3,6 +3,9 @@ package com.jaysato.xiaomihealthbridge
 import android.hardware.SensorManager
 
 internal object WearMeasurementPolicy {
+    fun hasWornBiozRawCapture(worn: Boolean?, samples: Int, minimumSamples: Int): Boolean =
+        worn == true && minimumSamples > 0 && samples >= minimumSamples
+
     enum class SuiteRunState(val wireValue: String, val terminal: Boolean, val successful: Boolean) {
         RUNNING("running", false, false),
         COMPLETED("completed", true, true),

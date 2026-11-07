@@ -34,7 +34,7 @@ android {
         applicationId = "com.jaysato.xiaomihealthbridge"
         minSdk = 30
         targetSdk = 36
-        versionCode = playWearVersionCode ?: 160
+        versionCode = playWearVersionCode ?: 161
         versionName = "4.0.0"
     }
 

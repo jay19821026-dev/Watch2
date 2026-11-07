@@ -67,7 +67,8 @@ class RawVitalsProbe(
     private val wakeup = candidates.firstOrNull { it.isWakeUpSensor }
     private val offBodySensor = if (kind in setOf(
         Kind.ECG, Kind.SPO2, Kind.MI_SPO2, Kind.BODY_TEMPERATURE, Kind.THERMOMETER,
-        Kind.PPG, Kind.MAX_HEART_RATE, Kind.LIFE_Q_OTT
+        Kind.PPG, Kind.MAX_HEART_RATE, Kind.LIFE_Q_OTT,
+        Kind.BIOZ, Kind.BIOZ_RESPIRATION
     )) {
         manager.getSensorList(Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT).firstOrNull { !it.isWakeUpSensor }
             ?: manager.getDefaultSensor(Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT)
@@ -450,7 +451,8 @@ class RawVitalsProbe(
             // Android TYPE_LOW_LATENCY_OFFBODY_DETECT: 1.0 = on-body, 0.0 = off-body.
             Kind.OFF_BODY -> latest.firstOrNull()?.let { isOnBody(it) }
             Kind.SPO2, Kind.MI_SPO2, Kind.BODY_TEMPERATURE, Kind.THERMOMETER,
-            Kind.PPG, Kind.MAX_HEART_RATE, Kind.LIFE_Q_OTT -> when (EcgEventPreview.contactAtEvent(
+            Kind.PPG, Kind.MAX_HEART_RATE, Kind.LIFE_Q_OTT,
+            Kind.BIOZ, Kind.BIOZ_RESPIRATION -> when (EcgEventPreview.contactAtEvent(
                 eventTimestampsNs.lastOrNull() ?: 0L, lastOffBodyTimestampNs, lastOnBody
             )) {
                 1 -> true

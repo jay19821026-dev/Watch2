@@ -303,7 +303,12 @@ class WearControlService : WearableListenerService() {
                 RawVitalsProbe.Kind.OFF_BODY -> 1
                 else -> 24
             }
+            val biozNeedsWear = kind == RawVitalsProbe.Kind.BIOZ ||
+                kind == RawVitalsProbe.Kind.BIOZ_RESPIRATION
             val usable = snapshot.samples >= minSamples && snapshot.status != "invalid_optical" &&
+                (!biozNeedsWear || WearMeasurementPolicy.hasWornBiozRawCapture(
+                    snapshot.worn, snapshot.samples, minSamples
+                )) &&
                 (kind != RawVitalsProbe.Kind.PPG ||
                     (snapshot.sampleRateHz >= 20.0 && RawVitalsProbe.isValidOpticalWaveform(snapshot.waveform.toList())))
             if (usable) {
@@ -315,7 +320,12 @@ class WearControlService : WearableListenerService() {
                     probeHolder[0] = null
                     sendRawSnapshot(finalSnap, true)
                     maybePublishTemperatureRaw(finalSnap)
-                    report(finalSnap.summary(), finalSnap.samples > 0)
+                    report(
+                        finalSnap.summary(),
+                        if (biozNeedsWear) WearMeasurementPolicy.hasWornBiozRawCapture(
+                            finalSnap.worn, finalSnap.samples, minSamples
+                        ) else finalSnap.samples > 0
+                    )
                     exitSuiteForeground()
                 }
             }

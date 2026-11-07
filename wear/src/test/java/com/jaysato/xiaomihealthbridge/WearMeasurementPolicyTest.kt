@@ -11,6 +11,18 @@ import org.junit.Test
 
 class WearMeasurementPolicyTest {
     @Test
+    fun biozRawCaptureNeedsRecentConfirmedWearAsWellAsEnoughEvents() {
+        assertTrue(WearMeasurementPolicy.hasWornBiozRawCapture(true, 40, 40))
+        assertFalse(WearMeasurementPolicy.hasWornBiozRawCapture(false, 40, 40))
+        assertFalse(WearMeasurementPolicy.hasWornBiozRawCapture(null, 40, 40))
+        assertFalse(WearMeasurementPolicy.hasWornBiozRawCapture(true, 39, 40))
+        assertFalse(WearMeasurementPolicy.hasWornBiozRawCapture(true, 40, 0))
+        assertTrue(WearHealthConclusion.forBioz(40, false).contains("離腕"))
+        assertTrue(WearHealthConclusion.forBioz(40, null).contains("未確認"))
+        assertTrue(WearHealthConclusion.forBioz(40, true).contains("電極接觸與單位未驗證"))
+    }
+
+    @Test
     fun researchStressRequiresConfirmedWearOpticalSignalAndEnoughIntervals() {
         assertTrue(WearMeasurementPolicy.canPublishResearchStressScore(true, true, 5))
         assertFalse(WearMeasurementPolicy.canPublishResearchStressScore(false, true, 5))

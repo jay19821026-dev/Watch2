@@ -109,7 +109,7 @@ class WearMeasurePageActivity : ComponentActivity() {
         BIOZ(
             "BIOZ RESEARCH", "體成分／BioZ 原始", "#8B7CFF",
             RawVitalsProbe.Kind.BIOZ, WearControlService.ACTION_MEASURE_BIOZ, 40,
-            "對照 Samsung BIA／小米體成分：需指觸按鍵。有阻抗點後結束。本頁僅原始阻抗。"
+            "原廠體成分頁要求按鍵接觸與雙手分開；本頁只記錄公開 BioZ 原始事件。需確認佩戴才標示擷取完成，離腕感測器不能證明電極接觸。"
         ),
         TEMPERATURE(
             "TEMPERATURE RAW", "溫度感測器原始值", "#FFB347",
@@ -134,7 +134,7 @@ class WearMeasurePageActivity : ComponentActivity() {
         RESPIRATION(
             "RESPIRATION RAW", "呼吸研究（BioZ）", "#7EC8E3",
             RawVitalsProbe.Kind.BIOZ_RESPIRATION, WearControlService.ACTION_MEASURE_BIOZ, 40,
-            "BioZ 參考設計可研究呼吸；本裝置此頁只保留原始阻抗，未獨立輸出呼吸率。"
+            "BioZ 參考設計可研究呼吸；本頁需確認佩戴才標示原始擷取完成，仍不代表電極接觸或獨立呼吸率。"
         ),
         OFF_BODY(
             "OFF-BODY", "離腕／佩戴偵測", "#C4A35A",
@@ -631,7 +631,9 @@ class WearMeasurePageActivity : ComponentActivity() {
             Mode.OFF_BODY -> snapshot.worn != null || snapshot.samples >= 1
             Mode.PRESSURE -> (snapshot.average ?: snapshot.latest.firstOrNull())?.let { it in 800.0..1100.0 } == true
             Mode.LIGHT -> snapshot.latest.any { it.isFinite() }
-            Mode.BIOZ, Mode.RESPIRATION -> snapshot.samples >= mode.minSamples
+            Mode.BIOZ, Mode.RESPIRATION -> WearMeasurementPolicy.hasWornBiozRawCapture(
+                snapshot.worn, snapshot.samples, mode.minSamples
+            )
             Mode.ACCEL, Mode.GYRO, Mode.MAGNET, Mode.STEPS -> snapshot.samples >= mode.minSamples
             Mode.SUITE -> false
         }
@@ -742,7 +744,7 @@ class WearMeasurePageActivity : ComponentActivity() {
             Mode.PRESSURE ->
                 WearHealthConclusion.forPressure(snapshot.average, pressure?.altitudeM)
             Mode.BIOZ, Mode.RESPIRATION ->
-                WearHealthConclusion.forBioz(snapshot.samples)
+                WearHealthConclusion.forBioz(snapshot.samples, snapshot.worn)
             Mode.SPO2 -> when {
                 snapshot.samples <= 0 -> "結論：尚無 SpO₂ 原始事件"
                 snapshot.worn == false -> "結論：離腕時取得的原始封包不作為量測完成證據"
@@ -794,7 +796,9 @@ class WearMeasurePageActivity : ComponentActivity() {
             mode == Mode.SPO2 && snapshot.worn == false -> "離腕狀態 · 原始血氧封包僅保留研究資料"
             mode == Mode.SPO2 && snapshot.worn == null -> "佩戴狀態未知 · 原始血氧封包僅保留研究資料"
             mode == Mode.SPO2 -> "已佩戴 · 原始血氧封包已取得 · 未校準百分比"
-            mode in setOf(Mode.BIOZ, Mode.RESPIRATION) -> "原始阻抗訊號已取得 · 未換算生理值"
+            mode in setOf(Mode.BIOZ, Mode.RESPIRATION) && snapshot.worn == false -> "離腕狀態 · BioZ 原始事件僅保留研究資料"
+            mode in setOf(Mode.BIOZ, Mode.RESPIRATION) && snapshot.worn == null -> "佩戴狀態未知 · BioZ 原始事件僅保留研究資料"
+            mode in setOf(Mode.BIOZ, Mode.RESPIRATION) -> "已佩戴 · BioZ 原始事件已取得 · 電極接觸未驗證"
             else -> "原始感測資料已取得 · 已同步手機"
         }
         if (primary != null) {
