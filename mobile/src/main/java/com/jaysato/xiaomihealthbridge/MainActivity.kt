@@ -1558,7 +1558,7 @@ class MainActivity : ComponentActivity() {
                 .setNegativeButton("取消", null)
                 .show()
         }, margins(bottom = 10))
-        addView(cardLike("關於本 App", "Xiaomi Watch Health Center 1.3.0", "#36C98F") { startActivity(Intent(this@MainActivity, PrivacyPolicyActivity::class.java)) })
+        addView(cardLike("關於本 App", "Xiaomi Health Bridge ${BuildConfig.VERSION_NAME}", "#36C98F") { startActivity(Intent(this@MainActivity, PrivacyPolicyActivity::class.java)) })
     }
 
     private fun cardLike(title: String, subtitle: String, accent: String, click: () -> Unit) = featureRow("◆", title, subtitle, accent, click)

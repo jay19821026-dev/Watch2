@@ -612,7 +612,7 @@ class ClinicalLabActivity : ComponentActivity() {
             })
             if (modality.id == "ecg") {
                 addView(TextView(this@ClinicalLabActivity).apply {
-                    text = "原廠量測提示：將中指與無名指接觸手錶兩個按鍵，手臂平放並保持靜止；心率低於 50 或高於 150 次／分時，房顫結果可能無法判定。"
+                    text = "原廠量測提示：將中指與無名指接觸手錶兩個按鍵，手臂平放並保持靜止；心率低於 50 或高於 150 次／分時，房顫結果可能無法判定。Mi Fitness 的 ECG 卡片、量測提醒與手錶啟用狀態分開判斷；本研究頁不會變更原廠授權，也不提供房顫診斷。"
                     textSize = 12f
                     setTextColor(Color.rgb(255, 210, 140))
                     setPadding(0, dp(10), 0, 0)

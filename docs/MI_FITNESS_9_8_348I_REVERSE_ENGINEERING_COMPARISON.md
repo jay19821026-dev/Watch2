@@ -148,6 +148,14 @@ The following are product or architecture ideas to implement independently, not 
 
 ## Paper and dataset boundary / 論文與資料庫界線
 
+### ECG visibility gates in the supplied 9.8.348i APK / 本次複核的 ECG 顯示條件
+
+The supplied APK's reconstructed `com/xiaomi/fitness/device/manager/extensions/DeviceModelExtKt.java::getFeatureItemVisible` uses **different feature tokens** for two card IDs: `162` checks `"ecg"` while `181` checks `Feature.ECG_MEASURE_REMIND`, whose value is `"electrocardiogram"` in `export/bean/Feature.java`. The same APK's `device/manager/DeviceModelExtKt.java::isSupportFeature` tests membership of the current product's `features` list. Its separate `isEcg` helper tests product `type == 4`; that helper is not proof that either card is visible on the paired Watch 2 Pro. `ProductManagerRemoteImpl.update` conditionally merges `whitelistFeature` when its product-list switch is enabled, always merges `androidFeature`, and caches the product by model. These observations come from readable Java reconstructed by JADX 1.5.6, not from the owner's current Mi Fitness account or private product cache.
+
+使用者提供的 9.8.348i APK 中，ECG 主卡片 `162` 讀 `ecg`，量測提醒卡片 `181` 讀 `electrocardiogram`；另外還有按產品類型 `4` 判斷的 `isEcg`，三者不能視為同一開關。產品清單可合併白名單與 Android 功能欄位，但這份 APK 沒有提供本帳號配對手錶的最終功能集合。手錶已有原廠 ECG 程式碼與啟用提示，仍不能由此斷言 Watch 2 Pro 已通過帳號、裝置、區域或醫療核准流程。可獨立實作的是「區分功能可見性、裝置量測能力、授權與原始資料品質」的狀態顯示，不能把這些欄位值直接寫成 `true` 來宣稱原廠 ECG 已開通。
+
+The separately installed phone APK is **3.59.2i**, not this supplied 9.8.348i build. Its activation call and watch-side service flag are traced in [the paired-device audit](WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md). Cross-version names and branches may differ, so do not combine them into a single alleged current execution path. No OEM ECG waveform, clinical classifier, training corpus or calibration coefficient was extracted by this card-gate trace. / 目前手機實裝 3.59.2i，不能把兩個版本的分支拼成一條已驗證的實機執行路徑；卡片判斷也沒有揭露演算法所用論文或資料庫。
+
 Mi Fitness's proprietary model assets do not reveal a citable training paper or dataset. We must not invent one. Xiaomi Health Bridge's transparent algorithm provenance remains the authoritative public mapping:
 
 - MIT-BIH Arrhythmia and Noise Stress Test for offline ECG detector/noise benchmarking.
