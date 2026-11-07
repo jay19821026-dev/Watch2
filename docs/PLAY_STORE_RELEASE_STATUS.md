@@ -2,10 +2,10 @@
 
 Last verified / 最後驗證：2026-11-08
 Last built bundle / 上次已建置 AAB：4.0.0（手機建置參數 `versionCode 161`、手錶 `162`；依 test 12 原始碼重建；候選 upload key 簽章，尚未上傳 Play）
-Current source / 目前原始碼：4.0.0 (`versionCode 161`，雙端 Debug；尚未上傳 Play)
+Current source / 目前原始碼：4.0.0 (`versionCode 162`，雙端 Debug；尚未上傳 Play)
 Package / 套件：`com.jaysato.xiaomihealthbridge`
 
-The signed test 12 Play candidates predate the test 13 BioZ wear-state correction and are superseded. Rebuild with distinct codes greater than the final Console history after account verification; do not upload these older candidate bundles. / 舊候選 AAB 未包含 test 13 的 BioZ 修正，不應上傳。
+The signed test 12 Play candidates predate the test 13 BioZ wear-state correction and test 14 guided-breathing shortcut and are superseded. Rebuild with distinct codes greater than the final Console history after account verification; do not upload these older candidate bundles. / 舊候選 AAB 未包含 test 13／14 的修正，不應上傳。
 
 ## Verified / 已驗證
 
@@ -41,7 +41,7 @@ As of 2026-11-08, a fresh search of the connected Gmail account for recent Play 
 4. **Current candidate build complete:** `scripts/build-play-signed.ps1` rebuilt test 12 source with separate 161/162 version-code parameters without checking secrets into Git. Recheck the final Console version history and decode the AAB manifests before assigning permanent codes or uploading.
 5. **Candidate signature verified:** compare the AAB signer fingerprint with the upload certificate shown in Play Console after enrollment; do not assume the candidate key is accepted until Console confirms it.
 6. Decide and validate the Google Play multi-device packaging/release strategy for the phone and Wear OS artifacts; do not assume two independent artifacts with the same application ID can be uploaded without the current Play Console rules and configuration.
-   Google's [Wear OS packaging guide](https://developer.android.com/training/wearables/packaging) requires a **unique versionCode across form factors** and directs phone + watch APK publishing through Multi-APK delivery. The test 13 sideload APKs both have `versionCode 161`, so they are **not** a valid final phone/Wear Play upload pair. Allocate distinct, monotonically safe Play codes after checking the Console's existing artifacts; rebuild and verify both signed outputs. The test release does not establish Play artifact readiness.
+   Google's [Wear OS packaging guide](https://developer.android.com/training/wearables/packaging) requires a **unique versionCode across form factors** and directs phone + watch APK publishing through Multi-APK delivery. The test 14 sideload APKs both have `versionCode 162`, so they are **not** a valid final phone/Wear Play upload pair. Allocate distinct, monotonically safe Play codes after checking the Console's existing artifacts; rebuild and verify both signed outputs. The test release does not establish Play artifact readiness.
    The same official guide asks for the same package name and a watch `android.hardware.type.watch` feature; the repository currently declares these, but final merged manifests and Play device targeting still require inspection.
    Google's [Android developer verification guide](https://developer.android.com/developer-verification/assets/pdfs/updates-to-play-console-for-android-developer-verification.pdf) says a package name previously installed or distributed outside Play may require proof of ownership of its private signing key during new app creation. This package has public debug-signed test APKs; inspect Play Console's actual registration prompt before deciding the key flow. Do not upload a private key or assume that a debug certificate is the future Play app-signing key.
 7. Complete the public privacy-policy URL, Data safety, Health apps declaration, app access, ads, content rating, target audience, testing track, store screenshots, and medical/non-medical claims review. The Data safety Yes/No answers remain unresolved until final AAB and phone/watch runtime transfer review; do not copy an old blanket "No data collected" answer.

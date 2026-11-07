@@ -8,7 +8,7 @@ Xiaomi Health Bridge is an open-source Android phone + Wear OS research project 
 
 > The hero is a privacy-safe illustrative mockup. Actual features and support depend on the source, device capabilities, and `SUPPORT_MATRIX.md`.
 
-Current test version: `4.0.0` (versionCode `161`). The source tree contains:
+Current test version: `4.0.0` (versionCode `162`). The source tree contains:
 
 - `mobile/` — Android phone app
 - `wear/` — Wear OS watch app
@@ -29,6 +29,7 @@ All screenshots are demo screens containing no personal data. More examples: [su
 - Unlocks an interpreted result only when its units, timing, mapping, quality, and calibration requirements pass.
 - Includes offline ECG/PPG method benchmarks against public datasets.
 - Version 4.0 adds SpO₂ recording-method filtering and user-tapped links to exported OEM watch screens; the OEM screens remain the authority for activation state.
+- Test 14 adds a watch-home link to the OEM guided breathing exercise after tracing its 1–5-minute options and optional start/end heart-rate display. This is separate from BioZ respiratory-rate research.
 
 ## Medical disclaimer
 
@@ -38,12 +39,12 @@ ECG remains research-only unless device-specific lead mapping, ADC timing, and r
 
 ## APKs
 
-Matching 4.0.0 test 13 APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/xiaomi-health-bridge#downloads) or [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.13):
+Matching 4.0.0 test 14 APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/xiaomi-health-bridge#downloads) or [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.14):
 
-- `XiaomiHealthBridge-Mobile-4.0.0-vc161-test13-debug.apk` — Android phone
-- `XiaomiHealthBridge-Wear-4.0.0-vc161-test13-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
+- `XiaomiHealthBridge-Mobile-4.0.0-vc162-test14-debug.apk` — Android phone
+- `XiaomiHealthBridge-Wear-4.0.0-vc162-test14-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
 
-Debug APKs use an Android development signature and are not Play Store releases. Signed Play candidate AABs built from earlier test 12 source have not been uploaded and are superseded by this source revision. Verify the [test 13 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.13/SHA256SUMS-4.0.0-test.13.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
+Debug APKs use an Android development signature and are not Play Store releases. Signed Play candidate AABs built from earlier test 12 source have not been uploaded and are superseded by this source revision. Verify the [test 14 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.14/SHA256SUMS-4.0.0-test.14.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
 
 The ready-to-paste bilingual Play Store listing, console selections, release notes, and graphic-asset inventory are in [`docs/PLAY_STORE_LISTING_COPY.md`](docs/PLAY_STORE_LISTING_COPY.md). Release flow, privacy, Data safety, and Health apps declaration materials are in [`docs/PLAY_STORE_RELEASE_GUIDE.en.md`](docs/PLAY_STORE_RELEASE_GUIDE.en.md), [`docs/PRIVACY_POLICY.en.md`](docs/PRIVACY_POLICY.en.md), and [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md).
 

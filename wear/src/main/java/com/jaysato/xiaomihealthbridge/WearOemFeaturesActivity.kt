@@ -22,7 +22,7 @@ class WearOemFeaturesActivity : ComponentActivity() {
         Entry("體溫", "com.xiaomi.wear.fitness.health.temperature.TemperatureMainActivity", "原廠溫度顯示"),
         Entry("壓力", "com.xiaomi.wear.fitness.health.stress.StressMainActivity", "原廠壓力演算法"),
         Entry("睡眠", "com.xiaomi.wear.fitness.health.sleep.SleepMainActivity", "原廠睡眠階段與歷史"),
-        Entry("呼吸練習", "com.xiaomi.wear.fitness.health.breath.activity.BreathMainActivity", "原廠引導練習")
+        Entry("呼吸練習", "com.xiaomi.wear.fitness.health.breath.activity.BreathMainActivity", "原廠 1–5 分鐘引導練習；非呼吸速率量測")
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

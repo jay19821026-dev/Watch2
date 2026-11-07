@@ -134,7 +134,7 @@ class WearMeasurePageActivity : ComponentActivity() {
         RESPIRATION(
             "RESPIRATION RAW", "呼吸研究（BioZ）", "#7EC8E3",
             RawVitalsProbe.Kind.BIOZ_RESPIRATION, WearControlService.ACTION_MEASURE_BIOZ, 40,
-            "BioZ 參考設計可研究呼吸；本頁需確認佩戴才標示原始擷取完成，仍不代表電極接觸或獨立呼吸率。"
+            "BioZ 原始呼吸研究，與原廠引導式呼吸練習不同。本頁需確認佩戴才標示原始擷取完成，仍不代表電極接觸或獨立呼吸率。"
         ),
         OFF_BODY(
             "OFF-BODY", "離腕／佩戴偵測", "#C4A35A",

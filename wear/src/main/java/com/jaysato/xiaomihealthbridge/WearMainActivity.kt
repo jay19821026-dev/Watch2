@@ -301,6 +301,22 @@ class WearMainActivity : ComponentActivity() {
                     startActivity(Intent(this@WearMainActivity, WearOemFeaturesActivity::class.java))
                 }
             }, LinearLayout.LayoutParams(-1, dp(48)).apply { bottomMargin = dp(8) })
+            addView(Button(context).apply {
+                text = "原廠呼吸練習 · 非呼吸率"
+                textSize = 12f; isAllCaps = false; setTextColor(Color.WHITE)
+                background = buttonBackground("#42687A", "#21343F")
+                setOnClickListener {
+                    status.text = runCatching {
+                        startActivity(Intent().setClassName(
+                            "com.xiaomi.wear.fitness",
+                            "com.xiaomi.wear.fitness.health.breath.activity.BreathMainActivity"
+                        ))
+                        "已請求開啟原廠呼吸練習；練習結果由小米健康顯示。"
+                    }.getOrElse { error ->
+                        "原廠呼吸練習無法開啟（${error.javaClass.simpleName}）；請到原廠 App 查看。"
+                    }
+                }
+            }, LinearLayout.LayoutParams(-1, dp(48)).apply { bottomMargin = dp(8) })
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 addView(exerciseAction, LinearLayout.LayoutParams(0, dp(54), 1f).apply { marginEnd = dp(5) })

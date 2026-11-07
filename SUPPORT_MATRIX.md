@@ -13,6 +13,7 @@
 | 靜止心率 | 無可靠長時間靜止狀態與連續取樣來源 | 不推算；可在手機輸入外部可信量測 | `RestingHeartRateRecord`，手動輸入會標記為手動紀錄 |
 | 心率變異 HRV | 公開 Health Services 不提供 RR 間期；可由 ECG／PPG 原始波形估計研究用指標 | 不由 BPM 偽算；細節頁可顯示估計 RR／SDNN／RMSSD（非臨床）；可輸入外部裝置 RMSSD | `HeartRateVariabilityRmssdRecord`，手動紀錄 |
 | 呼吸速率 | 公開 Health Services 無資料型別 | 不由心率推算；可輸入外部可信量測 | `RespiratoryRateRecord`，手動紀錄 |
+| 引導式呼吸練習 | 已安裝的 Xiaomi Health 手錶 App 匯出 `BreathMainActivity`；練習可選 1–5 分鐘並訂閱心率 | 手錶首頁可由使用者點擊開啟原廠練習；尚未驗證完整實機練習；不當作呼吸速率或療效量測 | 不寫入呼吸速率紀錄 |
 | 血氧 SpO₂ | `com.google.wear.sensor.mi.spo2`、`com.google.wear.sensor.spo2` 原始通道；已同步的 Health Connect 具名百分比紀錄 | 原始 HAL 欄位單位未經驗證，只保存原始事件與品質，不推斷百分比或寫入 Health Connect；手機可閱讀有來源的 `OxygenSaturationRecord`，並區分主動、被動、手動與未知量測方式 | `OxygenSaturationRecord` 只供具名百分比來源或使用者明確手動輸入；原始 HAL 事件不寫入 |
 | 體表溫度 | `bodytemperature` 等原始通道；已同步的具名健康紀錄 | 原始通道的單位與裝置級換算未驗證，只顯示原始趨勢；不宣稱已校正，也不將腕部體表當核心體溫 | 已有可信來源的 `BodyTemperatureRecord` 可閱讀；原始 HAL 事件不寫入 |
 | 離腕／佩戴 | `low_latency_offbody_detect`、MAX86178 ADT／HW-ADT | 掃描前佩戴門檻；未貼合則跳過生理校正 | 非 HC 紀錄 |
