@@ -15,6 +15,8 @@ This file records external datasets, papers, APIs, and software used or consulte
 | [PTB-XL](https://physionet.org/content/ptb-xl/) | 選用的多資料庫、尺度無關 ECG 統計參考。 | 使用時遵守所下載版本頁面的授權與引用。 | 12 導程臨床 ECG 不等於腕式導聯。 |
 | [ECG-capable smartwatch simulator dataset](https://physionet.org/content/ecg-capable-smartwatches/1.0.0/) | 校準訊號注入與 smartwatch/reference 配對方法先例；資料不散布。 | PhysioNet restricted access；使用者須自行接受當期 data-use agreement。 | 其他手錶型號不能決定 Xiaomi raw-code→mV 映射。 |
 
+Additional catalogued datasets, including the controlled-access [CardioWave-Portable v1.0.0](https://physionet.org/content/cardiowave-portable/1.0.0/) (DOI [10.13026/yasp-vq73](https://doi.org/10.13026/yasp-vq73)), are listed in the [provenance map](docs/ALGORITHM_DATASET_PAPER_MAP.md) as **reviewed candidates, not downloaded, trained on, or benchmarked**. Its credentialed-access terms must be met independently before any analysis. / 其他資料庫僅列為已查核候選；未下載、未訓練，也未納入效能測試。
+
 下載資料應放在 git-ignored 的 `.local-research-data/`。發布 ODC-By 資料庫衍生輸出時，必須保留資料庫名稱、來源與 [ODC Attribution License](https://opendatacommons.org/licenses/by/1-0/) 歸屬。
 
 ## Papers and guidance / 論文與指引
@@ -25,6 +27,8 @@ This file records external datasets, papers, APIs, and software used or consulte
 - [FDA Diagnostic ECG Guidance](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/diagnostic-ecg-guidance-including-non-alarming-st-segment-measurement-guidance-industry), [FDA pulse oximeter guidance](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/pulse-oximeters-premarket-notification-submissions-510ks-guidance-industry-and-food-and-drug), and [IMDRF SaMD clinical evaluation](https://www.imdrf.org/documents/software-medical-device-samd-clinical-evaluation)：資料完整性與驗證邊界，不是本專案的認證或核准。
 - [WFDB header specification](https://physionet.org/physiotools/wag/header-5.htm)：每筆紀錄 ADC gain／baseline 與未校準訊號語意。
 - IEC 60601-2-25：診斷 ECG 安全／效能標準參考；標準全文不散布，也不聲稱本專案符合該標準。
+- Brandner, Tinsley & Graybeal, [smartwatch BIA versus four-compartment model](https://pubmed.ncbi.nlm.nih.gov/36462216/), DOI [10.1139/apnm-2022-0301](https://doi.org/10.1139/apnm-2022-0301); Polokhin et al., [wrist BIA and DXA reference](https://pmc.ncbi.nlm.nih.gov/articles/PMC9252175/), DOI [10.2478/joeb-2022-0006](https://doi.org/10.2478/joeb-2022-0006); and [miniature-electrode wrist BIA study](https://pmc.ncbi.nlm.nih.gov/articles/PMC7806851/), PMID 33441675：只供體成分驗證與電極接觸設計參考；未移植其公式，不能證明 Watch 2 Pro 百分比準確。
+- [FDA Samsung ECG Monitor App 510(k) K201168 summary](https://www.accessdata.fda.gov/cdrh_docs/pdf20/K201168.pdf) and [FDA device record](https://www.accessdata.fda.gov/SCRIPTS/cdrh/devicesatfda/index.cfm?db=pmn&id=K201168)：對照裝置專屬 ECG 導聯、訊號品質、節律與臨床參考測試；此核准屬 Samsung 指定產品，**不是** Xiaomi Health Bridge 或 Watch 2 Pro 的核准。
 
 ## Platform and hardware documentation / 平台與硬體文件
 
