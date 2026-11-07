@@ -9,6 +9,8 @@ This document identifies data sources, algorithms, and implementations. Listed p
 
 **OEM provenance boundary / 原廠來源界線：** 反組譯可看出手錶 `libfitness` ECG native 函式與手機 `mi_stage_model_0_1_1.tflite` 睡眠模型存在，也可追蹤輸入與輸出介面；APK 沒有可核驗的訓練資料清單、原廠校準係數、臨床驗證報告或對應論文。不能將本表的 MIT-BIH、PPG-DaLiA 或其他公開資料庫寫成小米原廠演算法的來源。Those OEM dataset and paper origins are **unknown from the inspected binaries**, not silently attributed to an open study.
 
+**OEM access boundary / 原廠存取界線：** The paired watch's Health Services declares `OEM_OPAQUE_DATA_ACCESS` as `signature|privileged` and reports a grant to Xiaomi Health, but not to this app. The exact grant mechanism and which OEM measurements depend on that permission remain unverified; the [4.0 OEM audit](WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md) records the package-manager evidence and the OEM APK's spelling discrepancy. A model-name or boolean change cannot be treated as access to typed OEM data. / 這是目前系統的權限證據，並非所有功能鎖定原因的完整解釋。
+
 ## Traceability matrix / 溯源對照表
 
 | Dataset or paper / 資料庫或論文 | Algorithm or use / 演算法或用途 | Implementation / 程式位置 | Boundary / 限制 |
