@@ -65,12 +65,12 @@ class RawVitalsProbe(
             else -> null
         }
     private val wakeup = candidates.firstOrNull { it.isWakeUpSensor }
-    private val ecgOffBodySensor = if (kind == Kind.ECG) {
+    private val offBodySensor = if (kind in setOf(Kind.ECG, Kind.SPO2, Kind.MI_SPO2)) {
         manager.getSensorList(Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT).firstOrNull { !it.isWakeUpSensor }
             ?: manager.getDefaultSensor(Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT)
     } else null
-    private var lastEcgOffBodyTimestampNs = 0L
-    private var lastEcgOnBody: Boolean? = null
+    private var lastOffBodyTimestampNs = 0L
+    private var lastOnBody: Boolean? = null
     private var startedAt = 0L
     private var sessionStartedElapsedRealtimeNs = 0L
     private var samples = 0
@@ -149,8 +149,8 @@ class RawVitalsProbe(
         eventSampleCounts.clear()
         eventRawValueRows.clear()
         ecgEventContactStates.clear()
-        lastEcgOffBodyTimestampNs = 0L
-        lastEcgOnBody = null
+        lastOffBodyTimestampNs = 0L
+        lastOnBody = null
         eventRawValueChars = 0
         eventRawValuesSizeRejected = false
         eventRawValuesTruncated = false
@@ -216,10 +216,10 @@ class RawVitalsProbe(
         )
         registrationResult = if (started) "registered" else
             SensorRegistrationGuard.terminalFailureReason(registrationResult)
-        if (started && kind == Kind.ECG && ecgOffBodySensor != null) {
+        if (started && offBodySensor != null) {
             runCatching {
-                manager.registerListener(this, ecgOffBodySensor, SensorManager.SENSOR_DELAY_NORMAL, handler)
-            }.onFailure { error -> Log.w(TAG, "ecg_offbody_registration_failed", error) }
+                manager.registerListener(this, offBodySensor, SensorManager.SENSOR_DELAY_NORMAL, handler)
+            }.onFailure { error -> Log.w(TAG, "offbody_registration_failed kind=${kind.wireName}", error) }
         }
         if (!started) acquisitionStopReason =
             SensorRegistrationGuard.terminalFailureReason(acquisitionStopReason)
@@ -267,11 +267,11 @@ class RawVitalsProbe(
     }
 
     override fun onSensorChanged(event: SensorEvent) {
-        if (running && kind == Kind.ECG && event.sensor == ecgOffBodySensor) {
-            lastEcgOnBody = event.values.firstOrNull()?.let { value ->
+        if (running && event.sensor == offBodySensor) {
+            lastOnBody = event.values.firstOrNull()?.let { value ->
                 if (value.isFinite()) value == 1f else null
             }
-            lastEcgOffBodyTimestampNs = event.timestamp
+            lastOffBodyTimestampNs = event.timestamp
             return
         }
         if (!running || event.sensor != activeSensor) return
@@ -325,7 +325,7 @@ class RawVitalsProbe(
                 } else {
                     eventRawValueRows.addLast(rawRow)
                     if (kind == Kind.ECG) ecgEventContactStates.addLast(
-                        EcgEventPreview.contactAtEvent(timestampNanos, lastEcgOffBodyTimestampNs, lastEcgOnBody)
+                        EcgEventPreview.contactAtEvent(timestampNanos, lastOffBodyTimestampNs, lastOnBody)
                     )
                     eventRawValueChars += addedChars
                 }
@@ -445,6 +445,13 @@ class RawVitalsProbe(
         val worn = when (kind) {
             // Android TYPE_LOW_LATENCY_OFFBODY_DETECT: 1.0 = on-body, 0.0 = off-body.
             Kind.OFF_BODY -> latest.firstOrNull()?.let { isOnBody(it) }
+            Kind.SPO2, Kind.MI_SPO2 -> when (EcgEventPreview.contactAtEvent(
+                eventTimestampsNs.lastOrNull() ?: 0L, lastOffBodyTimestampNs, lastOnBody
+            )) {
+                1 -> true
+                -1 -> false
+                else -> null
+            }
             else -> null
         }
         val rawValueCount = if (kind.hasRawValueCount) {

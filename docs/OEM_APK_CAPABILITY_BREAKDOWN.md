@@ -69,6 +69,10 @@ On 2026-11-08, `adb shell dumpsys sensorservice` on the connected owner's **Xiao
 | `mi_wear`, `max86178_offbody`, `max86178_offbody0` | 34, 65598, 65600 | Wear/contact-related state channels exist. | Exact state polarity and synchronization with every physiological event. |
 | `icp101xx Pressure Sensor` | 6 | Barometric pressure sensor exists. | **Not** evidence of blood pressure measurement. |
 
+**SpO₂ behavior added from the installed watch APK / 依原廠手錶 APK 修正血氧：** `health/spo2/Spo2ViewModel.java` starts a typed OEM service measurement (type `20485`). Separately, `health/spo2/activity/MeasuringActivity.java` uses `BodySensorUtil`; its callback stops a running measurement when the body sensor value is not `1.0f`. The 4.0 research page now registers the public Android low-latency off-body sensor while acquiring raw SpO₂ events. It reports raw capture as complete only with a recent, time-aligned on-body event. An off-wrist or unknown state leaves the raw event available for research but never turns it into a percentage. The app's 60-second contact freshness window is its own conservative rule, not a reverse-engineered OEM SpO₂ constant.
+
+原廠血氧頁除了經由服務取得有型別的量測結果，還會監看佩戴感測器；量測中若回報值不是 `1.0f`，就停止量測。本專案 4.0 因此在擷取公開血氧原始事件時，同步查驗 Android 離腕事件；僅在近期、時間對齊的「已佩戴」事件存在時標示原始擷取完成。離腕或未知時只保留研究封包，不產生血氧百分比。60 秒時效是本專案自己的保守規則。
+
 For this watch, the ECG, PPG, SpO₂, HR, BioZ and temperature paths are therefore **present in the Android sensor inventory**. The phone APK's blood-pressure and blood-glucose modules remain separate claims; neither follows from the barometer nor from these channels. A missing OEM card may indeed be a software/product gate for a particular feature, but this inventory does not identify every upstream rule.
 
 就這隻手錶而言，ECG、PPG、血氧相關、心率、BioZ 與溫度通道有實機證據。手機 APK 裡的血壓與血糖模組是另外的資料路徑；氣壓計不能當血壓計。原廠卡片缺席可能涉及軟體或產品設定，但上述清單尚不能指出每一道上游閘門。

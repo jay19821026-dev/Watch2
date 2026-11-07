@@ -119,7 +119,7 @@ class WearMeasurePageActivity : ComponentActivity() {
         SPO2(
             "SpO₂ RAW", "血氧原始通道", "#56AEFF",
             RawVitalsProbe.Kind.SPO2, null, 8,
-            "Sensor HAL 單位未驗證；不寫入百分比歷史。有原始事件即結束。"
+            "原廠血氧頁會監看離腕狀態；本頁需公開感測器回報已佩戴才將原始封包標為完成。HAL 單位未驗證，不寫入百分比歷史。"
         ),
         SUITE(
             "SENSOR SUITE", "全感測器掃描", "#56AEFF",
@@ -621,7 +621,7 @@ class WearMeasurePageActivity : ComponentActivity() {
         if (snapshot.samples < mode.minSamples) return false
         return when (mode) {
             Mode.PPG, Mode.LIFE_Q_OTT -> WearMeasurementPolicy.hasOpticalRawCapture(snapshot, mode.minSamples)
-            Mode.SPO2 -> snapshot.samples >= mode.minSamples &&
+            Mode.SPO2 -> snapshot.worn == true && snapshot.samples >= mode.minSamples &&
                 snapshot.latest.any { it.isFinite() && it != ClinicalSensorFormulas.OPTICAL_FILL.toDouble() }
             Mode.HEART_RATE -> WearMeasurementPolicy.directHeartRateBpm(snapshot) != null
             Mode.TEMPERATURE, Mode.BOARD_TEMP ->
@@ -733,8 +733,12 @@ class WearMeasurePageActivity : ComponentActivity() {
                 WearHealthConclusion.forPressure(snapshot.average, pressure?.altitudeM)
             Mode.BIOZ, Mode.RESPIRATION ->
                 WearHealthConclusion.forBioz(snapshot.samples)
-            Mode.SPO2 ->
-                if (snapshot.samples > 0) "結論：SpO₂ 原始已取·無校準者不輸出 %" else "結論：尚無 SpO₂"
+            Mode.SPO2 -> when {
+                snapshot.samples <= 0 -> "結論：尚無 SpO₂ 原始事件"
+                snapshot.worn == false -> "結論：離腕時取得的原始封包不作為量測完成證據"
+                snapshot.worn == null -> "結論：佩戴狀態未確認；原始封包僅供研究"
+                else -> "結論：佩戴狀態已確認，SpO₂ 原始封包已取；無校準者不輸出 %"
+            }
             Mode.OFF_BODY ->
                 if (snapshot.worn == true) "結論：已佩戴" else if (snapshot.worn == false) "結論：已離腕" else "結論：佩戴狀態未知"
             else -> if (snapshot.samples > 0) "結論：已取得原始資料" else "結論：無數值"
@@ -771,7 +775,9 @@ class WearMeasurePageActivity : ComponentActivity() {
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && opticalCaptureUsable -> "原始光學訊號已取得 · 未輸出 bpm"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && snapshot.samples > 0 -> "收到光學封包，但填充值／品質未通過"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) -> "沒有收到可用光學訊號"
-            mode == Mode.SPO2 -> "原始血氧封包已取得 · 未校準百分比"
+            mode == Mode.SPO2 && snapshot.worn == false -> "離腕狀態 · 原始血氧封包僅保留研究資料"
+            mode == Mode.SPO2 && snapshot.worn == null -> "佩戴狀態未知 · 原始血氧封包僅保留研究資料"
+            mode == Mode.SPO2 -> "已佩戴 · 原始血氧封包已取得 · 未校準百分比"
             mode in setOf(Mode.BIOZ, Mode.RESPIRATION) -> "原始阻抗訊號已取得 · 未換算生理值"
             else -> "原始感測資料已取得 · 已同步手機"
         }
