@@ -44,7 +44,7 @@ class UnavailableFeatureActivity : ComponentActivity() {
                 "高血壓趨勢（部分區）",
                 "袖帶校準 BP（核准區；Health Sensor SDK 不公開）",
                 "趨勢／外接",
-                "此裝置無核准袖帶／光學血壓醫療 API。請改開「光學血壓」研究頁：接 PPG 估計＋ACC/AHA 對照與建議；並可用外接血壓計校正。"
+                "目前沒有可供本 App 使用、經裝置驗證的手錶血壓量測 API。原廠程式的 PRESS 量測是心理壓力指數，不是動脈血壓；手錶氣壓計也不能換算 mmHg。請用上臂袖帶血壓計量測，再於血壓頁記錄與檢視分類。"
             )
         }
         val root = LinearLayout(this).apply {
