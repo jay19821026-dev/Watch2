@@ -29,7 +29,9 @@ Do not answer that health data is anonymous merely because the app has no accoun
 
 ## Health apps declaration / 健康 App 聲明
 
-Select **Health and fitness → Activity and Fitness** and **Health and fitness → Sleep Management**. Do not select Medical Device Apps, Clinical Decision Support, Diseases and Conditions Management, emergency monitoring, or diagnosis/treatment categories for this research build.
+Select **Health and fitness → Activity and Fitness**, **Sleep Management**, and **Stress Management, Relaxation, Mental Acuity**. The app displays a labeled research stress score and brief rest/retest guidance, so omitting the stress category would understate its visible features. Do not select Medical Device Apps merely because the app reads health data; this research build has no demonstrated device authorization or validated diagnostic/treatment function. Review the actual Play form and current app screens before submitting any medical, disease-management or clinical-decision category; the app must not claim emergency monitoring or diagnosis.
+
+請勾選「健康與健身 → 活動與健身、睡眠管理、壓力管理／放鬆／心智能力」。本 App 顯示研究壓力分數並提供休息後重測文字，因此壓力類別須如實揭露。醫療器材或臨床決策分類須依實際功能與法規狀態審查，不能因蒐集健康資料就自行宣稱核准。
 
 The manifest currently requests Health Connect access for heart rate, resting heart rate, HRV, oxygen saturation, respiratory rate, body temperature (read only), blood pressure, weight, steps, distance, active/total calories, exercise and route writing, sleep, elevation, floors, hydration, and extended history. In the Health Connect permission declaration, justify each requested data type with the matching visible feature; the Play declaration and final merged manifest must match exactly.
 
