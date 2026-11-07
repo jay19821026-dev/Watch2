@@ -65,6 +65,12 @@ class RawVitalsProbe(
             else -> null
         }
     private val wakeup = candidates.firstOrNull { it.isWakeUpSensor }
+    private val ecgOffBodySensor = if (kind == Kind.ECG) {
+        manager.getSensorList(Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT).firstOrNull { !it.isWakeUpSensor }
+            ?: manager.getDefaultSensor(Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT)
+    } else null
+    private var lastEcgOffBodyTimestampNs = 0L
+    private var lastEcgOnBody: Boolean? = null
     private var startedAt = 0L
     private var sessionStartedElapsedRealtimeNs = 0L
     private var samples = 0
@@ -90,6 +96,7 @@ class RawVitalsProbe(
     private val eventCallbackElapsedRealtimeNs = ArrayDeque<Long>()
     private val eventSampleCounts = ArrayDeque<Int>()
     private val eventRawValueRows = ArrayDeque<String>()
+    private val ecgEventContactStates = ArrayDeque<Int>()
     private var eventRawValueChars = 0
     private var eventRawValuesSizeRejected = false
     private var eventRawValuesTruncated = false
@@ -141,6 +148,9 @@ class RawVitalsProbe(
         eventCallbackElapsedRealtimeNs.clear()
         eventSampleCounts.clear()
         eventRawValueRows.clear()
+        ecgEventContactStates.clear()
+        lastEcgOffBodyTimestampNs = 0L
+        lastEcgOnBody = null
         eventRawValueChars = 0
         eventRawValuesSizeRejected = false
         eventRawValuesTruncated = false
@@ -206,6 +216,11 @@ class RawVitalsProbe(
         )
         registrationResult = if (started) "registered" else
             SensorRegistrationGuard.terminalFailureReason(registrationResult)
+        if (started && kind == Kind.ECG && ecgOffBodySensor != null) {
+            runCatching {
+                manager.registerListener(this, ecgOffBodySensor, SensorManager.SENSOR_DELAY_NORMAL, handler)
+            }.onFailure { error -> Log.w(TAG, "ecg_offbody_registration_failed", error) }
+        }
         if (!started) acquisitionStopReason =
             SensorRegistrationGuard.terminalFailureReason(acquisitionStopReason)
         SensorAcquisitionDiagnostics.recordStart(appContext, kind.wireName, started)
@@ -252,6 +267,13 @@ class RawVitalsProbe(
     }
 
     override fun onSensorChanged(event: SensorEvent) {
+        if (running && kind == Kind.ECG && event.sensor == ecgOffBodySensor) {
+            lastEcgOnBody = event.values.firstOrNull()?.let { value ->
+                if (value.isFinite()) value == 1f else null
+            }
+            lastEcgOffBodyTimestampNs = event.timestamp
+            return
+        }
         if (!running || event.sensor != activeSensor) return
         val extractedCount = ingest(event.values, event.sensor, event.timestamp)
         recordEventMetadata(event.values, event.timestamp, extractedCount)
@@ -278,6 +300,7 @@ class RawVitalsProbe(
         if (!eventRawValuesSizeRejected) {
             if (values.size > MAX_RAW_EVENT_VALUES_PER_ROW) {
                 eventRawValueRows.clear()
+                ecgEventContactStates.clear()
                 eventRawValueChars = 0
                 eventRawValuesSizeRejected = true
             } else {
@@ -286,6 +309,7 @@ class RawVitalsProbe(
                     eventRawValueChars, rawRow.length, eventRawValueRows.isNotEmpty(), MAX_ECG_RAW_VALUE_CHARS
                 )) {
                     eventRawValueChars -= eventRawValueRows.removeFirst().length + if (eventRawValueRows.isEmpty()) 0 else 1
+                    if (kind == Kind.ECG) ecgEventContactStates.removeFirst()
                     eventTimestampsNs.removeFirst()
                     eventTimestampValidity.removeFirst()
                     eventCallbackElapsedRealtimeNs.removeFirst()
@@ -295,10 +319,14 @@ class RawVitalsProbe(
                 val addedChars = rawRow.length + if (eventRawValueRows.isEmpty()) 0 else 1
                 if (rawRow.length > MAX_ECG_RAW_VALUE_CHARS || eventRawValueChars + addedChars > MAX_ECG_RAW_VALUE_CHARS) {
                     eventRawValueRows.clear()
+                    ecgEventContactStates.clear()
                     eventRawValueChars = 0
                     eventRawValuesSizeRejected = true
                 } else {
                     eventRawValueRows.addLast(rawRow)
+                    if (kind == Kind.ECG) ecgEventContactStates.addLast(
+                        EcgEventPreview.contactAtEvent(timestampNanos, lastEcgOffBodyTimestampNs, lastEcgOnBody)
+                    )
                     eventRawValueChars += addedChars
                 }
             }
@@ -310,6 +338,7 @@ class RawVitalsProbe(
             eventSampleCounts.removeFirst()
             if (eventRawValueRows.isNotEmpty()) {
                 eventRawValueChars -= eventRawValueRows.removeFirst().length + 1
+                if (kind == Kind.ECG) ecgEventContactStates.removeFirst()
                 eventRawValuesTruncated = true
             }
         }
@@ -473,6 +502,7 @@ class RawVitalsProbe(
             previewPointCallbackElapsedRealtimeNs = if (kind == Kind.PPG) ppgPreviewCallbackTimestampsNs.toLongArray() else longArrayOf(),
             eventSampleCounts = eventSampleCounts.toIntArray(),
             eventRawValueRows = eventRawValueRows.toList(),
+            ecgEventContactStates = ecgEventContactStates.toIntArray(),
             eventRawValuesStatus = when {
                 !WearSensorEventMetadataPolicy.supports(kind) -> "not_applicable"
                 eventRawValuesSizeRejected -> "rejected_size_limit"
@@ -606,6 +636,7 @@ class RawVitalsProbe(
         val previewPointCallbackElapsedRealtimeNs: LongArray = longArrayOf(),
         val eventSampleCounts: IntArray = intArrayOf(),
         val eventRawValueRows: List<String> = emptyList(),
+        val ecgEventContactStates: IntArray = intArrayOf(),
         val eventRawValuesStatus: String = "not_applicable",
         val halAdditionalInfoSupported: Boolean = false,
         val halSamplePeriodSeconds: Double? = null,

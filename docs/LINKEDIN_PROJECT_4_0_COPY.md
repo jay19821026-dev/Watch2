@@ -14,7 +14,7 @@ Publication status / 發布狀態：**draft; LinkedIn profile has not been updat
 
 **說明：**
 
-由王宥傑開發的開源 Android 手機與 Xiaomi Watch 2 Pro／Wear OS 雙端專案。使用 Wear OS Health Services、Wearable Data Layer 和 Health Connect 整理使用者授權的心率、活動及其他健康紀錄，並顯示資料來源、時間、品質與同步狀態。4.0 測試版新增血氧紀錄方式篩選、獨立 ECG 研究卡片，以及由使用者明確點擊的原廠功能入口。實機盤點確認這隻錶的 ECG、PPG、BioZ、血氧相關與溫度感測器通道；原廠 ECG 仍要求手機 Mi Fitness 正式啟用。原始通道僅作研究與品質檢視，未取得裝置專屬校準與臨床驗證前不宣稱醫療數值或診斷。專案公開雙端原始碼、測試 APK、中英文文件及資料庫、論文、演算法溯源。非醫療器材。
+由王宥傑開發的開源 Android 手機與 Xiaomi Watch 2 Pro／Wear OS 雙端專案。使用 Wear OS Health Services、Wearable Data Layer 和 Health Connect 整理使用者授權的心率、活動及其他健康紀錄，並顯示資料來源、時間、品質與同步狀態。4.0 測試版新增血氧紀錄方式篩選、獨立 ECG 研究卡片，以及由使用者明確點擊的原廠功能入口。實機盤點確認這隻錶的 ECG、PPG、BioZ、血氧相關與溫度感測器通道；ECG 研究預覽依原廠封包標記與配戴狀態雙條件過濾，原廠 ECG 仍要求手機 Mi Fitness 正式啟用。原始通道僅作研究與品質檢視，未取得裝置專屬校準與臨床驗證前不宣稱醫療數值或診斷。專案公開雙端原始碼、測試 APK、中英文文件及資料庫、論文、演算法溯源。非醫療器材。
 
 ## English
 
@@ -26,11 +26,11 @@ Publication status / 發布狀態：**draft; LinkedIn profile has not been updat
 
 **Description:**
 
-An open-source Android phone and Xiaomi Watch 2 Pro / Wear OS project by Wang You-Jie. It uses Wear OS Health Services, the Wearable Data Layer, and Health Connect to organize user-authorized health records with visible provenance, timing, quality, and sync status. The 4.0 test build adds SpO₂ recording-method filters, an independent ECG research card, and explicit user-tapped links to OEM watch screens. A live inventory confirms ECG, PPG, BioZ, SpO₂-related, and temperature sensor channels on this watch; OEM ECG still requests official activation through Mi Fitness. Raw channels remain research and quality evidence, not calibrated medical measurements or diagnoses. The project publishes both source modules, test APKs, bilingual documentation, and dataset–paper–algorithm provenance. Not a medical device.
+An open-source Android phone and Xiaomi Watch 2 Pro / Wear OS project by Wang You-Jie. It uses Wear OS Health Services, the Wearable Data Layer, and Health Connect to organize user-authorized health records with visible provenance, timing, quality, and sync status. The 4.0 test build adds SpO₂ recording-method filters, an independent ECG research card, and explicit user-tapped links to OEM watch screens. A live inventory confirms ECG, PPG, BioZ, SpO₂-related, and temperature sensor channels on this watch. The ECG research preview filters on both an OEM-observed packet marker and time-aligned on-body status; OEM ECG still requests official activation through Mi Fitness. Raw channels remain research and quality evidence, not calibrated medical measurements or diagnoses. The project publishes both source modules, test APKs, bilingual documentation, and dataset–paper–algorithm provenance. Not a medical device.
 
 ## Evidence before posting / 發布前核對
 
-- The 4.0.0 test 3 prerelease and both APK assets are live; each publicly downloaded asset matched the local SHA-256: https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.3
+- The 4.0.0 test 4 prerelease and both APK assets are prepared; verify their public download hashes after publishing: https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.4
 - The public bilingual page is live: https://ailisa.net/portfolio/xiaomi-health-bridge
-- The watch-side OEM ECG entry showed activation guidance on 2026-11-08. The owner reports no phone Mi Fitness ECG card. Paired phone execution of this test 3 build and bidirectional sync are still unverified; do not add a claim that ECG was unlocked or validated.
+- The watch-side OEM ECG entry showed activation guidance on 2026-11-08. The owner reports no phone Mi Fitness ECG card. Paired phone execution of this test 4 build and bidirectional sync are still unverified; do not add a claim that ECG was unlocked or validated.
 - Add the project to the user's own LinkedIn profile only after the authenticated profile and destination fields can be verified. Record the resulting project URL after saving.
