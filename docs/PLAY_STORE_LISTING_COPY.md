@@ -4,7 +4,7 @@ Author / 作者：Wang You-Jie（王宥傑）
 Package / 套件：`com.jaysato.xiaomihealthbridge`  
 Category / 類別：Health & Fitness / 健康與健身  
 Website / 網站：`https://ailisa.net/portfolio/xiaomi-health-bridge`  
-Privacy policy / 隱私政策：`https://ailisa.net/portfolio/xiaomi-health-bridge#privacy`  
+Privacy policy / 隱私政策：`https://ailisa.net/privacy/xiaomi-health-bridge`  
 Support email / 支援信箱：`s4140666@gmail.com`
 
 The text below is ready to paste into Play Console after checking it against the final signed AAB. It deliberately avoids medical-device, diagnosis, treatment, emergency-monitoring, and clinical-accuracy claims.
