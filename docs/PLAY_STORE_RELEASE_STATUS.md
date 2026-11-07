@@ -2,7 +2,7 @@
 
 Last verified / 最後驗證：2026-11-08
 Last built bundle / 上次已建置 AAB：4.0.0 test 15 原始碼（手機 `versionCode 164`、手錶 `165`；候選 upload key 簽章，尚未上傳 Play）
-Current source / 目前原始碼：4.0.0 (`versionCode 163`，雙端 Debug；尚未上傳 Play)
+Current source / 目前原始碼：4.0.0 (`versionCode 163`，雙端 Debug；尚未上傳 Play)。`cad2850` 加入原廠壓力服務的來源核對與手錶 HRV 頁入口，**晚於 test 15 的 APK／AAB 建置**；任何 Play 上傳前須從新的發布提交重建雙端簽署候選。
 Package / 套件：`com.jaysato.xiaomihealthbridge`
 
 The signed test 12 Play candidates predate the test 13 BioZ wear-state correction, test 14 guided-breathing shortcut and test 15 SpO₂/temperature instructions and are superseded. Test 15 candidate AABs now exist, but final version codes and upload-certificate enrollment still require Console inspection. / test 12 舊候選 AAB 未包含 test 13／14／15 的修正；test 15 新候選仍須通過 Console 核對。
