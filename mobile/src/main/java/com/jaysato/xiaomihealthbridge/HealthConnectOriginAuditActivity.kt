@@ -49,7 +49,7 @@ class HealthConnectOriginAuditActivity : ComponentActivity() {
             setTextColor(Color.WHITE)
         })
         column.addView(TextView(this).apply {
-            text = "只讀取近七天已授權紀錄的數量、來源 App 與最新時間；不顯示健康數值，也不送到伺服器。來源 App 不等於感測器型號或臨床校準證明。"
+            text = "只讀取近七天已授權紀錄的數量、來源 App 與最新時間；心率另列樣本數及最新樣本時間。不顯示健康數值，也不送到伺服器。來源 App 不等於感測器型號或臨床校準證明。"
             textSize = 14f
             setTextColor(Color.LTGRAY)
             setPadding(0, dp(12), 0, dp(16))
@@ -93,10 +93,16 @@ class HealthConnectOriginAuditActivity : ComponentActivity() {
                 return@launch
             }
             val end = Instant.now()
-            val filter = TimeRangeFilter.between(end.minusSeconds(7L * 24 * 60 * 60), end)
+            val start = end.minusSeconds(7L * 24 * 60 * 60)
+            val filter = TimeRangeFilter.between(start, end)
             val lines = mutableListOf("查詢時間：${dateFormat.format(end)}", "範圍：最近七天；每類最多檢查 2,000 筆", "")
 
-            suspend fun <T : Record> inspect(label: String, type: KClass<T>, time: (T) -> Instant) {
+            suspend fun <T : Record> inspect(
+                label: String,
+                type: KClass<T>,
+                time: (T) -> Instant?,
+                sampleCount: ((T) -> Int)? = null,
+            ) {
                 if (HealthPermission.getReadPermission(type) !in granted) {
                     lines += "$label：未授權；請在本 App 的 Health Connect 權限頁允許後重試。"
                     return
@@ -107,11 +113,16 @@ class HealthConnectOriginAuditActivity : ComponentActivity() {
                         lines += "$label：已授權，近七天沒有可讀紀錄。"
                         return
                     }
-                    lines += "$label：${records.size} 筆；來源 App ${records.map { it.metadata.dataOrigin.packageName }.distinct().size} 個。"
+                    val totalSamples = sampleCount?.let { count -> records.sumOf { count(it).toLong() } }
+                    val sampleSummary = totalSamples?.let { "；內含 $it 個樣本" }.orEmpty()
+                    lines += "$label：${records.size} 筆紀錄$sampleSummary；來源 App ${records.map { it.metadata.dataOrigin.packageName }.distinct().size} 個。"
                     records.groupBy { it.metadata.dataOrigin.packageName }.toSortedMap().forEach { (origin, items) ->
-                        val latest = items.maxOf(time)
-                        val futureWarning = if (latest.isAfter(end)) "（時間晚於查詢時間，請核對來源時鐘）" else ""
-                        lines += "  ${origin.ifBlank { "來源未標示" }}：${items.size} 筆；最新 ${dateFormat.format(latest)}$futureWarning"
+                        val latest = items.mapNotNull(time).maxOrNull()
+                        val latestSummary = if (latest == null) "無樣本時間" else dateFormat.format(latest)
+                        val futureWarning = if (latest?.isAfter(end) == true) "（時間晚於查詢時間，請核對來源時鐘）" else ""
+                        val originSamples = sampleCount?.let { count -> "；${items.sumOf { count(it).toLong() }} 個樣本" }.orEmpty()
+                        val timeLabel = if (sampleCount != null) "最新樣本" else "最新"
+                        lines += "  ${origin.ifBlank { "來源未標示" }}：${items.size} 筆紀錄$originSamples；$timeLabel $latestSummary$futureWarning"
                     }
                 } catch (cancelled: CancellationException) {
                     throw cancelled
@@ -122,14 +133,19 @@ class HealthConnectOriginAuditActivity : ComponentActivity() {
                 }
             }
 
-            inspect("心率", HeartRateRecord::class) { it.endTime }
-            inspect("血氧", OxygenSaturationRecord::class) { it.time }
-            inspect("步數", StepsRecord::class) { it.endTime }
-            inspect("睡眠", SleepSessionRecord::class) { it.endTime }
-            inspect("距離", DistanceRecord::class) { it.endTime }
-            inspect("活動熱量", ActiveCaloriesBurnedRecord::class) { it.endTime }
+            inspect(
+                "心率",
+                HeartRateRecord::class,
+                time = { record -> record.samples.asSequence().map { it.time }.filter { !it.isBefore(start) && !it.isAfter(end) }.maxOrNull() },
+                sampleCount = { record -> record.samples.count { !it.time.isBefore(start) && !it.time.isAfter(end) } },
+            )
+            inspect("血氧", OxygenSaturationRecord::class, time = { it.time })
+            inspect("步數", StepsRecord::class, time = { it.endTime })
+            inspect("睡眠", SleepSessionRecord::class, time = { it.endTime })
+            inspect("距離", DistanceRecord::class, time = { it.endTime })
+            inspect("活動熱量", ActiveCaloriesBurnedRecord::class, time = { it.endTime })
             lines += ""
-            lines += "Mi Fitness 3.53.0i 的反組譯只證實有 Health Connect 寫入路徑；只有上方實際來源列能證實本手機有可讀紀錄。"
+            lines += "Mi Fitness 3.53.0i 的反組譯顯示多個心率樣本可能合併為一筆 Health Connect 紀錄；紀錄筆數不等於量測次數。只有上方實際來源列能證實本手機有可讀紀錄。"
             result.text = lines.joinToString("\n")
         }
     }

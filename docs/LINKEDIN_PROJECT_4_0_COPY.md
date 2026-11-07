@@ -30,5 +30,5 @@ An open-source Android phone and Wear OS health-data project independently devel
 
 ## Evidence before posting / 發布前核對
 
-- Test 19 is public on GitHub Release and ailisa.net. Test 20 source, signed Play candidates and the real Wear screenshot are locally verified but not yet published as a new test release. The paired watch installed test 20 and opened the corrected home screen; watch sensors and bidirectional sync remain unverified. The AILISA phone has not been granted Health Connect read permission, so no owner-specific Mi Fitness origin is claimed. Do not claim OEM ECG unlock or clinical validation.
+- Test 20 is public on GitHub Release and ailisa.net (Site version 190); the real Wear screenshot is on the site. The paired watch installed test 20 and opened the corrected home screen; watch sensors and bidirectional sync remain unverified. Signed Play AABs are local candidates only and have not been uploaded. The AILISA phone has not been granted Health Connect read permission, so no owner-specific Mi Fitness origin is claimed. Do not claim OEM ECG unlock or clinical validation.
 - Add the project to the user's own LinkedIn profile only after the authenticated profile and destination fields can be verified. Record the resulting project URL after saving.
