@@ -1,0 +1,87 @@
+# OEM APK capability breakdown / 原廠 APK 功能拆解
+
+Author / 作者：王宥傑 (Wang You-Jie)  
+Inspected / 檢查日期：2026-11-08
+
+This inventory distinguishes **code bundled in the phone APK**, **code installed on this Watch 2 Pro**, **a feature offered for the paired product**, and **a usable measurement**. They are four different claims. The phone APK is a shared multi-device app; its modules do not establish Watch 2 Pro entitlement or prove which newer Xiaomi watch offers them.
+
+本表分開記錄「手機 APK 內含程式碼」、「這隻 Watch 2 Pro 上實際安裝程式碼」、「配對產品設定允許顯示」及「能完成有效量測」。四者不能畫上等號。手機 APK 是多裝置共用程式；單靠解包無法證明某項功能在 Watch 2 Pro 或特定新機型可用。
+
+## Inspected artifacts / 已檢查檔案
+
+| Artifact | Identity | Decompiler limit |
+|---|---|---|
+| User-supplied Mi Fitness phone APK | `com.xiaomi.wearable` 9.8.348i; SHA-256 `42958D4589654D9A9317B9B777F0A8B3C2637B8C8B11229308F9AEA4143C2A33` | JADX 1.5.6 completed with 415 errors. |
+| APK pulled from this Watch 2 Pro | `com.xiaomi.wear.fitness` versionCode 2025091121; SHA-256 `920459E3B2EBF569517E4294029705561E7BEAFF6CCA30EDB142E5A4F83B5965` | JADX completed with 107 errors; native code is not recovered. |
+| Privileged health service pulled from the same watch | `com.xiaomi.wear.fitness.whs_service` versionCode 2025091109; SHA-256 `47738E2C5BBD754D8F6636ACB0DE03DC2847A5B0A87BE4AD32DF0EE11651941A` | JADX completed with 44 errors; service data is private to the OEM app. |
+
+Original APKs, decompiled source, assets, models and native binaries remain local and are **not redistributed** in this public repository. Source paths below are identifiers for the owner's local review.
+
+## Shared phone feature gate / 手機端共用功能閘門
+
+The reconstructed `com/xiaomi/fitness/device/manager/DeviceModelExtKt.java`, method `isSupportFeature`, reads `deviceModel.getProduct().getFeatures()` and checks `features.contains(feature)`. `Product.java` deserializes `features`, `feature_map`, `whitelist_feature` and `android_feature`; the APK alone does not reveal the current paired Watch 2 Pro's complete product record or its upstream provisioning. The UI also applies separate connection, account, ROM and channel checks in some cases.
+
+手機端 `isSupportFeature` 的核心是查詢目前產品資料中的 `features` 清單。APK 解包可以看到功能鍵和顯示邏輯，卻無法從共用 APK 推定此時配對的 Watch 2 Pro 產品清單、帳號狀態或服務端核准。部分畫面還有連線狀態、手機 ROM 與發行通路判斷。
+
+| Phone code / 手機程式碼 | Concrete local evidence / 具體證據 | Availability finding / 可用性判斷 |
+|---|---|---|
+| ECG / 心電圖 | `health/ecg/`; `Feature.ECG="ecg"`; device settings card type `162` checks `"ecg"`; reminder type `181` checks `"electrocardiogram"`; `health/ecg/net/EcgApiService.java` handles activation/account flow. | Owner reports **no ECG card** for paired Watch 2 Pro. The bundled module and reminder flag do not override that observation. |
+| Blood pressure / 血壓 | `health/bloodpressure/`; `Feature.BLOOD_PRESSURE_MEASURE_REMIND="blood_pressure"`; `BloodPressureFragment.java` checks this product feature. | Phone module is present. No Watch 2 Pro blood-pressure sensor or cuff-equivalent measurement established. |
+| Blood glucose / 血糖 | `health/bloodglucose/`; `Feature.BLOOD_GLUCOSE="blood_sugar"`; third-party CGM code checks `"blood_sugar"`. | This is a phone/third-party data path, not evidence that the watch measures glucose. |
+| Blood oxygen / 血氧 | `health/spo2/`; monitoring setting card `115` checks `"blood_oxygen_monitor"`; watch OEM `spo2` module and privileged service measurement type `20485`. | OEM typed result may yield percentage; raw HAL channels are not percentages. Own app uses attributed Health Connect records or research raw events. |
+| Heart rate / 心率 | `health/hrm/`; setting card `113` checks `"heart_rate"`; watch OEM `heartrate` module. | Independent public Wear Health Services/Health Connect route exists; quality and freshness remain device checks. |
+| Sleep / 睡眠 | `health/sleep/`; sleep setting card `114` has device-specific assist-sleep logic; watch OEM `sleep` module. | Own app can show Health Connect sleep sessions/stages; OEM stage model cannot be inferred from the APK. |
+| Sleep rhythm / 睡眠節律 | `health/sleep/rhythm/`; `Feature.SLEEP_RHYTHM="sleep_rhythm"`; rhythm repository checks the feature. | Separate product gate; no proof this Watch 2 Pro exposes it. |
+| Stress / 壓力 | `health/stress/`; `Feature.PRESSURE_MONITOR="pressure_monitor"`, `STRESS_MANUAL="manual_pressure"`; watch OEM `stress` module. | OEM score formula/model remains unknown. Raw HRV is not interchangeable with the OEM score. |
+| Body composition / 體成分 | `Feature.BODY_FAT="body_fat"`; watch OEM `bodycomposition` module and raw BioZ capture path. | OEM output needs electrode state, impedance scale, user profile and model; raw BioZ cannot be converted to validated body-fat percentage from this evidence. |
+| Temperature / 溫度 | `health/temperature/`; `Feature.TEMPERATURE="temperature"`; watch OEM `temperature` module. | Physical unit, anatomical site and correction need independent validation for raw readings. |
+| Breathing / 呼吸 | `Feature.BREATHING_SCORE="breathing_score"`; watch OEM `breath` module. | A breathing feature or score is not proof of a calibrated respiration waveform from BioZ. |
+| Activity and steps / 活動、步數 | `health/step/`, `health/calorie/`, `health/stand/`; watch OEM `sport` package. | Public Health Services/Health Connect route can be used with explicit source and time. |
+| Training load, running index, VO₂max / 訓練負荷、跑步指標、最大攝氧量 | `health/trainload/`, `health/runningindicator/`, `health/vo2max/`; feature keys `"traning_load"` (OEM spelling), `"running_index"`, `"vo2max"`. | Bundled calculations and screens are not evidence this device reports the same values or that OEM algorithms can be copied. |
+| PAI, vitality, physical status / 活力相關分數 | `health/pai/`, `health/vitality/`, `health/physicalstatus/`; feature keys `"pai"`, `"vitality"`, `"tsb"`. | Proprietary score semantics and eligible device inputs need separate evidence. |
+| Device features / 裝置功能 | `Feature.java` also lists eSIM, NFC, watch face, weather, third-party app, notifications, sport HR broadcast, camera control and others. `DeviceModelExtKt.java` maps many settings card IDs to feature keys. | These are shared phone capabilities, not health sensors. Each requires its own Watch 2 Pro product feature, permission and device-side path. |
+
+The list above is an evidence-backed **module and gate inventory**, not a claim that all bundled functions have been ported. In particular, `Feature.ECG` and `Feature.ECG_MEASURE_REMIND` are distinct keys; changing a local boolean in our own app would not alter the OEM product record or the watch privileged service.
+
+## Live Watch 2 Pro sensor inventory / Watch 2 Pro 即時感測器盤點
+
+On 2026-11-08, `adb shell dumpsys sensorservice` on the connected owner's **Xiaomi Watch 2 Pro** listed the following Android sensor channels. This is stronger evidence than finding a class in a shared APK: the watch's framework advertises these channels at runtime. It still does not prove calibration, user-facing activation, uninterrupted data, or clinical accuracy. Sensor names and type numbers are copied as short interface identifiers; no raw personal sensor values are included.
+
+2026-11-08 直接讀取這隻已連線 Watch 2 Pro 的 Android 感測器清單，確認系統當下確實宣告下列通道。這支持「硬體及 HAL 路徑存在」的說法，但仍需分開驗證事件能否讀取、接觸狀態、單位校準及原廠功能授權。
+
+| Sensor advertised by this watch | Android type | What it establishes / 能確認的事 | What remains / 尚待確認 |
+|---|---:|---|---|
+| `max86178_ecg` | 65573 | ECG event channel exists (wakeup and non-wakeup). | Electrode contact, ADC scale, clock gaps, OEM activation and valid ECG interpretation. |
+| `max86178_ppg` | 65572 | Optical PPG raw channel exists. | LED/channel mapping, motion correction and validated heart-rate/SpO₂ derivation. |
+| `max86178_spo2`, `mi_spo2` | 65596, 65588 | Two distinct SpO₂-related sensor interfaces exist. | Which raw fields map to calibrated OEM percentage; their names alone cannot supply it. |
+| `lifeq_lel_heart_rate`, `max86178_hr` | 21, 65597 | Standard heart-rate and vendor HR channels exist. | Sample quality, wear/contact state and provenance of each reported value. |
+| `max86178_bioz` | 65599 | Bioimpedance raw channel exists. | Electrode mode, ohm scale and body-composition or respiratory model. |
+| `ct7117 body temperature`, `ct7117 board temperature`, `thermometer algo` | 65590, 65589, 65591 | Separate body, board and derived temperature interfaces exist. | Site, ambient correction, true units and medical-use accuracy. |
+| `mi_wear`, `max86178_offbody`, `max86178_offbody0` | 34, 65598, 65600 | Wear/contact-related state channels exist. | Exact state polarity and synchronization with every physiological event. |
+| `icp101xx Pressure Sensor` | 6 | Barometric pressure sensor exists. | **Not** evidence of blood pressure measurement. |
+
+For this watch, the ECG, PPG, SpO₂, HR, BioZ and temperature paths are therefore **present in the Android sensor inventory**. The phone APK's blood-pressure and blood-glucose modules remain separate claims; neither follows from the barometer nor from these channels. A missing OEM card may indeed be a software/product gate for a particular feature, but this inventory does not identify every upstream rule.
+
+就這隻手錶而言，ECG、PPG、血氧相關、心率、BioZ 與溫度通道有實機證據。手機 APK 裡的血壓與血糖模組是另外的資料路徑；氣壓計不能當血壓計。原廠卡片缺席可能涉及軟體或產品設定，但上述清單尚不能指出每一道上游閘門。
+
+## Installed watch packages / 這隻手錶實際安裝的模組
+
+The installed Xiaomi Health APK has `health/{heartrate,spo2,ecg,bodycomposition,temperature,stress,sleep,breath}` and `sport/` packages. Its manifest exports the main Activities recorded in [the Watch 2 Pro feature audit](WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md). Xiaomi Health uses the separate privileged health service for typed measurements and local state. Presence of an exported Activity permits a foreground launch attempt; it does not make private binder data or activation available to our package.
+
+手錶上有上述八類健康模組與運動模組，且部分主畫面可由使用者點選開啟。真正的原廠量測資料與啟用狀態由另一個系統權限服務提供；第三方 App 不能因為畫面可開就取得相同的權限或結果。
+
+| Data layer / 資料層 | Observed path / 已見路徑 | Own app action / 本專案做法 |
+|---|---|---|
+| Android public APIs | Health Services, Health Connect, permitted sensor events | Implement independently with per-record source, timestamp and quality checks. |
+| OEM watch UI | Exported Xiaomi Health Activity | Open only after user taps a visible entry; show OEM's own availability message. |
+| OEM typed service | Privileged `WhsService`/`WhsManager`, `LocalData`, typed requests | Document the behavior; do not claim a stable third-party API or copy private service code. |
+| OEM native algorithms | ECG JNI and other proprietary model/algorithm paths | Record inputs and limits; do not reuse binaries or label uncalibrated raw samples as medical outputs. |
+
+## What to verify next / 下一步真機核對
+
+1. Capture the **current paired product feature list** or official device-settings evidence, without account tokens or device identifiers, to distinguish a missing card from a service failure.
+2. For each relevant Watch 2 Pro function, test the OEM foreground page and record the visible outcome (available, guidance, unsupported, or permission request).
+3. Compare public API records and raw sensor events with explicit source, time, field shape, contact state and units. Validate each metric separately before exposing a derived number.
+4. Keep ECG, SpO₂, body composition and any blood-pressure/glucose claims labelled according to their actual evidence. The APK alone supplies no clinical validation or device-specific entitlement.
+
+This breakdown extends the [OEM feature audit](WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md) and [phone APK comparison](MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md). / 本文件補充原廠功能稽核與手機 APK 對照文件。

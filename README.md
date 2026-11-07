@@ -76,6 +76,8 @@ Mi Fitness 9.8.348i 的 clean-room 靜態反組譯、資料管線差異、可合
 
 Watch 2 Pro 4.0 原廠手錶 APK、ECG 啟用閘門與功能入口逐項盤點，請見 [`docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`](docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md)。
 
+手機共用 APK 的完整功能類別、產品功能鍵與這隻 Watch 2 Pro 即時感測器清單的中英文對照，請見 [`docs/OEM_APK_CAPABILITY_BREAKDOWN.md`](docs/OEM_APK_CAPABILITY_BREAKDOWN.md)。
+
 - PhysioNet ECG-ID：同取樣率下的尺度無關 ECG 頻譜參考，不是手錶校準檔。
 - MIT-BIH Noise Stress Test Database：描述性雜訊特徵比較，不用來直接判定手錶雜訊根因。
 - MIT-BIH Arrhythmia Database：離線 QRS 偵測器／標註管線基準，不代表腕式 ECG 或 AFib 臨床驗證。
