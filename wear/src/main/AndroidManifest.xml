@@ -21,6 +21,7 @@
 
     <queries>
         <package android:name="com.google.android.wearable.assistant" />
+        <package android:name="com.xiaomi.wear.fitness" />
     </queries>
     <application
         android:allowBackup="false"
@@ -30,6 +31,7 @@
         android:label="Xiaomi Health Bridge"
         android:roundIcon="@drawable/app_icon"
         android:theme="@style/WearTheme">
+        <activity android:name=".WearOemFeaturesActivity" android:exported="false" />
         <meta-data android:name="com.google.android.wearable.standalone" android:value="false" />
         <uses-library android:name="com.google.android.wearable" android:required="true" />
         <service

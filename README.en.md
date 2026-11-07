@@ -8,7 +8,7 @@ Xiaomi Health Bridge is an open-source Android phone + Wear OS research project 
 
 > The hero is a privacy-safe illustrative mockup. Actual features and support depend on the source, device capabilities, and `SUPPORT_MATRIX.md`.
 
-Current version: `3.13.44` (versionCode `154`). The source tree contains:
+Current test version: `4.0.0` (versionCode `155`). The source tree contains:
 
 - `mobile/` — Android phone app
 - `wear/` — Wear OS watch app
@@ -28,6 +28,7 @@ All screenshots are demo screens containing no personal data. More examples: [su
 - Preserves research evidence for ECG, PPG, BioZ, raw SpO₂, temperature, and motion channels.
 - Unlocks an interpreted result only when its units, timing, mapping, quality, and calibration requirements pass.
 - Includes offline ECG/PPG method benchmarks against public datasets.
+- Version 4.0 adds SpO₂ recording-method filtering and user-tapped links to exported OEM watch screens; the OEM screens remain the authority for activation state.
 
 ## Medical disclaimer
 
@@ -37,12 +38,12 @@ ECG remains research-only unless device-specific lead mapping, ADC timing, and r
 
 ## APKs
 
-The GitHub Release provides matching sideloadable Debug builds:
+Matching 4.0.0 test APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/xiaomi-health-bridge#downloads) or this repository's `dist/` directory:
 
-- `XiaomiHealthBridge-Mobile-3.13.44-vc154-debug.apk` — Android phone
-- `XiaomiHealthBridge-Wear-3.13.44-vc154-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
+- `XiaomiHealthBridge-Mobile-4.0.0-vc155-debug.apk` — Android phone
+- `XiaomiHealthBridge-Wear-4.0.0-vc155-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
 
-Debug APKs use an Android development signature and are not Play Store releases. Production Release APKs are not distributed because no authorized release keystore was supplied. Verify the SHA-256 values published in the Release before installation.
+Debug APKs use an Android development signature and are not Play Store releases. Production Release APKs are not distributed because no authorized release keystore was supplied. Verify [`dist/SHA256SUMS-4.0.0.txt`](dist/SHA256SUMS-4.0.0.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
 
 The ready-to-paste bilingual Play Store listing, console selections, release notes, and graphic-asset inventory are in [`docs/PLAY_STORE_LISTING_COPY.md`](docs/PLAY_STORE_LISTING_COPY.md). Release flow, privacy, Data safety, and Health apps declaration materials are in [`docs/PLAY_STORE_RELEASE_GUIDE.en.md`](docs/PLAY_STORE_RELEASE_GUIDE.en.md), [`docs/PRIVACY_POLICY.en.md`](docs/PRIVACY_POLICY.en.md), and [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md).
 
@@ -66,6 +67,8 @@ See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the complete purpose, l
 For a one-to-one dataset → paper → algorithm → implementation map, see [`docs/ALGORITHM_DATASET_PAPER_MAP.md`](docs/ALGORITHM_DATASET_PAPER_MAP.md).
 
 For the clean-room static review of Mi Fitness 9.8.348i—its data pipeline, differences from this project, independently reusable product concepts, and proprietary boundaries—see [`docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md`](docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md). Decompiled source, models, and native libraries are not included in this repository.
+
+For the Watch 2 Pro 4.0 watch-APK audit, ECG activation gate and feature-by-feature public entry points, see [`docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`](docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md).
 
 ## Privacy and evidence boundaries
 

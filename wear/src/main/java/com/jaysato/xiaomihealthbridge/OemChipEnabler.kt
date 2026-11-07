@@ -8,12 +8,13 @@ object OemChipEnabler {
         val intent = intentFor(kind) ?: return null
         return runCatching {
             activity.startActivity(intent)
-            "已開啟原廠${kind.label}量測頁；若原廠允許，系統會提供公開事件"
+            "已請求開啟原廠${kind.label}頁；是否啟用由原廠畫面顯示"
         }.getOrElse { "原廠${kind.label}頁面無法由此裝置開啟" }
     }
 
     /** From a foreground service: bring up OEM measure pages that arm MAX86178 / SpO₂ AFE. */
     fun enableFromService(context: android.content.Context, kind: RawVitalsProbe.Kind): Boolean {
+        if (kind == RawVitalsProbe.Kind.ECG) return false // ECG requires a visible user action.
         val intent = intentFor(kind)?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) ?: return false
         return runCatching {
             context.startActivity(intent)
@@ -28,7 +29,9 @@ object OemChipEnabler {
         RawVitalsProbe.Kind.LIFE_Q_OTT -> action("com.xiaomi.wear.fitness.start.heartrate")
         RawVitalsProbe.Kind.MI_SPO2,
         RawVitalsProbe.Kind.SPO2 -> action("com.xiaomi.wear.fitness.health.spo2.activity.MainActivity")
-        RawVitalsProbe.Kind.ECG -> null // 原廠 ECG 於此裝置常不可用；改用 WearEcgActivity
+        RawVitalsProbe.Kind.ECG -> component(
+            "com.xiaomi.wear.fitness.health.ecg.EcgMainTileActivity"
+        )
         RawVitalsProbe.Kind.BIOZ -> component(
             "com.xiaomi.wear.fitness.health.bodycomposition.activity.BodyCompositionActivity"
         )

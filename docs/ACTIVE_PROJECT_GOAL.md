@@ -2,6 +2,12 @@
 
 Updated: 2026-11-07
 
+## Version 4.0 objective / 4.0 目標
+
+- Starting with matched phone and Wear OS version `4.0.0`, audit the user-supplied Mi Fitness phone APK and the installed-family Xiaomi Health watch APK feature by feature. Record the exact package/version/hash, static evidence, public access path, app implementation, and device verification state in `docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`.
+- Independently implement usable feature and data ideas through public Android/Wear/Health Connect APIs. Keep OEM screens behind explicit foreground user action and preserve OEM activation results as observed state; never force a private activation flag or ship decompiled OEM code, libraries, models, keys, or undocumented protocol calls.
+- For ECG, SpO₂, BioZ, temperature and sleep, distinguish readable raw events, source-app records, calibrated physical units, and validated clinical outputs. A shared APK feature or an OEM `ecgActivation` flag does not establish Watch 2 Pro entitlement or calibration.
+
 ## Mission
 
 Finish and maintain one usable Xiaomi Watch 2 Pro (Wear OS 5) + Android health bridge without rebuilding the project or creating a second transport stack. Every supported measurement must produce a clear user-facing outcome while preserving evidence integrity. ECG research must not delay independently usable health features.

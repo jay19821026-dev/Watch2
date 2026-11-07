@@ -45,7 +45,8 @@ class MetricDetailActivity : ComponentActivity() {
         val source: String,
         val intervalStart: Instant? = null,
         val intervalEnd: Instant? = null,
-        val sleepSession: SleepSessionValue? = null
+        val sleepSession: SleepSessionValue? = null,
+        val recordingMethod: Int? = null
     )
     private val zone = ZoneId.systemDefault()
     private val muted = Color.rgb(149, 159, 178)
@@ -58,6 +59,7 @@ class MetricDetailActivity : ComponentActivity() {
     private lateinit var tabs: LinearLayout
     private lateinit var metric: String
     private var source: String? = null
+    private var oxygenMethod = OxygenRecordingMethodPolicy.Method.ALL
     private var points = emptyList<Point>()
     private var excludedBoundaryIntervals = 0
     private var refreshOnResume = false
@@ -98,6 +100,9 @@ class MetricDetailActivity : ComponentActivity() {
         date = state?.getString("date")?.let(LocalDate::parse) ?: date
         period = state?.getInt("period") ?: 0
         source = state?.getString("source")
+        oxygenMethod = state?.getString("oxygenMethod")?.let {
+            runCatching { OxygenRecordingMethodPolicy.Method.valueOf(it) }.getOrNull()
+        } ?: OxygenRecordingMethodPolicy.Method.ALL
         val root = column().apply { setBackgroundColor(HealthVisuals.background) }
         root.setOnApplyWindowInsetsListener { view, insets ->
             val bars = androidx.core.view.WindowInsetsCompat.toWindowInsetsCompat(insets)
@@ -150,6 +155,7 @@ class MetricDetailActivity : ComponentActivity() {
     }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("date", date.toString()); outState.putInt("period", period); outState.putString("source", source)
+        outState.putString("oxygenMethod", oxygenMethod.name)
         super.onSaveInstanceState(outState)
     }
     private fun move(direction: Long) {
@@ -348,7 +354,9 @@ class MetricDetailActivity : ComponentActivity() {
             }
         }
         "resting_heart_rate" -> records(RestingHeartRateRecord::class, queryEnd).map { Point(it.time, it.beatsPerMinute.toDouble(), it.metadata.dataOrigin.packageName) }
-        "oxygen" -> records(OxygenSaturationRecord::class, queryEnd).map { Point(it.time, it.percentage.value, it.metadata.dataOrigin.packageName) }
+        "oxygen" -> records(OxygenSaturationRecord::class, queryEnd).map {
+            Point(it.time, it.percentage.value, it.metadata.dataOrigin.packageName, recordingMethod = it.metadata.recordingMethod)
+        }
         "temperature" -> records(BodyTemperatureRecord::class, queryEnd)
             .filter { it.metadata.dataOrigin.packageName != packageName }
             .map { Point(it.time, it.temperature.inCelsius, it.metadata.dataOrigin.packageName) }
@@ -428,7 +436,19 @@ class MetricDetailActivity : ComponentActivity() {
         if (period == 3) addHistoryAccessNotice()
         val origins = points.map { it.source }.distinct().sorted()
         source = MetricDetailPolicy.selectSource(source, origins)
-        val selected = points.filter { it.source == source }
+        val sourcePoints = points.filter { it.source == source }
+        val methodOptions = listOf(OxygenRecordingMethodPolicy.Method.ALL) + sourcePoints
+            .map { OxygenRecordingMethodPolicy.classify(it.recordingMethod) }.distinct()
+        val methodButton = if (metric == "oxygen") button("${oxygenMethod.label}  ▾", "選擇血氧量測方式") {
+            android.app.AlertDialog.Builder(this).setTitle("血氧量測方式")
+                .setSingleChoiceItems(methodOptions.map { it.label }.toTypedArray(), methodOptions.indexOf(oxygenMethod)) { dialog, index ->
+                    oxygenMethod = methodOptions[index]; dialog.dismiss(); render()
+                }.setNegativeButton("關閉", null).show()
+        } else null
+        val selected = sourcePoints.filter { point ->
+            metric != "oxygen" || oxygenMethod == OxygenRecordingMethodPolicy.Method.ALL ||
+                OxygenRecordingMethodPolicy.classify(point.recordingMethod) == oxygenMethod
+        }
         val sourceButton = button("${source?.let(::name) ?: "尚無來源"}  ▾", "選擇資料來源") {
             android.app.AlertDialog.Builder(this).setTitle("資料來源 · 不混加不同裝置")
                 .setSingleChoiceItems(origins.map(::name).toTypedArray(), origins.indexOf(source)) { dialog, index ->
@@ -437,8 +457,9 @@ class MetricDetailActivity : ComponentActivity() {
         }
         if (selected.isEmpty()) {
             body.addView(sourceButton)
+            methodButton?.let { body.addView(it, LinearLayout.LayoutParams(-1, dp(48))) }
             val empty = card("此期間沒有紀錄")
-            empty.addView(text("沒有資料不代表數值為 0。切換日期或資料來源查看歷史；不會使用其他日期的值填補今天。", 16, muted))
+            empty.addView(text("沒有符合目前日期、來源與量測方式的資料；沒有資料不代表數值為 0。切換篩選條件查看歷史。", 16, muted))
             empty.addView(button("查看本週", "切換到本週") { period = 1; refresh() })
             return
         }
@@ -549,13 +570,14 @@ class MetricDetailActivity : ComponentActivity() {
         showValue(if(cumulative) selected.sumOf { it.value } else selected.last().value)
         val stamp = text(
             if (cumulative) "依所選來源 · ${when (period) { 0 -> "小時"; 3 -> "每月"; else -> "每日" }}分布"
-            else time(selected.last().time),
+            else time(selected.last().time) + if (metric == "oxygen") " · ${OxygenRecordingMethodPolicy.classify(selected.last().recordingMethod).label}" else "",
             13, muted
         )
         hero.addView(caption); hero.addView(value); hero.addView(stamp)
         if (display.isNotEmpty()) {
             val chart = DetailChart(display) { point ->
-                caption.text = "已選取"; showValue(point.value); stamp.text = time(point.time)
+                caption.text = "已選取"; showValue(point.value)
+                stamp.text = time(point.time) + if (metric == "oxygen") " · ${OxygenRecordingMethodPolicy.classify(point.recordingMethod).label}" else ""
             }
             hero.addView(chart, LinearLayout.LayoutParams(-1, dp(190)).apply { topMargin = dp(22) })
             hero.addView(text("拖曳探索  ·  查看每個時間點", 10, muted).apply { gravity = Gravity.CENTER; setPadding(0, dp(8), 0, 0) })
@@ -581,6 +603,16 @@ class MetricDetailActivity : ComponentActivity() {
             }
         }
         body.addView(hero, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(12) })
+        if (metric == "oxygen") {
+            val provenance = card("血氧紀錄方式")
+            methodButton?.let { provenance.addView(it, LinearLayout.LayoutParams(-1, dp(48))) }
+            val counts = sourcePoints.groupingBy { OxygenRecordingMethodPolicy.classify(it.recordingMethod) }.eachCount()
+            provenance.addView(text(
+                counts.entries.joinToString(" · ") { "${it.key.label} ${it.value} 筆" } +
+                    "。量測方式來自 Health Connect metadata；不代表已驗證感測器校準。",
+                13, muted
+            ))
+        }
         val overview = card("${if(period == 0) "當日" else "期間"}概覽")
         val stats = if(cumulative) listOf("累計" to number(selected.sumOf { it.value })) + if (display.isNotEmpty()) listOf(
             "有資料分段平均" to number(display.map { it.value }.average()),
@@ -618,7 +650,13 @@ class MetricDetailActivity : ComponentActivity() {
         val stepsDailyMean = if (period == 0) clinicalValue else MetricDetailAggregation.meanObservedDayTotal(stepsDailyTotals.values)
         val clinical = ClinicalMetricCalibration.let {
             when (metric) {
-                "oxygen" -> it.forOxygen(clinicalValue)
+                "oxygen" -> if (OxygenRecordingMethodPolicy.eligibleForDeviceReference(selected.map { point -> point.recordingMethod })) {
+                    it.forOxygen(clinicalValue)
+                } else ClinicalMetricCalibration.Result(
+                    metric, clinicalValue, "不評分", null,
+                    "含手動輸入或量測方式未註明的紀錄；不做裝置量測的參考評分。",
+                    emptyList(), false
+                )
                 "heart_rate" -> it.forHeartRate(clinicalValue, resting = false)
                 "resting_heart_rate" -> it.forHeartRate(clinicalValue, resting = true)
                 "temperature" -> {
@@ -670,9 +708,10 @@ class MetricDetailActivity : ComponentActivity() {
         var shown = 0
         fun appendRows() {
             display.asReversed().drop(shown).take(12).forEach { point ->
-                list.addView(button("${time(point.time)}     ${number(point.value)} $unit   ›", "查看這筆紀錄") {
+                val methodLabel = if (metric == "oxygen") " · ${OxygenRecordingMethodPolicy.classify(point.recordingMethod).label}" else ""
+                list.addView(button("${time(point.time)}     ${number(point.value)} $unit$methodLabel   ›", "查看這筆紀錄") {
                     android.app.AlertDialog.Builder(this).setTitle(title)
-                        .setMessage("${number(point.value)} $unit\n${time(point.time)}\n來源：${name(point.source)}\n${if(cumulative) "區間總量按完整原始紀錄計入；跨圖表分段紀錄不做比例拆分。" else "Health Connect 紀錄；可能包含來源 App 的估算值。"}")
+                        .setMessage("${number(point.value)} $unit\n${time(point.time)}\n來源：${name(point.source)}${if (metric == "oxygen") "\n量測方式：${OxygenRecordingMethodPolicy.classify(point.recordingMethod).label}" else ""}\n${if(cumulative) "區間總量按完整原始紀錄計入；跨圖表分段紀錄不做比例拆分。" else "Health Connect 紀錄；可能包含來源 App 的估算值。"}")
                         .setPositiveButton("關閉", null).show()
                 }.apply { textSize = 13f; gravity = Gravity.CENTER_VERTICAL or Gravity.START; setTextColor(Color.rgb(218, 224, 236)) }, LinearLayout.LayoutParams(-1, dp(52)))
             }

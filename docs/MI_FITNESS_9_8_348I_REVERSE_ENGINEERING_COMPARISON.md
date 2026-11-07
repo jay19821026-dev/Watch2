@@ -160,6 +160,8 @@ Exact DOI, implementation path, licensing and non-clinical boundary are maintain
 
 ## Verification status / 驗證狀態
 
+The subsequent Watch 2 Pro 4.0 review of the **separate watch-side Xiaomi Health APK**, its ECG activation guidance and the supplied phone APK's ECG authorization flow is documented in [WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md](WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md). The watch-side service flag and phone-side activation resources do not establish that this user's Watch 2 Pro is currently eligible or enabled.
+
 - `STATIC_APK_IDENTITY = VERIFIED`
 - `MANIFEST_AND_ROOM_SCHEMA = VERIFIED`
 - `DEVICE_SYNC_ARCHITECTURE = VERIFIED_FROM_READABLE_METADATA_AND_CLASSES`

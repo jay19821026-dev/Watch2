@@ -8,7 +8,7 @@ Xiaomi Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 
 > 上圖為不含真實個資的示意圖；實際功能與支援項目以原始碼、裝置能力及 `SUPPORT_MATRIX.md` 為準。
 
-目前版本：`3.13.44`（versionCode `154`）。原始碼同時包含：
+目前測試版本：`4.0.0`（versionCode `155`）。原始碼同時包含：
 
 - `mobile/`：Android 手機 App
 - `wear/`：Wear OS 手錶 App
@@ -27,6 +27,7 @@ Xiaomi Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 - 顯示來源、時間、新鮮度、品質、校準與同步狀態，區分「無資料」「過期」「品質不足」「不支援」與「同步失敗」。
 - 保存 ECG、PPG、BioZ、原始 SpO₂、溫度與動作感測研究證據；只有在單位、時基、映射、品質與校準條件成立時才解鎖相應結果。
 - 提供公開 ECG／PPG 資料庫的離線比較與演算法基準工具。
+- 4.0 新增血氧手動／主動／自動紀錄方式篩選，以及手錶上由使用者點擊的原廠功能入口；原廠是否啟用仍以原廠畫面為準。
 
 ## 重要醫療聲明
 
@@ -36,12 +37,12 @@ Xiaomi Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 
 ## APK 安裝
 
-GitHub Releases 提供同版本的兩個 Debug APK：
+4.0.0 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/xiaomi-health-bridge#downloads) 或本專案 `dist/` 下載：
 
-- `XiaomiHealthBridge-Mobile-3.13.44-vc154-debug.apk`：安裝到 Android 手機
-- `XiaomiHealthBridge-Wear-3.13.44-vc154-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
+- `XiaomiHealthBridge-Mobile-4.0.0-vc155-debug.apk`：安裝到 Android 手機
+- `XiaomiHealthBridge-Wear-4.0.0-vc155-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
 
-Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。Release 變體只有在你自行提供授權的 release keystore 後才會簽章；未簽章的 `release-unsigned.apk` 無法直接安裝。安裝前請核對 Release 頁列出的 SHA-256。
+Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。Release 變體只有在你自行提供授權的 release keystore 後才會簽章。安裝前請核對 [`dist/SHA256SUMS-4.0.0.txt`](dist/SHA256SUMS-4.0.0.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
 
 專案也提供 PowerShell 安裝腳本；它會建置目前版本、檢查套件名稱／版本／簽章，再以 `adb install -r` 保留既有 App 資料：
 
@@ -72,6 +73,8 @@ Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商�
 資料庫 → 論文 → 演算法 → 實際程式檔案的一對一對照，請見 [`docs/ALGORITHM_DATASET_PAPER_MAP.md`](docs/ALGORITHM_DATASET_PAPER_MAP.md)。
 
 Mi Fitness 9.8.348i 的 clean-room 靜態反組譯、資料管線差異、可合法借鏡功能與不可重用的專有邊界，請見 [`docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md`](docs/MI_FITNESS_9_8_348I_REVERSE_ENGINEERING_COMPARISON.md)。反組譯原始碼、模型與原生程式庫未納入本儲存庫。
+
+Watch 2 Pro 4.0 原廠手錶 APK、ECG 啟用閘門與功能入口逐項盤點，請見 [`docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`](docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md)。
 
 - PhysioNet ECG-ID：同取樣率下的尺度無關 ECG 頻譜參考，不是手錶校準檔。
 - MIT-BIH Noise Stress Test Database：描述性雜訊特徵比較，不用來直接判定手錶雜訊根因。

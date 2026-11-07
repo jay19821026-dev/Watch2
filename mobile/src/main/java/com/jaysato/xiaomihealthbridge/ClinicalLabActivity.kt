@@ -449,7 +449,14 @@ class ClinicalLabActivity : ComponentActivity() {
     private fun processEcgCalibrationCsv(uri: Uri, result: TextView) {
         val csv = try {
             contentResolver.openInputStream(uri)?.use { input ->
-                val bytes = input.readNBytes(EcgPairedReferenceCsv.MAX_CHARACTERS + 1)
+                val output = java.io.ByteArrayOutputStream()
+                val buffer = ByteArray(8192)
+                while (output.size() <= EcgPairedReferenceCsv.MAX_CHARACTERS) {
+                    val count = input.read(buffer, 0, minOf(buffer.size, EcgPairedReferenceCsv.MAX_CHARACTERS + 1 - output.size()))
+                    if (count < 0) break
+                    output.write(buffer, 0, count)
+                }
+                val bytes = output.toByteArray()
                 if (bytes.size > EcgPairedReferenceCsv.MAX_CHARACTERS) null else bytes.toString(Charsets.UTF_8)
             }
         } catch (_: Exception) {

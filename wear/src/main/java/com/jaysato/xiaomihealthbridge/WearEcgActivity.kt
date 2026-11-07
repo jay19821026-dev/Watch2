@@ -106,12 +106,27 @@ class WearEcgActivity : ComponentActivity() {
                 setOnClickListener { startMeasurement(resetSegments = true) }
             }.also { startButton = it }, LinearLayout.LayoutParams(-1, dp(46)).apply { topMargin = dp(6) })
             addView(Button(context).apply {
+                text = "查看原廠 ECG 啟用狀態"; isAllCaps = false; textSize = 12f; setTextColor(Color.WHITE)
+                background = ecgButtonBackground("#2A3857", "#182238")
+                setOnClickListener {
+                    if (active || continuationPending) {
+                        detail.text = "請先結束本 App 的原始資料擷取，再查看原廠頁面。"
+                    } else {
+                        detail.text = OemChipEnabler.enable(this@WearEcgActivity, RawVitalsProbe.Kind.ECG)
+                            ?: "此裝置沒有可開啟的原廠 ECG 頁面"
+                    }
+                }
+            }, LinearLayout.LayoutParams(-1, dp(46)).apply { topMargin = dp(6) })
+            addView(TextView(context).apply {
+                text = "原廠提示：若手機 Mi Fitness 有 ECG 卡片，需先依其流程開通。"
+                textSize = 10f; setTextColor(Color.rgb(165, 177, 196)); gravity = Gravity.CENTER
+            }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+            addView(Button(context).apply {
                 text = "結束並保存原始資料"; isAllCaps = false; textSize = 13f; setTextColor(Color.WHITE)
                 background = ecgButtonBackground("#6B3A3A", "#3A1E1E")
                 isEnabled = false
                 setOnClickListener {
                     if (active || continuationPending) {
-                        text = "正在結束…"
                         stopMeasurement(auto = false)
                     }
                 }

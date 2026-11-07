@@ -293,6 +293,14 @@ class WearMainActivity : ComponentActivity() {
                     startActivity(Intent(this@WearMainActivity, WearChipHubActivity::class.java))
                 }
             }, LinearLayout.LayoutParams(-1, dp(48)).apply { bottomMargin = dp(8) })
+            addView(Button(context).apply {
+                text = "查看原廠功能入口"
+                textSize = 13f; isAllCaps = false; setTextColor(Color.WHITE)
+                background = buttonBackground("#384964", "#202B3D")
+                setOnClickListener {
+                    startActivity(Intent(this@WearMainActivity, WearOemFeaturesActivity::class.java))
+                }
+            }, LinearLayout.LayoutParams(-1, dp(48)).apply { bottomMargin = dp(8) })
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 addView(exerciseAction, LinearLayout.LayoutParams(0, dp(54), 1f).apply { marginEnd = dp(5) })

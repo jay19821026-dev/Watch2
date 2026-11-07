@@ -1,0 +1,2 @@
+dc497ac1077d4be998f393655be730390a4af321795df3d775ea4ddf732cc391  XiaomiHealthBridge-Mobile-4.0.0-vc155-debug.apk
+9f5121f319727ea892e298ad27bc8891d52de50cce46d4518f347a46826393ce  XiaomiHealthBridge-Wear-4.0.0-vc155-debug.apk
