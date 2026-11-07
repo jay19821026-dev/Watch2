@@ -43,13 +43,13 @@ AILISA Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 
 ## APK 安裝
 
-4.0.0 test 19 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) 或 [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.19) 下載：
+4.0.0 test 20 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) 或 [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.20) 下載：
 
-- `AILISAHealthBridge-Mobile-4.0.0-vc175-test19-debug.apk`：安裝到 Android 手機
-- `AILISAHealthBridge-Wear-4.0.0-vc175-test19-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
+- `AILISAHealthBridge-Mobile-4.0.0-vc178-test20-debug.apk`：安裝到 Android 手機
+- `AILISAHealthBridge-Wear-4.0.0-vc178-test20-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
 - [test 18 舊版資料搬遷橋接 APK](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.18)：需要搬遷時先覆蓋安裝在舊版手機 App
 
-Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。新套件識別碼為 `net.ailisa.healthbridge`，會與舊版並存；請先讀[搬遷指南](docs/PACKAGE_MIGRATION_4_0.en.md)，不要解除安裝舊版。安裝前請核對 [test 19 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.19/SHA256SUMS-4.0.0-test.19.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
+Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。新套件識別碼為 `net.ailisa.healthbridge`，會與舊版並存；請先讀[搬遷指南](docs/PACKAGE_MIGRATION_4_0.en.md)，不要解除安裝舊版。安裝前請核對 [test 20 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.20/SHA256SUMS-4.0.0-test.20.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
 
 專案也提供 PowerShell 安裝腳本；它會建置目前版本、檢查套件名稱／版本／簽章，再以 `adb install -r` 保留既有 App 資料：
 

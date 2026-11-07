@@ -19,7 +19,7 @@ class HealthSummaryTileService : TileService() {
             .setWidth(DimensionBuilders.expand())
             .setHeight(DimensionBuilders.expand())
             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
-            .addContent(text("HEALTH BRIDGE", 12f, 0xFF64D2FF.toInt()))
+            .addContent(text("AILISA HEALTH BRIDGE", 10f, 0xFF64D2FF.toInt()))
             .addContent(spacer(12f))
             .addContent(text(if (dashboard.heartRate > 0) "${dashboard.heartRate} bpm" else "— bpm", 30f, 0xFFFF6478.toInt()))
             .addContent(spacer(10f))

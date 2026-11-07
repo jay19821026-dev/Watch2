@@ -176,7 +176,7 @@ class WearMainActivity : ComponentActivity() {
         WearPowerScheduler.migrateRoutineReminders(this)
         handleOemArmIntent(intent)
         status = TextView(this).apply {
-            text = "—\nbpm"; textSize = 23f; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
+            text = "—\nbpm"; textSize = 15f; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
             contentDescription = "心率，點擊開始量測"
             setOnClickListener {
                 startActivity(WearMeasurePageActivity.intent(this@WearMainActivity, WearMeasurePageActivity.Mode.HEART_RATE))
@@ -247,16 +247,12 @@ class WearMainActivity : ComponentActivity() {
             orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER; setBackgroundColor(Color.BLACK)
             setPadding(dp(24), dp(18), dp(24), dp(22))
             addView(TextView(context).apply {
-                text = "HEALTH BRIDGE"; textSize = 10f; letterSpacing = .18f; gravity = Gravity.CENTER
+                text = "AILISA HEALTH BRIDGE"; textSize = 9f; letterSpacing = .10f; gravity = Gravity.CENTER
                 setTextColor(Color.parseColor("#64D2FF"))
             })
             addView(TextView(context).apply {
                 text = "健康中心"; textSize = 23f; gravity = Gravity.CENTER; setTextColor(Color.parseColor("#F5F5F7"))
                 setPadding(0, dp(4), 0, dp(2))
-            })
-            addView(TextView(context).apply {
-                text = "Xiaomi Watch 2 Pro"; textSize = 11f; gravity = Gravity.CENTER
-                setTextColor(Color.parseColor("#9097A4"))
             })
             addView(status, LinearLayout.LayoutParams(dp(88), dp(88)).apply { setMargins(0, dp(8), 0, dp(8)) })
             addView(action, LinearLayout.LayoutParams(dp(190), dp(48)))
@@ -426,7 +422,7 @@ class WearMainActivity : ComponentActivity() {
                 topMargin = dp(6)
             })
             addView(TextView(context).apply {
-                text = "HEALTH BRIDGE · 研究資料與趨勢僅供健康參考"; textSize = 10f; gravity = Gravity.CENTER
+                text = "AILISA HEALTH BRIDGE · 研究資料與趨勢僅供健康參考"; textSize = 10f; gravity = Gravity.CENTER
                 setTextColor(Color.parseColor("#75D5C8")); setPadding(0, dp(8), 0, dp(12))
             })
         }

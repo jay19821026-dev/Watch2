@@ -182,7 +182,7 @@ class MainActivity : ComponentActivity() {
         }
         val todayContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL; setPadding(dp(20), dp(20), dp(20), dp(36))
-            addView(pageHeading("摘要", "HEALTH BRIDGE", "資料，回到生活的節奏。"), margins(bottom = 24))
+            addView(pageHeading("摘要", "AILISA HEALTH BRIDGE", "資料，回到生活的節奏。"), margins(bottom = 24))
             addView(heroCard(), margins(bottom = 24))
             addView(sectionTitle("一眼掌握", "心率顯示有效讀值；步數與睡眠為今日彙總，血氧為最近紀錄"), margins(bottom = 12))
             addView(todayOverview(), margins(bottom = 24))

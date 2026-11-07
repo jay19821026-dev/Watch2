@@ -65,7 +65,7 @@ class WatchPortrait(context: Context) : View(context) {
         paint.textAlign = Paint.Align.CENTER
         paint.textSize = 9f
         paint.typeface = labelTypeface
-        canvas.drawText("HEALTH BRIDGE", 90f, 85f, paint)
+        canvas.drawText("AILISA", 90f, 85f, paint)
         paint.color = Color.rgb(255, 92, 126)
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 3f
