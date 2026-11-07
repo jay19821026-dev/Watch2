@@ -156,6 +156,12 @@ The supplied APK's reconstructed `com/xiaomi/fitness/device/manager/extensions/D
 
 The separately installed phone APK is **3.59.2i**, not this supplied 9.8.348i build. Its activation call and watch-side service flag are traced in [the paired-device audit](WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md). Cross-version names and branches may differ, so do not combine them into a single alleged current execution path. No OEM ECG waveform, clinical classifier, training corpus or calibration coefficient was extracted by this card-gate trace. / 目前手機實裝 3.59.2i，不能把兩個版本的分支拼成一條已驗證的實機執行路徑；卡片判斷也沒有揭露演算法所用論文或資料庫。
 
+### ECG record storage versus waveform / 紀錄與波形分離
+
+In the same 9.8.348i reconstructed tree, `health/ecg/EcgViewModel.java` pages the ECG list through `IEcgRepository` as **all**, **interpreted**, and **not interpreted** reports. `fit/fitness/persist/db/internal/EcgMedicalRecordEntity.java` uses a composite Room key `(key, sid, time)` and keeps an analyzed-status column. The `EcgMedicalItemReport.java` value object has source, measurement time/duration, timezone, interpretation status, analysis result, sample-rate and other report fields; it retrieves waveform floats separately through `FitnessDataGetter.getEcgRecordData`. This is evidence for **metadata/list state separated from waveform retrieval**, not evidence that an ECG record exists for the owner's Watch 2 Pro. / 清單、判讀狀態和實際波形是分開處理；有資料模型不等於目前配對手錶產生了紀錄。
+
+The `EcgMedicalItemReport` constructor has a `500` default for its `sampleFrequency` argument. A class default is not a measured ADC clock, an OEM calibration certificate, or a Watch 2 Pro-specific property. Version 4.0 therefore keeps its Android raw ECG preview on an index/time-unknown axis until **the actual stream's clock and field mapping** are independently verified. The public PhysioNet references below are independent benchmarks only; no APK method names identify Xiaomi's training papers or datasets. / `500` 是類別預設參數，不能拿來替這隻手錶填 500 Hz，更不能據此換算 mV、RR 或房顫結果。
+
 Mi Fitness's proprietary model assets do not reveal a citable training paper or dataset. We must not invent one. Xiaomi Health Bridge's transparent algorithm provenance remains the authoritative public mapping:
 
 - MIT-BIH Arrhythmia and Noise Stress Test for offline ECG detector/noise benchmarking.
