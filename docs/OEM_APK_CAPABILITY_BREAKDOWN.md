@@ -14,6 +14,7 @@ This inventory distinguishes **code bundled in the phone APK**, **code installed
 | User-supplied Mi Fitness phone APK | `com.xiaomi.wearable` 9.8.348i; SHA-256 `42958D4589654D9A9317B9B777F0A8B3C2637B8C8B11229308F9AEA4143C2A33` | JADX 1.5.6 completed with 415 errors. |
 | APK pulled from this Watch 2 Pro | `com.xiaomi.wear.fitness` versionCode 2025091121; SHA-256 `920459E3B2EBF569517E4294029705561E7BEAFF6CCA30EDB142E5A4F83B5965` | JADX completed with 107 errors; native code is not recovered. |
 | Privileged health service pulled from the same watch | `com.xiaomi.wear.fitness.whs_service` versionCode 2025091109; SHA-256 `47738E2C5BBD754D8F6636ACB0DE03DC2847A5B0A87BE4AD32DF0EE11651941A` | JADX completed with 44 errors; service data is private to the OEM app. |
+| Mi Fitness base APK pulled read-only from the owner's **currently connected phone** | `com.xiaomi.wearable` versionName `3.59.2i`, versionCode `359002`; SHA-256 `D7B0A2B45E12899D91F9323BD59DAD8E3531C490CBF1BC83345F5631929CFBE2` | Different version from the supplied `9.8.348i` APK. JADX completed with 508 errors; four installed split APKs were observed, while this source pass decompiled the base APK only. No private phone app data or account token was read. |
 
 Original APKs, decompiled source, assets, models and native binaries remain local and are **not redistributed** in this public repository. Source paths below are identifiers for the owner's local review.
 
@@ -22,6 +23,10 @@ Original APKs, decompiled source, assets, models and native binaries remain loca
 The reconstructed `com/xiaomi/fitness/device/manager/DeviceModelExtKt.java`, method `isSupportFeature`, reads `deviceModel.getProduct().getFeatures()` and checks `features.contains(feature)`. `Product.java` deserializes `features`, `feature_map`, `whitelist_feature` and `android_feature`; the APK alone does not reveal the current paired Watch 2 Pro's complete product record or its upstream provisioning. The UI also applies separate connection, account, ROM and channel checks in some cases.
 
 手機端 `isSupportFeature` 的核心是查詢目前產品資料中的 `features` 清單。APK 解包可以看到功能鍵和顯示邏輯，卻無法從共用 APK 推定此時配對的 Watch 2 Pro 產品清單、帳號狀態或服務端核准。部分畫面還有連線狀態、手機 ROM 與發行通路判斷。
+
+**Current-phone cross-check / 目前手機版本交叉核對：** In the installed `3.59.2i` base APK, `com/xiaomi/fitness/device/manager/DeviceModelExtKt.java` still implements `isSupportFeature` as `deviceModel.getProduct().getFeatures().contains(feature)` when the list exists. In `extensions/DeviceModelExtKt.java`, device-settings card case `162` still checks the literal `"ecg"`. The installed phone APK also declares `Feature.ECG="ecg"`, `Feature.ECG_MEASURE_REMIND="electrocardiogram"`, and a distinct `Feature.ECG_GLOBAL_MEASURE_REMIND="electrocardiogram_global"`. Thus the older supplied APK's card-gate finding survives in the actually installed phone version. The **actual paired product feature list** remains unread because it is held in the app's private runtime data; no model spoof or account inspection was performed.
+
+**實機手機版本交叉核對：** 已安裝的 `3.59.2i` 仍以產品 `features` 清單決定功能支援，ECG 卡片 `162` 仍檢查 `ecg`。這比只看先前提供的不同版本 APK 更有力；但尚未讀到此帳號與配對錶當下的產品清單，所以不能單靠反組譯斷言清單實際含有或缺少 `ecg`。
 
 | Phone code / 手機程式碼 | Concrete local evidence / 具體證據 | Availability finding / 可用性判斷 |
 |---|---|---|
