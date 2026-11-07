@@ -1,6 +1,6 @@
 # OEM APK capability breakdown / 原廠 APK 功能拆解
 
-Author / 作者：王宥傑 (Wang You-Jie)  
+Author / 作者：王宥傑 (Wang You-Jie)
 Inspected / 檢查日期：2026-11-08
 
 This inventory distinguishes **code bundled in the phone APK**, **code installed on this Watch 2 Pro**, **a feature offered for the paired product**, and **a usable measurement**. They are four different claims. The phone APK is a shared multi-device app; its modules do not establish Watch 2 Pro entitlement or prove which newer Xiaomi watch offers them.
@@ -63,6 +63,24 @@ On 2026-11-08, `adb shell dumpsys sensorservice` on the connected owner's **Xiao
 For this watch, the ECG, PPG, SpO₂, HR, BioZ and temperature paths are therefore **present in the Android sensor inventory**. The phone APK's blood-pressure and blood-glucose modules remain separate claims; neither follows from the barometer nor from these channels. A missing OEM card may indeed be a software/product gate for a particular feature, but this inventory does not identify every upstream rule.
 
 就這隻手錶而言，ECG、PPG、血氧相關、心率、BioZ 與溫度通道有實機證據。手機 APK 裡的血壓與血糖模組是另外的資料路徑；氣壓計不能當血壓計。原廠卡片缺席可能涉及軟體或產品設定，但上述清單尚不能指出每一道上游閘門。
+
+## OEM switches on this watch / 原廠手錶端的開關
+
+The installed watch's `LocalData` parcel contains separate fields for `assistSleep`, `sleepBreathQuality`, `bloodOxygenMonitor`, `heartRateMonitor`, `stressMonitor`, `stand_reminder_on`, and `ecgActivation`, along with alert thresholds and goals. In the installed privileged service, reconstructed `o8/a.java` reads them from its private `local_data` preferences using keys `assistSleep`, `sleepBreathQuality`, `bloodOxygenMonitor`, `heart_rate_monitor`, `stress_monitor`, `stand_reminder_on`, and `ecg_activation_status`. These are **configuration/activation state values**, distinct from physical sensor presence. The observed reads do not identify which phone command or server decision writes each value.
+
+這隻手錶的原廠服務確實把「輔助睡眠、睡眠呼吸品質、全天血氧、心率監測、壓力監測、久坐提醒、ECG 啟用」當作各自的設定或啟用狀態保存。這支持你指出的「手機 App 有些功能是在開關手錶既有功能」。目前已定位讀取位置，但**尚未逐一確認寫入命令**；不能把設定欄位等同校準完成或把 `false` 全改 `true` 當成有效量測。
+
+| OEM setting/state | Local preference key | Runtime meaning established by inspection |
+|---|---|---|
+| Assisted sleep / 輔助睡眠 | `assistSleep` | Stored watch service setting; no new physical sensor implied. |
+| Sleep breathing quality / 睡眠呼吸品質 | `sleepBreathQuality` | Stored setting; output algorithm and eligibility still need tracing. |
+| Blood oxygen monitoring / 全天血氧監測 | `bloodOxygenMonitor` | Stored monitoring toggle, separate from manual SpO₂ typed request. |
+| Heart-rate monitoring / 心率監測 | `heart_rate_monitor` | Stored monitoring interval/mode integer, not a simple boolean. |
+| Stress monitoring / 壓力監測 | `stress_monitor` | Stored monitoring toggle; OEM score model remains private. |
+| Stand reminder / 久坐提醒 | `stand_reminder_on` | Stored reminder toggle, not a physiological sensor. |
+| ECG activation / ECG 啟用 | `ecg_activation_status` | Stored activation state; on this watch the visible OEM page requested phone ECG-card activation. |
+
+This is a stronger distinction than simply counting APK classes: the **same installed watch** advertises the relevant sensor channels and stores separate OEM feature switches. To establish a specific software lock as the only obstacle, each switch still needs a traced writer and a successful device measurement after activation. / 相較只數 APK 類別，這是更直接的實機證據；但要證明某項功能「只差軟體鎖」，仍須追到該開關的寫入來源，並驗證開啟後的量測結果。
 
 ## Installed watch packages / 這隻手錶實際安裝的模組
 
