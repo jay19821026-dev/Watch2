@@ -7,6 +7,8 @@
 
 This document identifies data sources, algorithms, and implementations. Public datasets are used only by offline research tools and are not bundled in the app, APKs, or repository. Runtime data comes from user-authorized Health Connect, Wear OS Health Services, or device sensors.
 
+**OEM provenance boundary / 原廠來源界線：** 反組譯可看出手錶 `libfitness` ECG native 函式與手機 `mi_stage_model_0_1_1.tflite` 睡眠模型存在，也可追蹤輸入與輸出介面；APK 沒有可核驗的訓練資料清單、原廠校準係數、臨床驗證報告或對應論文。不能將本表的 MIT-BIH、PPG-DaLiA 或其他公開資料庫寫成小米原廠演算法的來源。Those OEM dataset and paper origins are **unknown from the inspected binaries**, not silently attributed to an open study.
+
 ## Traceability matrix / 溯源對照表
 
 | Dataset or paper / 資料庫或論文 | Algorithm or use / 演算法或用途 | Implementation / 程式位置 | Boundary / 限制 |
