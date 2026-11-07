@@ -3,6 +3,7 @@ import hashlib
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -45,6 +46,37 @@ class EcgQrsBenchmarkTest(unittest.TestCase):
             self.assertEqual("verified", MODULE.verify_sha256_manifest(root)["state"])
             (root / "fixture.dat").write_bytes(b"modified")
             self.assertEqual("incomplete_or_mismatch", MODULE.verify_sha256_manifest(root)["state"])
+
+    def test_scoped_checksum_requires_every_used_file_but_not_unrelated_assets(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "100.dat").write_bytes(b"signal")
+            digest = hashlib.sha256(b"signal").hexdigest()
+            (root / "SHA256SUMS.txt").write_text(
+                f"{digest} 100.dat\n{hashlib.sha256(b'extra').hexdigest()} extra.pdf\n", encoding="utf-8"
+            )
+            verified = MODULE.verify_sha256_manifest(root, {"100.dat"})
+            self.assertEqual(("verified", 1, 1), (verified["state"], verified["expected"], verified["checked"]))
+            missing = MODULE.verify_sha256_manifest(root, {"100.dat", "100.atr"})
+            self.assertEqual("incomplete_or_mismatch", missing["state"])
+            self.assertEqual(["100.atr"], missing["unlisted_required"])
+
+    def test_missing_listed_record_is_reported_not_silently_skipped(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "RECORDS").write_text("100\n101\n", encoding="utf-8")
+            for extension in (".hea", ".dat", ".atr"):
+                (root / f"100{extension}").write_bytes(b"fixture")
+            with patch.object(MODULE, "evaluate_record", return_value={
+                "reference_beats": 1, "detected_peaks": 1, "true_positive": 1,
+                "sensitivity": 1.0, "positive_predictive_value": 1.0,
+            }):
+                report = MODULE.run(root)
+            self.assertEqual(2, report["record_count_listed"])
+            self.assertEqual(1, report["summary"]["record_count"])
+            self.assertEqual("101", report["errors"][0]["record"])
+            self.assertIn("missing required files", report["errors"][0]["error"])
+            self.assertNotEqual("verified", report["data_integrity"]["state"])
 
 
 if __name__ == "__main__":

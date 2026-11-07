@@ -8,6 +8,7 @@ import importlib.metadata
 import json
 from pathlib import Path
 import platform
+import re
 from typing import Any
 
 import numpy as np
@@ -18,6 +19,8 @@ BEAT_SYMBOLS = {
     "N", "L", "R", "B", "A", "a", "J", "S", "V", "r", "F", "e", "j", "n", "E", "/", "f", "Q", "?"
 }
 TOLERANCE_MS = 150
+DATASET_ID = "physionet-mit-bih-arrhythmia"
+DATASET_VERSION = "1.0.0"
 
 
 def match_peaks(reference: np.ndarray, detected: np.ndarray, tolerance_samples: int) -> dict[str, Any]:
@@ -104,7 +107,7 @@ def summarize(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def verify_sha256_manifest(data_dir: Path) -> dict[str, Any]:
+def verify_sha256_manifest(data_dir: Path, required_files: set[str] | None = None) -> dict[str, Any]:
     manifest = data_dir / "SHA256SUMS.txt"
     if not manifest.is_file():
         return {"state": "unverified", "reason": "SHA256SUMS.txt missing", "expected": 0, "checked": 0, "missing": [], "mismatches": []}
@@ -122,6 +125,10 @@ def verify_sha256_manifest(data_dir: Path) -> dict[str, Any]:
             invalid_paths.append(relative)
             continue
         expected.append((digest.lower(), relative))
+    listed = {relative for _, relative in expected}
+    unlisted_required = sorted(required_files - listed) if required_files is not None else []
+    if required_files is not None:
+        expected = [(digest, relative) for digest, relative in expected if relative in required_files]
     missing: list[str] = []
     mismatches: list[str] = []
     checked = 0
@@ -134,24 +141,36 @@ def verify_sha256_manifest(data_dir: Path) -> dict[str, Any]:
         checked += 1
         if actual != digest:
             mismatches.append(relative)
-    state = "verified" if expected and checked == len(expected) and not missing and not mismatches and not invalid_paths else "incomplete_or_mismatch"
+    state = "verified" if expected and checked == len(expected) and not missing and not mismatches and not invalid_paths and not unlisted_required else "incomplete_or_mismatch"
     return {
         "state": state,
+        "scope": "benchmark_required_files" if required_files is not None else "full_manifest",
+        "manifest_entries": len(listed),
         "expected": len(expected),
         "checked": checked,
         "missing": missing,
         "mismatches": mismatches,
         "invalid_paths": invalid_paths,
+        "unlisted_required": unlisted_required,
     }
 
 
 def run(data_dir: Path, detector: str = "xqrs") -> dict[str, Any]:
-    headers = sorted(data_dir.rglob("*.hea"))
+    record_list = data_dir / "RECORDS"
+    if not record_list.is_file():
+        raise ValueError("RECORDS file is required to account for every benchmark record")
+    names = [line.strip() for line in record_list.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if not names or len(names) != len(set(names)) or any(re.fullmatch(r"[A-Za-z0-9_-]+", name) is None for name in names):
+        raise ValueError("RECORDS contains no names, duplicates, or invalid paths")
+    required_files = {"RECORDS"}
     records: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
-    for header in headers:
-        record_path = header.with_suffix("")
-        if not record_path.with_suffix(".dat").exists() or not record_path.with_suffix(".atr").exists():
+    for name in names:
+        record_path = data_dir / name
+        required_files.update(f"{name}{extension}" for extension in (".hea", ".dat", ".atr"))
+        missing = [extension for extension in (".hea", ".dat", ".atr") if not record_path.with_suffix(extension).is_file()]
+        if missing:
+            errors.append({"record": name, "error": f"missing required files: {', '.join(missing)}"})
             continue
         try:
             records.append(evaluate_record(record_path, detector))
@@ -160,8 +179,10 @@ def run(data_dir: Path, detector: str = "xqrs") -> dict[str, Any]:
     return {
         "schema_version": 1,
         "purpose": "QRS peak detector benchmark against reference beat annotations; not rhythm classification, calibration, Xiaomi validation, or diagnosis",
+        "dataset_id": DATASET_ID,
+        "dataset_version": DATASET_VERSION,
         "dataset_path": data_dir.name,
-        "data_integrity": verify_sha256_manifest(data_dir),
+        "data_integrity": verify_sha256_manifest(data_dir, required_files),
         "provenance": {
             "benchmark_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "python_version": platform.python_version(),
@@ -170,6 +191,7 @@ def run(data_dir: Path, detector: str = "xqrs") -> dict[str, Any]:
         },
         "detector": detector,
         "tolerance_ms": TOLERANCE_MS,
+        "record_count_listed": len(names),
         "summary": summarize(records),
         "records": records,
         "errors": errors,
