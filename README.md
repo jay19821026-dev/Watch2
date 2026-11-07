@@ -46,7 +46,7 @@ Xiaomi Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 - `XiaomiHealthBridge-Mobile-4.0.0-vc169-test17-debug.apk`：安裝到 Android 手機
 - `XiaomiHealthBridge-Wear-4.0.0-vc169-test17-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
 
-Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。先前簽署的 Play 候選 AAB 早於 test 17 修正，須重新建置；Console 版本歷史、憑證與聲明也尚未核對。安裝前請核對 [test 17 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.17/SHA256SUMS-4.0.0-test.17.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
+Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。已從 test 17 原始碼重建手機 170／手錶 171 的本機簽署 Play 候選 AAB，尚未上傳；Console 版本歷史、憑證與聲明也尚未核對。安裝前請核對 [test 17 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.17/SHA256SUMS-4.0.0-test.17.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
 
 專案也提供 PowerShell 安裝腳本；它會建置目前版本、檢查套件名稱／版本／簽章，再以 `adb install -r` 保留既有 App 資料：
 

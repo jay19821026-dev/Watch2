@@ -47,7 +47,7 @@ Matching 4.0.0 test 17 APKs are available from the [ailisa.net download page](ht
 - `XiaomiHealthBridge-Mobile-4.0.0-vc169-test17-debug.apk` — Android phone
 - `XiaomiHealthBridge-Wear-4.0.0-vc169-test17-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
 
-Debug APKs use an Android development signature and are not Play Store releases. Earlier signed Play candidate AABs predate the test 17 correction and must be rebuilt; Console version history, certificate enrollment, and declarations still need checking. Verify the [test 17 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.17/SHA256SUMS-4.0.0-test.17.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
+Debug APKs use an Android development signature and are not Play Store releases. Locally signed Play candidate AABs have been rebuilt from test 17 source with phone/Wear version codes 170/171, but have not been uploaded; Console version history, certificate enrollment, and declarations still need checking. Verify the [test 17 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.17/SHA256SUMS-4.0.0-test.17.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
 
 The ready-to-paste bilingual Play Store listing, console selections, release notes, and graphic-asset inventory are in [`docs/PLAY_STORE_LISTING_COPY.md`](docs/PLAY_STORE_LISTING_COPY.md). Release flow, privacy, Data safety, and Health apps declaration materials are in [`docs/PLAY_STORE_RELEASE_GUIDE.en.md`](docs/PLAY_STORE_RELEASE_GUIDE.en.md), [`docs/PRIVACY_POLICY.en.md`](docs/PRIVACY_POLICY.en.md), and [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md).
 
