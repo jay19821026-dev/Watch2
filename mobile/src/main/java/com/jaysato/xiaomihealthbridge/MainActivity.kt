@@ -266,10 +266,12 @@ class MainActivity : ComponentActivity() {
             addView(actionButton("檢查離腕／佩戴狀態") { sendWatchCommand("/control/off-body-now") }, margins(top = 10))
             addView(actionButton("完整掃描全部手錶感測器（約 2 分鐘）") { sendWatchCommand("/control/sensor-suite") }, margins(top = 10))
             addView(actionButton("取得手錶同步狀態") { sendWatchCommand("/control/status") }, margins(top = 10))
-            addView(actionButton("選擇 APK 並傳送到手錶") {
-                filePicker.launch(arrayOf("application/vnd.android.package-archive", "application/octet-stream"))
-            })
-            addView(label("傳送完成後，在手錶 App 按「安裝收到的 APK」。系統仍會要求確認。", 12f, "#8290AD"), margins(top = 8))
+            if (BuildConfig.DEBUG) {
+                addView(actionButton("選擇 APK 並傳送到手錶") {
+                    filePicker.launch(arrayOf("application/vnd.android.package-archive", "application/octet-stream"))
+                })
+                addView(label("傳送完成後，在手錶 App 按「安裝收到的 APK」。系統仍會要求確認。", 12f, "#8290AD"), margins(top = 8))
+            }
             addView(sectionTitle("外部量測", "只輸入可信裝置的讀值"), margins(top = 30, bottom = 10))
             addView(actionButton("輸入體重（kg）") { showWeightDialog() }, margins(bottom = 10))
             addView(actionButton("輸入血壓（外部血壓計）") { showBloodPressureDialog() })

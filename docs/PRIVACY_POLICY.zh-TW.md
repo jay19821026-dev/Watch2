@@ -1,6 +1,6 @@
 # Xiaomi Health Bridge 隱私權政策
 
-最後更新：2026-11-06　開發者：王宥傑
+最後更新：2026-11-07　開發者：王宥傑
 
 Xiaomi Health Bridge 是 Android 手機與 Wear OS 手錶之間的開源健康資料研究工具。本 App 不是醫療器材，不提供診斷、治療或緊急監測。
 
@@ -8,7 +8,7 @@ Xiaomi Health Bridge 是 Android 手機與 Wear OS 手錶之間的開源健康�
 
 經使用者明確授權後，手機版可透過 Health Connect 讀寫心率、靜止心率、HRV、步數、距離、熱量、運動與路線、體重、血壓、呼吸率、血氧、睡眠、體溫、爬升樓層與飲水等紀錄。手錶版可使用裝置所支援的身體感測器、活動、位置、麥克風與 Health Services；實際項目依裝置、韌體及權限而異。資料僅用於在使用者自己的裝置上顯示趨勢、來源、品質與同步狀態，以及在授權時與 Health Connect 同步。
 
-本開源版本未配置開發者營運的健康資料伺服器、廣告 SDK 或第三方分析。手機與手錶同步使用 Google Play services Wearable Data Layer；Health Connect 由 Android 平台管理。研究原始資料與匯出檔預設留在 App 私有空間或使用者選擇的位置；使用者自行分享的檔案受目的地服務政策約束。
+本開源版本未配置開發者營運的健康資料伺服器、廣告 SDK 或第三方分析。手機與手錶同步使用 Google Play services Wearable Data Layer，在已配對裝置間傳輸支援的健康與研究紀錄；Health Connect 由 Android 平台管理。手錶環境噪音功能僅在使用者啟動後使用麥克風，在手錶上計算音量估值，並把衍生結果傳至配對手機；程式未設計成儲存或傳送原始音訊。研究原始資料與匯出檔預設留在 App 私有空間或使用者選擇的位置；使用者自行分享的檔案受目的地服務政策約束。
 
 ## 控制、刪除與安全
 

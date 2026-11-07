@@ -11,6 +11,7 @@ Package / 套件：`com.jaysato.xiaomihealthbridge`
 - A Play-versioning verification build also passed on 2026-11-07 with `PLAY_MOBILE_VERSION_CODE=156` and `PLAY_WEAR_VERSION_CODE=157`. `aapt dump badging` confirmed these codes in the respective unsigned release APKs. These are example codes pending Console history inspection, not uploaded artifacts.
 - Output files: `mobile/build/outputs/bundle/release/mobile-release.aab` and `wear/build/outputs/bundle/release/wear-release.aab`.
 - `jarsigner -verify -verbose -certs` reports **`jar is unsigned`** for both current outputs because no authorized release keystore is configured.
+- The 4.0.0 release variant now excludes the manual APK-install permission and receiver, and hides the phone/watch APK-transfer controls. Debug builds retain the manual test flow. Both variants compiled on 2026-11-07; inspect final signed manifests again before upload.
 - Therefore these AABs are build-verification artifacts only and must not be uploaded as a production release.
 
 手機與手錶 Release AAB 均可成功建置，但目前兩者皆未簽章；只能證明建置流程可用，不能上傳為正式商店版本。
@@ -36,7 +37,7 @@ Package / 套件：`com.jaysato.xiaomihealthbridge`
    Google's [Wear OS packaging guide](https://developer.android.com/training/wearables/packaging) requires a **unique versionCode across form factors** and directs phone + watch APK publishing through Multi-APK delivery. The 4.0 sideload test APKs both have `versionCode 155`, so they are **not** a valid final phone/Wear Play upload pair. Allocate distinct, monotonically safe Play codes after checking the Console's existing artifacts; rebuild and verify both signed outputs. The test release does not establish Play artifact readiness.
    The same official guide asks for the same package name and a watch `android.hardware.type.watch` feature; the repository currently declares these, but final merged manifests and Play device targeting still require inspection.
    Google's [Android developer verification guide](https://developer.android.com/developer-verification/assets/pdfs/updates-to-play-console-for-android-developer-verification.pdf) says a package name previously installed or distributed outside Play may require proof of ownership of its private signing key during new app creation. This package has public debug-signed test APKs; inspect Play Console's actual registration prompt before deciding the key flow. Do not upload a private key or assume that a debug certificate is the future Play app-signing key.
-7. Complete the public privacy-policy URL, Data safety, Health apps declaration, app access, ads, content rating, target audience, testing track, store screenshots, and medical/non-medical claims review.
+7. Complete the public privacy-policy URL, Data safety, Health apps declaration, app access, ads, content rating, target audience, testing track, store screenshots, and medical/non-medical claims review. The Data safety Yes/No answers remain unresolved until final AAB and phone/watch runtime transfer review; do not copy an old blanket "No data collected" answer.
 8. Start with Internal testing and real phone/watch verification before any production rollout.
 
 The signing key and passwords are credentials. They are deliberately excluded from source control and are not invented or embedded by this project.

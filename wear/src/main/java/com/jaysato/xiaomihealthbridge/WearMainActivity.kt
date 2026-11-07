@@ -335,7 +335,9 @@ class WearMainActivity : ComponentActivity() {
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 addView(updateAction, LinearLayout.LayoutParams(0, dp(50), 1f).apply { marginEnd = dp(5) })
-                addView(installAction, LinearLayout.LayoutParams(0, dp(50), 1f).apply { marginStart = dp(5) })
+                if (BuildConfig.DEBUG) {
+                    addView(installAction, LinearLayout.LayoutParams(0, dp(50), 1f).apply { marginStart = dp(5) })
+                }
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 topMargin = dp(10)
             })
@@ -493,6 +495,7 @@ class WearMainActivity : ComponentActivity() {
     }
 
     private fun refreshReceivedFile() {
+        if (!BuildConfig.DEBUG) return
         if (!::installAction.isInitialized) return
         val prefs = getSharedPreferences(WearFileReceiverService.PREFS, MODE_PRIVATE)
         val file = prefs.getString(WearFileReceiverService.KEY_FILE, null)?.let(::File)
@@ -501,6 +504,7 @@ class WearMainActivity : ComponentActivity() {
     }
 
     private fun installReceivedApk() {
+        if (!BuildConfig.DEBUG) return
         val path = getSharedPreferences(WearFileReceiverService.PREFS, MODE_PRIVATE)
             .getString(WearFileReceiverService.KEY_FILE, null) ?: return
         val file = File(path).takeIf { it.isFile } ?: return

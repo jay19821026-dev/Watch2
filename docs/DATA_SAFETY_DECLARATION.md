@@ -12,16 +12,18 @@ Before release, audit merged manifests and SDKs, justify every health permission
 
 ## Console answer matrix / 管理中心填寫矩陣
 
-Use this matrix only if the signed AAB and runtime inspection still match the source audited for 3.13.44. If a later build adds a server, analytics, advertising, crash reporting, account login, or another SDK, reassess every answer before submission.
+This is a 4.0.0 source review, not a completed Play Console form. Reassess every answer against both final signed AABs and a phone/watch runtime trace. A developer backend is not the sole criterion for collection: Play defines collection by transmission off the device, with specific exceptions. In particular, classify Wearable Data Layer transfers, Health Connect writes, user-selected exports, and any SDK traffic under the [official Data safety definitions](https://support.google.com/googleplay/android-developer/answer/10787469) before entering a Yes/No answer.
 
-| Play Console question | 3.13.44 working answer | Evidence / boundary |
+| Play Console question | 4.0.0 working answer | Evidence / boundary |
 |---|---|---|
-| Does the app collect or share required user-data categories with the developer or third parties? | **No**, for this source build | No developer backend, ads, analytics, or third-party telemetry SDK is present. Health Connect and paired-device transfers provide user-requested on-device functionality; re-check the final merged manifests and dependency graph. |
-| Is all user data encrypted in transit? | **Yes**, where data crosses the phone/watch link | The app relies on Android/Wearable platform transport security; local Health Connect access is platform-mediated. Do not describe local-only processing as a developer cloud service. |
-| Can users request deletion? | **Yes, through Android controls** | Users can revoke Health Connect permissions and delete app/Health Connect records through Android. The app has no developer account or server-side profile to delete. |
+| Does the app collect or share required user-data categories? | **Unresolved; do not submit No yet** | Source has no developer backend, ads, or analytics, but Wearable Data Layer sends health and research records between devices and Health Connect writes records to another app. Apply Play's definitions and exceptions to the actual final distribution and runtime behavior. |
+| Is all collected user data encrypted in transit? | **Unresolved pending traffic and transport audit** | The implementation uses Google Play services Wearable Data Layer, but this source review has not proved the encryption properties of every transfer or SDK. Answer only after classifying what is collected. |
+| Can users request deletion? | **Android controls are available; verify cross-device deletion** | Revoking permissions and clearing app/Health Connect data are available. Confirm whether watch data, phone data, queues, and exported copies are deleted as claimed before selecting a Console option. |
 | Ads | **No** | No ad SDK or advertising feature is included. |
 | Account creation / app access | **No account required** | Core screens do not require developer-operated login credentials. |
 | Health and fitness data purpose | **App functionality** | Display, synchronize, summarize, and let the user manage authorized health/fitness records. Not advertising, credit, insurance, employment, diagnosis, or sale. |
+
+The Wear app requests `RECORD_AUDIO` for a foreground noise meter. It reads PCM samples, derives dBFS and an optional user-calibrated dBA estimate, and sends the derived result to the paired phone through Wearable Data Layer. The reviewed code does not persist or transmit raw audio. The final Data safety review must classify the derived noise record and verify this behavior in the exact build. The Wear debug APK also requests `REQUEST_INSTALL_PACKAGES` for manual APK transfer. The release variant removes that permission and its receiver; release phone/watch UI hides the transfer/install actions. Verify both merged manifests before Play submission.
 
 Do not answer that health data is anonymous merely because the app has no account. Health metrics are sensitive user data even when processed locally. Do not claim that Google, Health Connect, the device manufacturer, or the Play transport is a developer-controlled recipient.
 
