@@ -44,13 +44,13 @@ ECG remains research-only unless device-specific lead mapping, ADC timing, and r
 
 ## APKs
 
-Matching 4.0.0 test 18 APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) or [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.18):
+Matching 4.0.0 test 19 APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) or [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.19):
 
-- `AILISAHealthBridge-Mobile-4.0.0-vc172-test18-debug.apk` — Android phone
-- `AILISAHealthBridge-Wear-4.0.0-vc172-test18-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
-- `AILISAHealthBridge-Legacy-Migration-Bridge-vc172-test18-debug.apk` — update the old phone app before migrating encrypted records
+- `AILISAHealthBridge-Mobile-4.0.0-vc175-test19-debug.apk` — Android phone
+- `AILISAHealthBridge-Wear-4.0.0-vc175-test19-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
+- [test 18 legacy migration bridge](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.18) — update the old phone app first if migrating encrypted records
 
-Debug APKs use an Android development signature and are not Play Store releases. The new `net.ailisa.healthbridge` package coexists with the old app. Read the [migration guide](docs/PACKAGE_MIGRATION_4_0.en.md) and keep the old installations. The earlier test 17 signed Play candidate AABs have the old package ID and must not be uploaded as the renamed app. Verify the [test 18 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.18/SHA256SUMS-4.0.0-test.18.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
+Debug APKs use an Android development signature and are not Play Store releases. The new `net.ailisa.healthbridge` package coexists with the old app. Read the [migration guide](docs/PACKAGE_MIGRATION_4_0.en.md) and keep the old installations. Verify the [test 19 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.19/SHA256SUMS-4.0.0-test.19.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
 
 The ready-to-paste bilingual Play Store listing, console selections, release notes, and graphic-asset inventory are in [`docs/PLAY_STORE_LISTING_COPY.md`](docs/PLAY_STORE_LISTING_COPY.md). Release flow, privacy, Data safety, and Health apps declaration materials are in [`docs/PLAY_STORE_RELEASE_GUIDE.en.md`](docs/PLAY_STORE_RELEASE_GUIDE.en.md), [`docs/PRIVACY_POLICY.en.md`](docs/PRIVACY_POLICY.en.md), and [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md).
 

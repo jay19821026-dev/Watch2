@@ -41,3 +41,11 @@ The owner's currently installed Mi Fitness is a **separate 3.59.2i build** (`ver
 3. **Compare real capability at runtime.** AILISA 4.0 already separates Health Connect measured records from watch raw research events. A targeted device check should record available Health Connect types, permission grants, actual `DataOrigin`s and fresh record counts without publishing private values. / 以實機權限與實際來源為準，僅公開能力狀態，不公開個人數值。
 
 No Xiaomi private API, proprietary native model, source code, authentication, or signature-restricted service is required for these steps. Public datasets and papers used by AILISA are mapped separately in [`ALGORITHM_DATASET_PAPER_MAP.md`](ALGORITHM_DATASET_PAPER_MAP.md); neither inspected APK identifies Xiaomi's training corpus. / 以上流程不需要原廠私有 API、模型、原始碼或簽章專屬服務。AILISA 使用的公開資料集與論文另有對照表；兩份 APK 都沒有證明小米模型採用哪篇論文或資料庫。
+
+## 4.0 implementation from this comparison / 本次對照實作進 4.0
+
+AILISA's **Health Connect 資料來源核對** screen is reached from **裝置 → 同步明細 → 核對 Mi Fitness／Health Connect 資料來源**. It checks six record types that the 3.53.0i writer path names: heart rate, oxygen saturation, steps, sleep, distance, and active calories. For each type it distinguishes permission denied, zero readable records, read failure, and an exceeded 2,000-record bound. With permission it reports only seven-day record counts, `metadata.dataOrigin.packageName`, and newest record time, grouped by source. It never copies OEM data models or labels a source app as a confirmed sensor. / 4.0 新增本機資料來源核對頁，針對反組譯可見的六種 Health Connect 寫入資料逐項核對授權、筆數、來源套件與最新時間；超過查詢上限時不輸出不完整統計。這是利用公開 Health Connect API 驗證實際同步，不是移植原廠私有程式。
+
+The owner's paired phone currently has Mi Fitness 3.59.2i installed, while AILISA's Health Connect read permissions are **not yet granted**. Consequently no owner-specific origin or count is claimed in this report. / 配對手機目前是 Mi Fitness 3.59.2i，但 AILISA 的健康資料讀取權限尚未授予；本報告不宣稱已讀到這支手錶的紀錄。
+
+The source field and bounded read approach follow [Android's Health Connect read guide](https://developer.android.com/health-and-fitness/health-connect/read-data) and [record metadata reference](https://developer.android.com/reference/androidx/health/connect/client/records/metadata/Metadata). / 來源欄位與分頁讀取依 Android 官方 Health Connect 文件實作。

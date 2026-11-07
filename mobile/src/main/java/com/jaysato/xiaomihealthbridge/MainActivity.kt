@@ -223,6 +223,9 @@ class MainActivity : ComponentActivity() {
             }, margins(bottom = 10))
             addView(actionButton("立即重新估算靜止心率") { estimateRestingHeartRateNow() }, margins(top = 10))
             addView(sectionTitle("同步明細", "Health Connect 完整來源與統計"), margins(top = 26, bottom = 10))
+            addView(actionButton("核對 Mi Fitness／Health Connect 資料來源") {
+                startActivity(Intent(this@MainActivity, HealthConnectOriginAuditActivity::class.java))
+            }, margins(bottom = 10))
             addView(metricsStatus)
             addView(sectionTitle("手錶工具", "控制、診斷與無線安裝"), margins(top = 30, bottom = 10))
             addView(actionButton("健康結論（計算＋臨床對照）") {

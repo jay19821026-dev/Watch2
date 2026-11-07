@@ -96,6 +96,7 @@
         <activity android:name="com.jaysato.xiaomihealthbridge.CompetitorParityActivity" android:exported="true" />
         <activity android:name="com.jaysato.xiaomihealthbridge.ChipFeatureHubActivity" android:exported="true" />
         <activity android:name="com.jaysato.xiaomihealthbridge.EngineeringDebugActivity" android:exported="false" />
+        <activity android:name="com.jaysato.xiaomihealthbridge.HealthConnectOriginAuditActivity" android:exported="false" />
         <activity-alias
             android:name=".EngineeringDebugShellActivity"
             android:targetActivity="com.jaysato.xiaomihealthbridge.EngineeringDebugActivity"

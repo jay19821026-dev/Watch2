@@ -34,7 +34,7 @@ android {
         applicationId = "net.ailisa.healthbridge"
         minSdk = 30
         targetSdk = 36
-        versionCode = playWearVersionCode ?: 172
+        versionCode = playWearVersionCode ?: 175
         versionName = "4.0.0"
     }
 
