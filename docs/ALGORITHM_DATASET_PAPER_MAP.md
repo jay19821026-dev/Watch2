@@ -22,7 +22,7 @@ This document identifies data sources, algorithms, and implementations. Public d
 | Charlton et al., wearable PPG review, PMC7612541 | PPG morphology、motion artifact、signal quality 與驗證設計背景。 | 研究文件與工程邊界；未複製臨床 classifier | Review 不能提供通用腕式校準或醫療宣稱。 |
 | Takazawa PMID 9719069; J-SHIPP PMID 26911232; VascAgeNet PMID 34951543 | 探索性 vascular-age 研究背景。 | `ResearchClinicalEvidence.kt` 與 health-analysis 文件 | 不宣稱本裝置或個人已有驗證的血管年齡。 |
 | MAX86178 datasheet / MAXREFDES106 | ECG/PPG/BioZ AFE 能力與校準缺口分析。 | `research/max86178-calibration-evidence.md`, `docs/MAX86178_CALIBRATION_EVIDENCE_2026-10-10.md` | 不證明零售手錶的寄存器、導聯、增益、時鐘或 raw-code→mV；不得移植 MAX30003 公式。 |
-| Installed Xiaomi Health watch APK, SHA-256 `920459E3…A4F83B5965` | **程式結構對照，非論文或公開資料庫**：ECG 65573 事件的前 10 欄、索引 10 標記、離腕條件與 native 分析邊界。 | `wear/.../EcgEventPreview.kt`, `RawVitalsProbe.kt`, `WearEcgActivity.kt`; detailed evidence in `WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`. | 只修正研究預覽的欄位選擇和配戴狀態過濾；未移入原廠程式碼／函式庫，未取得其訓練資料、校準、醫療驗證或使用權。 |
+| Installed Xiaomi Health watch APK, SHA-256 `920459E3…A4F83B5965` | **程式結構對照，非論文或公開資料庫**：ECG 65573 事件欄位與離腕條件；血氧與體溫量測頁的佩戴檢查；兩者有別於原始感測器的原廠服務結果。 | `wear/.../EcgEventPreview.kt`, `RawVitalsProbe.kt`, `WearEcgActivity.kt`, `WearMeasurePageActivity.kt`; detailed evidence in `WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`. | 只修正研究預覽的欄位選擇、佩戴狀態與完成條件；未移入原廠程式碼／函式庫，未取得其訓練資料、校準、醫療驗證或使用權。 |
 
 ## Runtime algorithms / App 執行期演算法
 
@@ -32,6 +32,7 @@ This document identifies data sources, algorithms, and implementations. Public d
 - `mobile/.../AlgorithmicInsightsEngine.kt`: 確定性彙整已授權的 Health Connect 紀錄；執行時不查詢或訓練 PhysioNet。
 - `benchmark_ecg_qrs.py` / `benchmark_wrist_ppg.py`: 可重現離線 benchmark；Android App 不會呼叫。
 - `wear/.../EcgEventPreview.kt` 與 `RawVitalsProbe.kt`: 依目前手錶上原廠 APK 的靜態行為，僅將符合 16 欄、索引 10 精確等於 1000、且同一事件有近期 Android 離腕感測器配戴狀態的前 10 欄展示為**未校準候選值**。原廠程式是將索引 10 轉整數後比較 1000；本專案採較嚴格的精確比較和自行設定的 60 秒狀態時效。研究頁明示離腕不等於電極接觸，也無可信 mV 或節律判讀。此行為來源是 APK 對照，不是公開論文，也不代表取得原廠演算法。
+- `wear/.../WearMeasurePageActivity.kt` 與 `RawVitalsProbe.kt`: 原廠血氧及體溫量測頁均在配戴值非 `1.0f` 時停止；本 App 的公開原始通道因此只在近期且時間對齊的 Android 類型 34 已佩戴事件下標示擷取完成。離腕或未知仍保留有限原始資料，但不輸出 SpO₂ 百分比、攝氏體溫或醫療結論。原廠 SpO₂ 類型 `20485` 與體溫類型 `20500` 的有型別服務結果並未移入本 App；此行為來源是原廠 APK 對照，不是論文或資料庫。
 
 ## Newly reviewed external sources / 新查核的外部來源
 

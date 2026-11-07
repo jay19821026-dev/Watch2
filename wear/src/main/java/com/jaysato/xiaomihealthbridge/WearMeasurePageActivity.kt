@@ -114,7 +114,7 @@ class WearMeasurePageActivity : ComponentActivity() {
         TEMPERATURE(
             "TEMPERATURE RAW", "溫度感測器原始值", "#FFB347",
             RawVitalsProbe.Kind.BODY_TEMPERATURE, WearControlService.ACTION_MEASURE_TEMPERATURE, 1,
-            "保留裝置原始值；單位與轉換未驗證，不顯示攝氏或判定體溫。有有限讀值即結束。"
+            "原廠體溫頁會監看離腕狀態；本頁需確認佩戴才標示原始擷取完成。單位與轉換未驗證，不顯示攝氏或判定體溫。"
         ),
         SPO2(
             "SpO₂ RAW", "血氧原始通道", "#56AEFF",
@@ -624,7 +624,9 @@ class WearMeasurePageActivity : ComponentActivity() {
             Mode.SPO2 -> snapshot.worn == true && snapshot.samples >= mode.minSamples &&
                 snapshot.latest.any { it.isFinite() && it != ClinicalSensorFormulas.OPTICAL_FILL.toDouble() }
             Mode.HEART_RATE -> WearMeasurementPolicy.directHeartRateBpm(snapshot) != null
-            Mode.TEMPERATURE, Mode.BOARD_TEMP ->
+            Mode.TEMPERATURE -> snapshot.worn == true &&
+                (snapshot.average ?: snapshot.latest.firstOrNull())?.isFinite() == true
+            Mode.BOARD_TEMP ->
                 (snapshot.average ?: snapshot.latest.firstOrNull())?.let { it.isFinite() } == true
             Mode.OFF_BODY -> snapshot.worn != null || snapshot.samples >= 1
             Mode.PRESSURE -> (snapshot.average ?: snapshot.latest.firstOrNull())?.let { it in 800.0..1100.0 } == true
@@ -727,8 +729,12 @@ class WearMeasurePageActivity : ComponentActivity() {
             )
             Mode.PPG, Mode.LIFE_Q_OTT ->
                 WearHealthConclusion.forPpg(snapshot.samples, optical?.pulseRateBpm ?: hrv?.bpm)
-            Mode.TEMPERATURE, Mode.BOARD_TEMP ->
-                WearHealthConclusion.forTemperatureRawValue(snapshot.average ?: snapshot.latest.firstOrNull())
+            Mode.TEMPERATURE -> when (snapshot.worn) {
+                false -> "結論：離腕時取得的原始溫度值不作為量測完成證據"
+                null -> "結論：佩戴狀態未確認；原始溫度值僅供研究"
+                true -> WearHealthConclusion.forTemperatureRawValue(snapshot.average ?: snapshot.latest.firstOrNull())
+            }
+            Mode.BOARD_TEMP -> WearHealthConclusion.forTemperatureRawValue(snapshot.average ?: snapshot.latest.firstOrNull())
             Mode.PRESSURE ->
                 WearHealthConclusion.forPressure(snapshot.average, pressure?.altitudeM)
             Mode.BIOZ, Mode.RESPIRATION ->
@@ -753,7 +759,10 @@ class WearMeasurePageActivity : ComponentActivity() {
                 (optical?.pulseRateBpm ?: hrv?.bpm)?.takeIf { it in 30.0..220.0 }
                     ?.let { "%.0f".format(it) to "PPG bpm" }
                     ?: supplementalHeartRate?.let { "%.0f".format(it) to "Health Services bpm" }
-            Mode.TEMPERATURE, Mode.BOARD_TEMP ->
+            Mode.TEMPERATURE ->
+                (snapshot.average ?: snapshot.latest.firstOrNull())?.takeIf { snapshot.worn == true && it.isFinite() }
+                    ?.let { "%.1f".format(it) to "原始值 · 單位未驗證" }
+            Mode.BOARD_TEMP ->
                 (snapshot.average ?: snapshot.latest.firstOrNull())?.takeIf { it.isFinite() }
                     ?.let { "%.1f".format(it) to "原始值 · 單位未驗證" }
             Mode.PRESSURE ->
@@ -775,6 +784,9 @@ class WearMeasurePageActivity : ComponentActivity() {
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && opticalCaptureUsable -> "原始光學訊號已取得 · 未輸出 bpm"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && snapshot.samples > 0 -> "收到光學封包，但填充值／品質未通過"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) -> "沒有收到可用光學訊號"
+            mode == Mode.TEMPERATURE && snapshot.worn == false -> "離腕狀態 · 原始溫度值僅保留研究資料"
+            mode == Mode.TEMPERATURE && snapshot.worn == null -> "佩戴狀態未知 · 原始溫度值僅保留研究資料"
+            mode == Mode.TEMPERATURE -> "已佩戴 · 原始溫度值已取得 · 單位未驗證"
             mode == Mode.SPO2 && snapshot.worn == false -> "離腕狀態 · 原始血氧封包僅保留研究資料"
             mode == Mode.SPO2 && snapshot.worn == null -> "佩戴狀態未知 · 原始血氧封包僅保留研究資料"
             mode == Mode.SPO2 -> "已佩戴 · 原始血氧封包已取得 · 未校準百分比"

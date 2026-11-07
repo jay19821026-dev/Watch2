@@ -73,6 +73,10 @@ On 2026-11-08, `adb shell dumpsys sensorservice` on the connected owner's **Xiao
 
 原廠血氧頁除了經由服務取得有型別的量測結果，還會監看佩戴感測器；量測中若回報值不是 `1.0f`，就停止量測。本專案 4.0 因此在擷取公開血氧原始事件時，同步查驗 Android 離腕事件；僅在近期、時間對齊的「已佩戴」事件存在時標示原始擷取完成。離腕或未知時只保留研究封包，不產生血氧百分比。60 秒時效是本專案自己的保守規則。
 
+**Temperature behavior / 體溫處理：** The installed OEM `TemperatureViewModel` starts a typed measurement through service type `20500`. The injected body sensor for its measuring Activity is Android type `34`; an active OEM measurement stops when the reported value differs from `1.0f`. The 4.0 raw body-temperature page now also requires a recent, time-aligned on-body event before declaring raw capture complete. It retains off-wrist or unknown raw values only as research evidence, without a prominent result or Celsius claim. The OEM service's negative-value error handling is **not** applied to the separate raw HAL stream.
+
+原廠體溫量測結果由服務類型 `20500` 回傳，量測畫面另使用 Android 類型 `34` 監看佩戴；非 `1.0f` 時停止。本專案的原始體溫頁依此新增佩戴狀態判斷，離腕或未知時不標示完成，也不把原始值寫成攝氏體溫。原廠服務的負數錯誤碼不能直接套用到不同的原始 HAL 通道。
+
 For this watch, the ECG, PPG, SpO₂, HR, BioZ and temperature paths are therefore **present in the Android sensor inventory**. The phone APK's blood-pressure and blood-glucose modules remain separate claims; neither follows from the barometer nor from these channels. A missing OEM card may indeed be a software/product gate for a particular feature, but this inventory does not identify every upstream rule.
 
 就這隻手錶而言，ECG、PPG、血氧相關、心率、BioZ 與溫度通道有實機證據。手機 APK 裡的血壓與血糖模組是另外的資料路徑；氣壓計不能當血壓計。原廠卡片缺席可能涉及軟體或產品設定，但上述清單尚不能指出每一道上游閘門。
