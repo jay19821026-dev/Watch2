@@ -1,7 +1,7 @@
 # Algorithm, dataset, and paper provenance / 演算法、資料庫與論文溯源
 
-作者 / Author: 王宥傑 (Wang You-Jie)  
-最後更新 / Last updated: 2026-11-06
+作者 / Author: 王宥傑 (Wang You-Jie)
+最後更新 / Last updated: 2026-11-07
 
 本文件說明資料來源、使用的演算法及程式位置。公開資料庫只供離線研究工具使用，不包含在 App、APK 或 Git 儲存庫；App 即時資料來自使用者授權的 Health Connect、Wear OS Health Services 或裝置感測器。
 
@@ -28,6 +28,20 @@ This document identifies data sources, algorithms, and implementations. Public d
 - `mobile/.../BiomedicalCalibration.kt`: ECG/PPG/BioZ/溫度證據閘門；映射、取樣時鐘、增益或校準未驗證時封鎖生理單位。
 - `mobile/.../AlgorithmicInsightsEngine.kt`: 確定性彙整已授權的 Health Connect 紀錄；執行時不查詢或訓練 PhysioNet。
 - `benchmark_ecg_qrs.py` / `benchmark_wrist_ppg.py`: 可重現離線 benchmark；Android App 不會呼叫。
+
+## Newly reviewed external sources / 新查核的外部來源
+
+These sources were checked on 2026-11-07. They are **not imported into the app or its offline benchmark** unless a future change records the exact data version, access rights, method, code path and reproducible result. 以下來源已查核，但**尚未**作為本 App 訓練資料、測試結果或裝置校準；不能把「找到資料庫」寫成「已驗證本手錶」。
+
+| Institution / 機構 | Primary source / 原始來源 | Possible research use / 可評估用途 | Access and device boundary / 存取與裝置限制 |
+|---|---|---|---|
+| PhysioNet / Cambridge–Oldenburg researchers | [MIMIC-III-Ext-PPG v1.0.0](https://physionet.org/content/mimic-iii-ext-ppg/1.0.0/), DOI `10.13026/nmwb-6h34`; authors Moulaeifard, Charlton, Strodthoff (2026) | ICU PPG signal quality, rhythm and respiratory benchmark design | Credentialed access, training and data-use agreement required. Bedside ICU signals do not establish wrist sensor accuracy or Xiaomi ECG/SpO₂ calibration. Version 1.0.0 is not the current latest version; pin a version before analysis. |
+| Seoul National University Hospital / VitalDB | [VitalDB open dataset and API](https://api.vitaldb.net/) and [API reference](https://api.vitaldb.net/docs/) | Independently test waveform processing on intraoperative ECG/PPG and numeric records | Hospital operating-room devices and patient setting differ from Watch 2 Pro; verify track-level availability, license and patient grouping before a benchmark. No VitalDB data is bundled or used at runtime. |
+| PhysioNet | [Pulse Transit Time PPG Dataset v1.1.0](https://physionet.org/content/pulse-transit-time-ppg/1.1.0/) | Multi-site synchronized PPG/ECG/inertial/pressure timing experiments | External research sensors and site-specific setup; PTT is not a watch blood-pressure or oxygen-calibration formula. |
+| FDA / openFDA | [Device adverse event API](https://open.fda.gov/apis/device/event/) | Safety surveillance context and device-report terminology | MAUDE reports are submitted adverse-event reports, not performance validation, an algorithm training set or a Watch 2 Pro authorization record. No live openFDA query is in the app. |
+| FDA / CDRH | [2025 draft pulse-oximeter performance guidance](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/pulse-oximeters-medical-purposes-non-clinical-and-clinical-performance-testing-labeling-and) and [FDA pulse-oximeter overview](https://www.fda.gov/medical-devices/products-and-medical-procedures/pulse-oximeters) | Plan a future paired reference study with skin-pigmentation and other accuracy factors considered | The January 2025 document is **draft, not for implementation**. It does not approve this app or supply Watch 2 Pro coefficients. FDA notes possible inaccuracies from circulation, pigmentation, skin thickness, temperature and other factors. |
+
+Research coverage remains open-ended: university, hospital, regulator and manufacturer resources are catalogued by concrete relevance and access rights, not asserted to have been exhaustively searched. A dataset enters the active traceability matrix only after an actual reproducible analysis and rights review. / 搜尋範圍持續擴充；只有完成授權與可重現分析，才會列為「已使用」。
 
 ## Data location, licenses, and prohibited claims / 資料位置、授權與禁限
 
