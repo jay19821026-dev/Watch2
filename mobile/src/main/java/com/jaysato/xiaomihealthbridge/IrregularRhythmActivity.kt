@@ -45,7 +45,7 @@ class IrregularRhythmActivity : ComponentActivity() {
         root.addView(commandFeedback)
         root.addView(card(
             "原廠 ECG 啟用",
-            "原廠啟用狀態由手錶內的 Xiaomi 健康服務與手機 Mi Fitness 管理。本 App 不會修改原廠狀態。已安裝 Mi Fitness 的程式顯示：ECG 卡片先檢查產品功能清單是否含 ecg；清單由原廠產品設定更新並存於 Mi Fitness 私有空間，不能從本 App 的裝置名稱或按鈕改變。若手錶顯示 Activation Guidance，請在 Mi Fitness 查找 ECG 卡片；若沒有，原廠啟用路徑尚未出現。下方可獨立擷取未校準的原始感測事件。",
+            "原廠 ECG 由手機 Mi Fitness 與手錶 Xiaomi 健康服務共同管理。本 App 不會修改原廠狀態。已安裝 Mi Fitness 的程式顯示：裝置設定中的 ECG 卡片先檢查產品功能清單是否含 ecg；Play 版的提醒路徑另檢查 electrocardiogram_global。正式啟用畫面會向手錶發送請求，待手錶回覆成功才寫入手機端啟用狀態。這些並非同一個開關。已配對手機的產品目錄有三種 Watch 2 Pro 列項，均未列出上述 ECG 功能鍵；但目錄不是配對裝置的最終授權清單。若手錶顯示 Activation Guidance，請在 Mi Fitness 查找 ECG 卡片；若沒有，本 App 無法代替原廠開通。下方可獨立擷取未校準的原始感測事件。",
             Color.rgb(90, 90, 100)
         ))
 

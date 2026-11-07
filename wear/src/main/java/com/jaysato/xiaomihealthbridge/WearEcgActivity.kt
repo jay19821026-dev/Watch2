@@ -106,7 +106,7 @@ class WearEcgActivity : ComponentActivity() {
                 setOnClickListener { startMeasurement(resetSegments = true) }
             }.also { startButton = it }, LinearLayout.LayoutParams(-1, dp(46)).apply { topMargin = dp(6) })
             addView(Button(context).apply {
-                text = "查看原廠 ECG 啟用狀態"; isAllCaps = false; textSize = 12f; setTextColor(Color.WHITE)
+                text = "開啟原廠 ECG 頁面"; isAllCaps = false; textSize = 12f; setTextColor(Color.WHITE)
                 background = ecgButtonBackground("#2A3857", "#182238")
                 setOnClickListener {
                     if (active || continuationPending) {
@@ -118,7 +118,7 @@ class WearEcgActivity : ComponentActivity() {
                 }
             }, LinearLayout.LayoutParams(-1, dp(46)).apply { topMargin = dp(6) })
             addView(TextView(context).apply {
-                text = "原廠提示：若手機 Mi Fitness 有 ECG 卡片，需先依其流程開通。"
+                text = "此按鈕只開啟原廠頁面，不讀取或變更啟用狀態。若 Mi Fitness 有 ECG 卡片，需先依其流程開通。"
                 textSize = 10f; setTextColor(Color.rgb(165, 177, 196)); gravity = Gravity.CENTER
             }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
             addView(Button(context).apply {
