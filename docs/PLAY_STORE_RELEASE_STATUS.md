@@ -1,13 +1,14 @@
 # Play Store release status / Play 商店發行狀態
 
 Last verified / 最後驗證：2026-11-07
-Last built bundle / 上次已建置 AAB：4.0.0 (`versionCode 155`)
+Last built bundle / 上次已建置 AAB：4.0.0（手機 `versionCode 156`、手錶 `157`；未簽章的 Play 配置驗證產物）
 Current source / 目前原始碼：4.0.0 (`versionCode 155`；尚未上傳 Play)
 Package / 套件：`com.jaysato.xiaomihealthbridge`
 
 ## Verified / 已驗證
 
 - `:mobile:bundleRelease` and `:wear:bundleRelease` both build successfully with JDK 17 / Android SDK 36.
+- A Play-versioning verification build also passed on 2026-11-07 with `PLAY_MOBILE_VERSION_CODE=156` and `PLAY_WEAR_VERSION_CODE=157`. `aapt dump badging` confirmed these codes in the respective unsigned release APKs. These are example codes pending Console history inspection, not uploaded artifacts.
 - Output files: `mobile/build/outputs/bundle/release/mobile-release.aab` and `wear/build/outputs/bundle/release/wear-release.aab`.
 - `jarsigner -verify -verbose -certs` reports **`jar is unsigned`** for both current outputs because no authorized release keystore is configured.
 - Therefore these AABs are build-verification artifacts only and must not be uploaded as a production release.

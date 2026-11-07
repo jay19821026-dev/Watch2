@@ -14,6 +14,17 @@ val releaseKeyPassword = providers.gradleProperty("RELEASE_KEY_PASSWORD").orNull
     ?: System.getenv("RELEASE_KEY_PASSWORD")
 val hasReleaseSigning = listOf(releaseStoreFile, releaseStorePassword, releaseKeyAlias, releaseKeyPassword)
     .all { !it.isNullOrBlank() }
+val playMobileCode = providers.gradleProperty("PLAY_MOBILE_VERSION_CODE").orNull
+val playWearCode = providers.gradleProperty("PLAY_WEAR_VERSION_CODE").orNull
+require((playMobileCode == null) == (playWearCode == null)) { "Provide both Play version codes together" }
+val playMobileVersionCode = playMobileCode?.toIntOrNull()
+val playWearVersionCode = playWearCode?.toIntOrNull()
+if (playMobileCode != null) {
+    require(playMobileVersionCode != null && playMobileVersionCode > 155 &&
+        playWearVersionCode != null && playWearVersionCode > 155 && playWearVersionCode != playMobileVersionCode) {
+        "Play phone and Wear version codes must be distinct integers greater than the public 4.0 test code 155"
+    }
+}
 
 android {
     namespace = "com.jaysato.xiaomihealthbridge"
@@ -23,7 +34,7 @@ android {
         applicationId = "com.jaysato.xiaomihealthbridge"
         minSdk = 30
         targetSdk = 36
-        versionCode = 155
+        versionCode = playWearVersionCode ?: 155
         versionName = "4.0.0"
     }
 
