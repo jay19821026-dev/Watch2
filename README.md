@@ -37,12 +37,12 @@ Xiaomi Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 
 ## APK 安裝
 
-4.0.0 test 10 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/xiaomi-health-bridge#downloads) 或 [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.10) 下載：
+4.0.0 test 11 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/xiaomi-health-bridge#downloads) 或 [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.11) 下載：
 
-- `XiaomiHealthBridge-Mobile-4.0.0-vc158-test10-debug.apk`：安裝到 Android 手機
-- `XiaomiHealthBridge-Wear-4.0.0-vc158-test10-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
+- `XiaomiHealthBridge-Mobile-4.0.0-vc159-test11-debug.apk`：安裝到 Android 手機
+- `XiaomiHealthBridge-Wear-4.0.0-vc159-test11-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
 
-Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。先前 test 9 原始碼的 Play 候選 AAB 已使用另一把候選 upload key 簽章，但不含本次修正，也尚未上傳或核准。安裝前請核對 [test 10 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.10/SHA256SUMS-4.0.0-test.10.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
+Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。先前 test 9 原始碼的 Play 候選 AAB 已使用另一把候選 upload key 簽章，但不含本次修正，也尚未上傳或核准。安裝前請核對 [test 11 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.11/SHA256SUMS-4.0.0-test.11.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
 
 專案也提供 PowerShell 安裝腳本；它會建置目前版本、檢查套件名稱／版本／簽章，再以 `adb install -r` 保留既有 App 資料：
 
