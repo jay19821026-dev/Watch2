@@ -29,6 +29,7 @@ Android's [Health Connect sleep-session guide](https://developer.android.com/hea
 
 ## Remaining checks / 待驗證
 
-- Check the paired phone's actual Health Connect sleep permission, source attribution and stage coverage on a real record. Static APK code cannot prove a Watch 2 Pro sleep export is available to this app.
+- On 2026-11-08, after installing test 12 on the paired phone, the Sleep page opened with Health Connect permission. A read-only UI inspection confirmed the partial-stage explanation, the "session span may include wake" label, and source-app fields on recent rows. No sleep value or source package name was printed or saved. This verifies the **partial-stage UI branch**, not the identity or correctness of an OEM Watch 2 Pro export.
+- Check the exact Health Connect record provenance and complete-stage branch on a consented real or synthetic record. Static APK code and a partial-stage screen cannot prove a Watch 2 Pro sleep export is available to this app.
 - Compare the phone page and watch glance for the same seven-day range after a real sync; avoid declaring a stage-complete result from only one source when other overlapping sources remain.
 - The current page does not import Mi Fitness's private `SleepSegmentReport`, sleep score, HRV, breathing or SpO₂ fields. No OEM sleep stage accuracy or clinical claim is made.
