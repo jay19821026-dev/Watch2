@@ -9,12 +9,14 @@ object ConsumerMetricPresentation {
             "ecg" -> "ECG"
             "ppg" -> "脈搏"
             "bioz" -> "體成分"
+            "temp" -> "腕部溫度"
             "bp" -> "血壓"
             "glucose" -> "血糖"
             else -> item.title
         }
         val physiologicalValue = item.valueText
             .replace(Regex("\\s*·\\s*已記錄.*$"), "")
+            .replace(Regex("\\s*·\\s*歷史紀錄.*$"), "")
             .takeIf { value ->
                 value.contains(Regex("\\d")) &&
                     listOf("%", "bpm", "ms", "mmHg", "°C", "kg", "kcal", "步", "小時", "km", "hPa", "mL").any(value::contains) &&

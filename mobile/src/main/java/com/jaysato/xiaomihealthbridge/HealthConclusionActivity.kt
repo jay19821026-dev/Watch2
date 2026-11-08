@@ -44,10 +44,18 @@ class HealthConclusionActivity : ComponentActivity() {
             textSize = 12f; setTextColor(Color.rgb(140, 80, 60))
             setPadding(0, dp(16), 0, 0)
         })
-        setContentView(ScrollView(this).apply {
+        val scroll = ScrollView(this).apply {
             setBackgroundColor(Color.rgb(242, 242, 247))
+            clipToPadding = false
             addView(root)
-        })
+        }
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(scroll) { view, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
+        setContentView(scroll)
+        scroll.requestApplyInsets()
     }
 
     private fun hero(title: String, detail: String) = LinearLayout(this).apply {
@@ -88,16 +96,25 @@ class HealthConclusionActivity : ComponentActivity() {
             textSize = 15f; setTextColor(accent); setTypeface(typeface, Typeface.BOLD)
         })
         addView(TextView(context).apply {
-            text = display.value; textSize = 28f; setTextColor(Color.BLACK); setTypeface(typeface, Typeface.BOLD)
+            val bpm = item.valueText.substringBefore("bpm").trim().toDoubleOrNull()
+            val percent = item.valueText.substringBefore('%').trim().toDoubleOrNull()
+            text = when {
+                item.id == "hr" && bpm != null && item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL ->
+                    "${display.value} · ${ConsumerVitalsSummary.heartRateLabel(bpm)}"
+                item.id == "spo2" && percent != null && percent in 70.0..100.0 && item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL ->
+                    "${display.value} · ${if (percent < 95.0) "偏低" else "正常範圍"}"
+                else -> display.value
+            }
+            textSize = 28f; setTextColor(Color.BLACK); setTypeface(typeface, Typeface.BOLD)
             setPadding(0, dp(4), 0, 0)
         })
         addView(TextView(context).apply {
             val recordedValue = item.valueText.substringBefore('%').trim().toDoubleOrNull()
             text = if (item.id == "spo2" && item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL) {
-                VitalsCardPresentationPolicy.oxygenInterpretation(recordedValue)
+                if (recordedValue != null && recordedValue in 70.0..100.0) ConsumerVitalsSummary.oxygen(recordedValue).detail else "請重新量測血氧。"
             } else if (item.id == "hr" && item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL) {
                 val bpm = item.valueText.substringBefore("bpm").trim().toDoubleOrNull()
-                if (bpm == null) "尚無心率讀值" else VitalsCardPresentationPolicy.heartRateReference(bpm)
+                if (bpm == null) "尚無心率讀值" else "成人靜息參考 60–100 bpm；這筆是${if (item.valueText.contains("歷史紀錄")) "歷史紀錄" else "量測紀錄"}。"
             } else if (item.level == HealthConclusionEngine.Level.RESEARCH || item.level == HealthConclusionEngine.Level.UNAVAILABLE) {
                 when (item.id) {
                     "ecg" -> "這次沒有心律結果；可在手錶重新量測。"
@@ -119,7 +136,7 @@ class HealthConclusionActivity : ComponentActivity() {
             textSize = 14f; setTextColor(Color.rgb(28, 28, 30)); setPadding(0, dp(6), 0, 0)
         })
         addView(Button(context).apply {
-            text = "查看數據與來源"; isAllCaps = false
+            text = "查看詳情"; isAllCaps = false
             setOnClickListener {
                 android.app.AlertDialog.Builder(this@HealthConclusionActivity)
                     .setTitle(item.title)
