@@ -350,18 +350,11 @@ object HealthConclusionEngine {
             "沒有保存可分析波形預覽；原始事件數與預覽點數分開保留"
         }
         val counts = "原始樣本 $samples · 原始事件 $eventCount · 預覽有效點 $finitePreviewCount/${waveform.size}"
-        val showDetailedCounts = eventCount > 0 || waveform.isNotEmpty()
         val valueText = when {
-            !hasEvidence -> "0 筆原始值 · 無法判定"
-            fresh && quality.score != null -> if (showDetailedCounts) {
-                "$counts · 索引形狀品質 ${ResearchScoreDisplay.format(quality.score)}（非血氧）"
-            } else "$samples 筆原始值（無 %）"
-            fresh && waveform.isNotEmpty() -> "$counts · 形狀品質未評分"
-            fresh -> if (showDetailedCounts) "$counts · 無百分比" else "$samples 筆原始值（無 %）"
-            trustedTimestamp && measuredAt > 0L && now >= measuredAt -> if (showDetailedCounts) {
-                "$counts · 歷史資料（無 %）"
-            } else "$samples 筆歷史原始值（無 %）"
-            else -> if (showDetailedCounts) "$counts · 時間未確認（無 %）" else "$samples 筆原始值（時間未確認，無 %）"
+            !hasEvidence -> "尚無血氧讀值"
+            fresh -> "已收到血氧訊號，尚無百分比"
+            trustedTimestamp && measuredAt > 0L && now >= measuredAt -> "較早的血氧訊號，尚無百分比"
+            else -> "已收到血氧訊號，時間未確認"
         }
         val provenance = "來源：$source · 時間來源：${timestampSource ?: "UNKNOWN"} · 校準：未驗證 · 時間軸：NORMALIZED_INDEX"
         val note = when {
@@ -374,7 +367,7 @@ object HealthConclusionEngine {
         }
         return Item(
             "spo2", "血氧 SpO₂", valueText,
-            "${ClinicalReferenceTables.SPO2_NORMAL_PCT.compare(null)} · $provenance · $waveformEvidence",
+            "${ClinicalReferenceTables.SPO2_NORMAL_PCT.compare(null)} · $provenance · $counts · $waveformEvidence",
             "$note $waveformEvidence。無裝置級校準，不推算血氧百分比；臨床參考：健康成人海平面約 95–100%，原始訊號品質不等同血氧數值。",
             if (hasEvidence) Level.RESEARCH else Level.UNAVAILABLE,
             null,
@@ -780,8 +773,8 @@ object HealthConclusionEngine {
                     if (researchMetrics.isNotBlank()) add(researchMetrics)
                 }.joinToString(" · ")
                 return Item(
-                    "bioz", "體成分／BioZ", retainedEvidence,
-                    "時間軸：NORMALIZED_INDEX · 量測時間未確認或不在即時視窗；" + ClinicalReferenceTables.SEGMENTAL_WRIST_Z_OHM.compare(null),
+                    "bioz", "體成分／BioZ", if (age >= 0L && measuredAt > 0L) "較早的體成分訊號" else "已收到體成分訊號，時間未確認",
+                    "時間軸：NORMALIZED_INDEX · $retainedEvidence · 量測時間未確認或不在即時視窗；" + ClinicalReferenceTables.SEGMENTAL_WRIST_Z_OHM.compare(null),
                     "BioZ 研究指標如有顯示，皆為相對振幅特徵並使用索引時間軸；" +
                         when {
                             measuredAt <= 0L -> "量測時間未知，不表示目前讀值。"
@@ -791,7 +784,7 @@ object HealthConclusionEngine {
                     Level.RESEARCH, null, true
                 )
             }
-            return Item("bioz", "體成分／BioZ", "$samples 點原始資料 · 無法判定", ClinicalReferenceTables.SEGMENTAL_WRIST_Z_OHM.compare(null),
+            return Item("bioz", "體成分／BioZ", "尚無體成分結果", ClinicalReferenceTables.SEGMENTAL_WRIST_Z_OHM.compare(null),
                 if (samples <= 0) "尚未量測 BioZ；Samsung BIA 體脂於此裝置無 OEM Ω 公式。" else "BioZ 原始波形已超出健康結論 10 分鐘分析輸入窗；需重新量測。腕部局部阻抗不能換算體脂％。",
                 Level.UNAVAILABLE, null, false)
         }
@@ -801,8 +794,8 @@ object HealthConclusionEngine {
             if (researchMetrics.isNotBlank()) add(researchMetrics)
         }.joinToString(" · ")
         return Item(
-            "bioz", "體成分／BioZ", evidenceSummary,
-            "研究指標採視窗內相對振幅特徵與 NORMALIZED_INDEX 時間軸；腕部局部阻抗尚無 OEM Ω 校準。",
+            "bioz", "體成分／BioZ", "已收到體成分訊號，尚無體脂讀值",
+            "$evidenceSummary · 研究指標採視窗內相對振幅特徵與 NORMALIZED_INDEX 時間軸；腕部局部阻抗尚無 OEM Ω 校準。",
             "已取得 BioZ 研究波形${if (researchMetrics.isNotBlank()) "；$researchMetrics" else "，目前沒有足夠波形可計算衍生研究指標"}。${if (recomputedMetricShown) "缺少的摘要快取值由手機保存波形依 ${BiomedicalCalibration.BIOZ_RESEARCH_VERSION} 重算。" else ""}這些是相對訊號指標，不代表 Ω、體脂或體水。",
             Level.RESEARCH, null, true
         )

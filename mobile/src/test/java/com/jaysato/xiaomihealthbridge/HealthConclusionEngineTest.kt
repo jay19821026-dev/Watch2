@@ -48,11 +48,12 @@ class HealthConclusionEngineTest {
 
         val item = HealthConclusionEngine.biozConclusion(raw)
 
-        assertTrue(item.valueText.contains("128 點原始"))
-        assertTrue(item.valueText.contains("視窗內相對中位位置 53/100"))
-        assertTrue(item.valueText.contains("首尾區段相對振幅差 +2.5%（非跨次趨勢）"))
-        assertTrue(item.valueText.contains("波形相對離散度"))
-        assertFalse(item.valueText.contains("相對離散度反向指標"))
+        assertEquals("已收到體成分訊號，尚無體脂讀值", item.valueText)
+        assertTrue(item.clinicalCompare.contains("128 點原始"))
+        assertTrue(item.clinicalCompare.contains("視窗內相對中位位置 53/100"))
+        assertTrue(item.clinicalCompare.contains("首尾區段相對振幅差 +2.5%（非跨次趨勢）"))
+        assertTrue(item.clinicalCompare.contains("波形相對離散度"))
+        assertFalse(item.clinicalCompare.contains("相對離散度反向指標"))
         assertFalse(item.valueText.contains("Ω"))
         assertFalse(item.conclusion.contains("體脂％"))
     }
@@ -67,7 +68,7 @@ class HealthConclusionEngineTest {
 
         val item = HealthConclusionEngine.biozConclusion(raw)
 
-        assertEquals("128 點原始", item.valueText)
+        assertEquals("已收到體成分訊號，尚無體脂讀值", item.valueText)
         assertTrue(item.conclusion.contains("目前沒有足夠波形可計算衍生研究指標"))
         assertFalse(item.valueText.contains("/100"))
     }
@@ -84,9 +85,10 @@ class HealthConclusionEngineTest {
 
         val item = HealthConclusionEngine.biozConclusion(raw)
 
-        assertTrue(item.valueText.contains("64 點原始"))
-        assertTrue(item.valueText.contains("視窗內相對中位位置 50/100"))
-        assertTrue(item.valueText.contains("首尾區段相對振幅差"))
+        assertEquals("已收到體成分訊號，尚無體脂讀值", item.valueText)
+        assertTrue(item.clinicalCompare.contains("64 點原始"))
+        assertTrue(item.clinicalCompare.contains("視窗內相對中位位置 50/100"))
+        assertTrue(item.clinicalCompare.contains("首尾區段相對振幅差"))
         assertTrue(item.conclusion.contains("由手機保存波形"))
         assertTrue(item.conclusion.contains(BiomedicalCalibration.BIOZ_RESEARCH_VERSION))
         assertFalse(item.valueText.contains("Ω"))
@@ -110,11 +112,11 @@ class HealthConclusionEngineTest {
 
         val item = HealthConclusionEngine.biozConclusion(raw)
 
-        assertTrue(item.valueText.contains("視窗內相對中位位置 50/100"))
-        assertFalse(item.valueText.contains("99/100"))
-        assertFalse(item.valueText.contains("+88.0%"))
-        assertFalse(item.valueText.contains("波形相對離散度 77%"))
-        assertFalse(item.valueText.contains("資料完整度 66/100"))
+        assertTrue(item.clinicalCompare.contains("視窗內相對中位位置 50/100"))
+        assertFalse(item.clinicalCompare.contains("99/100"))
+        assertFalse(item.clinicalCompare.contains("+88.0%"))
+        assertFalse(item.clinicalCompare.contains("波形相對離散度 77%"))
+        assertFalse(item.clinicalCompare.contains("資料完整度 66/100"))
         assertTrue(item.conclusion.contains(BiomedicalCalibration.BIOZ_RESEARCH_VERSION))
     }
 
@@ -131,10 +133,11 @@ class HealthConclusionEngineTest {
         val item = HealthConclusionEngine.biozConclusion(raw)
 
         assertTrue(item.available)
-        assertTrue(item.valueText.contains("原始樣本計數 0"))
-        assertTrue(item.valueText.contains("保存波形預覽 64 點"))
-        assertTrue(item.valueText.contains("視窗內相對中位位置"))
-        assertFalse(item.valueText.contains("64 點原始"))
+        assertEquals("已收到體成分訊號，尚無體脂讀值", item.valueText)
+        assertTrue(item.clinicalCompare.contains("原始樣本計數 0"))
+        assertTrue(item.clinicalCompare.contains("保存波形預覽 64 點"))
+        assertTrue(item.clinicalCompare.contains("視窗內相對中位位置"))
+        assertFalse(item.clinicalCompare.contains("64 點原始"))
         assertFalse(item.valueText.contains("Ω"))
     }
 
@@ -144,7 +147,7 @@ class HealthConclusionEngineTest {
 
         val item = HealthConclusionEngine.biozConclusion(raw)
 
-        assertTrue(item.valueText.startsWith("128 點時間未確認的原始資料"))
+        assertEquals("已收到體成分訊號，時間未確認", item.valueText)
         assertFalse(item.valueText.contains("歷史"))
         assertTrue(item.clinicalCompare.contains("NORMALIZED_INDEX"))
         assertTrue(item.conclusion.contains("量測時間未知"))
@@ -362,7 +365,7 @@ class HealthConclusionEngineTest {
 
         assertTrue(items.all { it.valueText != "—" })
         assertTrue(items.all { it.valueText.isNotBlank() })
-        assertTrue(items.any { it.valueText.contains("0 筆原始值") })
+        assertTrue(items.any { it.id == "spo2" && it.valueText == "尚無血氧讀值" })
         assertTrue(items.any { it.id == "ecg" && it.valueText == "尚無 ECG 結果" })
     }
 
@@ -1154,7 +1157,7 @@ class HealthConclusionEngineTest {
         )
 
         assertRetainedResearchExcludedFromHealthSummary(item)
-        assertEquals("512 筆歷史原始值（無 %）", item.valueText)
+        assertEquals("較早的血氧訊號，尚無百分比", item.valueText)
         assertFalse(Regex("\\d+\\s*%").containsMatchIn(item.valueText))
         assertTrue(item.conclusion.contains("超出健康結論 10 分鐘分析輸入窗"))
     }
@@ -1170,7 +1173,7 @@ class HealthConclusionEngineTest {
 
         assertEquals(HealthConclusionEngine.Level.RESEARCH, item.level)
         assertTrue(item.available)
-        assertEquals("512 筆原始值（無 %）", item.valueText)
+        assertEquals("已收到血氧訊號，尚無百分比", item.valueText)
         assertFalse(Regex("\\d+\\s*%").containsMatchIn(item.valueText))
         assertTrue(item.conclusion.contains("無裝置級校準"))
         assertResearchExcludedFromHealthSummary(item)
@@ -1194,10 +1197,10 @@ class HealthConclusionEngineTest {
 
         assertEquals(HealthConclusionEngine.Level.RESEARCH, item.level)
         assertTrue(item.available)
-        assertTrue(item.valueText.contains("原始樣本 0"))
-        assertTrue(item.valueText.contains("原始事件 8"))
-        assertTrue(item.valueText.contains("預覽有效點 128/128"))
-        assertTrue(item.valueText.contains("索引形狀品質"))
+        assertEquals("已收到血氧訊號，尚無百分比", item.valueText)
+        assertTrue(item.clinicalCompare.contains("原始樣本 0"))
+        assertTrue(item.clinicalCompare.contains("原始事件 8"))
+        assertTrue(item.clinicalCompare.contains("預覽有效點 128/128"))
         assertTrue(item.clinicalCompare.contains("NORMALIZED_INDEX"))
         assertTrue(item.clinicalCompare.contains("research_optical"))
         assertFalse(Regex("\\d+\\s*%").containsMatchIn(item.valueText))
@@ -1310,7 +1313,7 @@ class HealthConclusionEngineTest {
             now = 10 * 60 * 1_000L
         )
 
-        assertEquals("512 筆原始值（時間未確認，無 %）", item.valueText)
+        assertEquals("已收到血氧訊號，時間未確認", item.valueText)
         assertTrue(item.conclusion.contains("時間來源未驗證"))
         assertFalse(item.conclusion.contains("已有 SpO₂ 原始通道事件"))
         assertResearchExcludedFromHealthSummary(item)
