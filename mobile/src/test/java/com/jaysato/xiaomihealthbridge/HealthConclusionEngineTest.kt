@@ -870,6 +870,7 @@ class HealthConclusionEngineTest {
         assertTrue(HealthConclusionEngine.isValidSpO2Reference(96f, 1_000L, "com.example.source"))
         assertTrue(HealthConclusionEngine.isValidSpO2Reference(96f, 1L, "com.example.source"))
         assertFalse(HealthConclusionEngine.isValidSpO2Reference(101f, 1_000L, "com.example.source"))
+        assertFalse(HealthConclusionEngine.isValidSpO2Reference(96f, System.currentTimeMillis() + 60_000L, "com.example.source"))
         assertFalse(HealthConclusionEngine.isValidSpO2Reference(96f, 1_000L, ""))
     }
 

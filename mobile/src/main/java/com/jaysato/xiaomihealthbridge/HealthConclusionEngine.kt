@@ -278,6 +278,7 @@ object HealthConclusionEngine {
         // Never invent SpO2 % from uncalibrated HAL — only conclude when external/trusted % exists.
         val reference = raw.getFloat("spo2_trusted_percent", Float.NaN).takeIf {
             it in 70f..100f && measuredAt > 0L &&
+                measuredAt <= System.currentTimeMillis() &&
                 raw.getString("spo2_trusted_source", "") in setOf("health_connect", "validated_oximeter")
         }?.toDouble()
         if (reference == null) {
@@ -321,7 +322,7 @@ object HealthConclusionEngine {
     }
 
     internal fun isValidSpO2Reference(percent: Float, measuredAt: Long, origin: String): Boolean =
-        percent in 70f..100f && measuredAt > 0L && origin.isNotBlank()
+        percent in 70f..100f && measuredAt > 0L && measuredAt <= System.currentTimeMillis() && origin.isNotBlank()
 
     internal fun rawSpO2Item(
         samples: Int,
@@ -975,7 +976,7 @@ object HealthConclusionEngine {
         val records = summary.getInt("sleep_complete_history_records", 0)
         if (hours != null && hours.isFinite() && hours > 0.0 && records > 0) {
             return Item(
-                "sleep", "睡眠", "%.1f 小時紀錄區間".format(hours),
+                "sleep", "睡眠", "近 7 日 %.1f 小時紀錄區間".format(hours),
                 "近 7 日共 $records 筆 Health Connect 睡眠 session；重疊區間已合併。",
                 "這是睡眠紀錄區間，不等同實睡時長或睡眠分期；保留數值供歷史觀察。",
                 Level.RESEARCH, null, true
