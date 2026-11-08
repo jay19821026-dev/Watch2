@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Text
+import java.time.Instant
+import java.time.ZoneId
 
 /** Round-watch Sleep glance — honest stages unavailable; detail on phone. */
 class WearSleepActivity : ComponentActivity() {
@@ -25,6 +27,8 @@ class WearSleepActivity : ComponentActivity() {
         val sessionHours = prefs.getFloat("sleep_session_hours", Float.NaN)
         val stagesComplete = prefs.getBoolean("sleep_stages_complete", false)
         val inferred = prefs.getBoolean("sleep_inferred", false)
+        val sleepEndedAt = prefs.getLong("sleep_session_end_at", 0L)
+        val sleepRecordTime = WearSleepRecencyPolicy.label(sleepEndedAt, System.currentTimeMillis(), ZoneId.systemDefault())
         val displayedHours = when {
             hours.isFinite() && hours > 0f -> hours
             sessionHours.isFinite() && sessionHours > 0f -> sessionHours
@@ -48,8 +52,8 @@ class WearSleepActivity : ComponentActivity() {
                         when {
                             inferred -> "尚無可確認的睡眠時長"
                             !displayedHours.isFinite() || displayedHours <= 0f -> "尚無睡眠紀錄"
-                            stagesComplete -> "小時 · 已扣除記錄的清醒時間"
-                            else -> "小時 · 睡眠時段，可能包含醒來時間"
+                            stagesComplete -> "小時 · $sleepRecordTime；已扣除記錄的清醒時間"
+                            else -> "小時 · $sleepRecordTime；時段可能包含醒來時間"
                         },
                         color = WearComposeUi.Secondary,
                         fontSize = 12.sp,
@@ -79,6 +83,19 @@ class WearSleepActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+}
+
+internal object WearSleepRecencyPolicy {
+    fun label(endedAt: Long, now: Long, zone: ZoneId): String {
+        if (endedAt <= 0L || endedAt > now) return "紀錄時間未確認"
+        val recordDate = Instant.ofEpochMilli(endedAt).atZone(zone).toLocalDate()
+        val today = Instant.ofEpochMilli(now).atZone(zone).toLocalDate()
+        return when {
+            recordDate == today -> "今天醒來的紀錄"
+            recordDate == today.minusDays(1) -> "昨天醒來的紀錄"
+            else -> "較早的睡眠紀錄"
         }
     }
 }

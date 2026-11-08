@@ -11,7 +11,12 @@ class WearVitalsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val dash = WearHealthStore.dashboard(this)
-        val hrSub = if (dash.heartRate > 0) "最近 ${dash.heartRate} bpm · 點一下量測" else "點一下開始量測"
+        val currentHeartRate = WearHealthStore.latestHeartBpm(this)
+        val hrSub = when {
+            currentHeartRate != null -> "最近 ${"%.0f".format(currentHeartRate)} bpm · 點一下量測"
+            dash.heartRate > 0 -> "有較早的心率紀錄 · 點一下重新量測"
+            else -> "點一下開始量測"
+        }
         val bp = WearHealthStore.latestOpticalBp(this)
         val bpSub = bp?.let { "%.0f/%.0f mmHg · 研究估計".format(it.first, it.second) }
             ?: "非醫療光學估計 · 點一下量測"

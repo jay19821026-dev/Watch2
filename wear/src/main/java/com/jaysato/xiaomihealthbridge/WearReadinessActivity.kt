@@ -22,7 +22,7 @@ class WearReadinessActivity : ComponentActivity() {
             in 4..5 -> "今日恢復狀態稍低"
             in 6..8 -> "今日恢復狀態平穩"
             in 9..10 -> "今日恢復狀態較好"
-            else -> "今日沒有恢復評估"
+            else -> "目前沒有恢復評估"
         }
         val color = when (readiness10) {
             in 0..3 -> "#FF5F57"
@@ -33,6 +33,9 @@ class WearReadinessActivity : ComponentActivity() {
         }
         val sleep = prefs.getFloat("sleep_hours", Float.NaN)
         val sleepSession = prefs.getFloat("sleep_session_hours", Float.NaN)
+        val sleepRecordTime = WearSleepRecencyPolicy.label(
+            prefs.getLong("sleep_session_end_at", 0L), System.currentTimeMillis(), java.time.ZoneId.systemDefault()
+        )
         val sleepStagesComplete = prefs.getBoolean("sleep_stages_complete", false)
         val temp = prefs.getFloat("temperature_deviation", Float.NaN)
         val timestamp = prefs.getLong("timestamp", 0L)
@@ -41,7 +44,7 @@ class WearReadinessActivity : ComponentActivity() {
             orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER_HORIZONTAL
             setPadding(dp(16), dp(18), dp(16), dp(28)); setBackgroundColor(Color.BLACK)
             addView(text("健康資料摘要", 10f, Color.rgb(100, 210, 255)))
-            addView(text("今天的紀錄", 19f, Color.WHITE))
+            addView(text("最近同步的紀錄", 19f, Color.WHITE))
             if (readiness10 >= 0) addView(TextView(context).apply {
                 text = "$readiness10 / 10"
                 textSize = 28f; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
@@ -55,8 +58,8 @@ class WearReadinessActivity : ComponentActivity() {
                 else -> "睡眠時段"
             }
             val sleepValue = when {
-                sleep.isFinite() && !prefs.getBoolean("sleep_inferred", false) -> "%.1f 小時".format(sleep)
-                sleepSession.isFinite() -> "%.1f 小時（含可能醒來時間）".format(sleepSession)
+                sleep.isFinite() && !prefs.getBoolean("sleep_inferred", false) -> "%.1f 小時 · %s".format(sleep, sleepRecordTime)
+                sleepSession.isFinite() -> "%.1f 小時 · %s（可能含醒來時間）".format(sleepSession, sleepRecordTime)
                 else -> "尚無紀錄"
             }
             addView(card(sleepLabel, sleepValue))
