@@ -349,9 +349,7 @@ class MetricDetailActivity : ComponentActivity() {
         val result = when(metric) {
         "heart_rate" -> buildList {
             records(HeartRateRecord::class, queryEnd).forEach { record ->
-                val samplesInRange = record.samples.filter {
-                    MetricPointIntegrityPolicy.isInHalfOpenRange(it.time, start, queryEnd)
-                }
+                val samplesInRange = MetricPointIntegrityPolicy.heartRateSamplesInRange(record.samples, start, queryEnd)
                 if (size + samplesInRange.size > MAX_POINTS) throw MetricHistoryLimitException()
                 addAll(samplesInRange.map { Point(it.time, it.beatsPerMinute.toDouble(), record.metadata.dataOrigin.packageName) })
             }
@@ -848,6 +846,9 @@ internal data class MetricPointEvidence(val time: Instant, val value: Double, va
 internal object MetricPointIntegrityPolicy {
     fun isInHalfOpenRange(time: Instant, start: Instant, end: Instant): Boolean =
         !time.isBefore(start) && time.isBefore(end)
+
+    fun heartRateSamplesInRange(samples: List<HeartRateRecord.Sample>, start: Instant, end: Instant): List<HeartRateRecord.Sample> =
+        samples.filter { isInHalfOpenRange(it.time, start, end) }
 
     fun isValid(point: MetricPointEvidence, start: Instant, end: Instant): Boolean =
         point.value.isFinite() && point.source.isNotBlank() &&

@@ -1,5 +1,6 @@
 package com.jaysato.xiaomihealthbridge
 
+import androidx.health.connect.client.records.HeartRateRecord
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -15,6 +16,20 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MetricDetailAggregationTest {
+    @Test
+    fun heartRateRecordCrossingWindowKeepsOnlySamplesMeasuredInsideWindow() {
+        val start = Instant.parse("2026-09-28T00:00:00Z")
+        val end = start.plusSeconds(86_400)
+        val samples = listOf(
+            HeartRateRecord.Sample(start.minusSeconds(1), 60),
+            HeartRateRecord.Sample(start, 70),
+            HeartRateRecord.Sample(end.minusNanos(1), 80),
+            HeartRateRecord.Sample(end, 90)
+        )
+
+        assertEquals(listOf(70L, 80L), MetricPointIntegrityPolicy.heartRateSamplesInRange(samples, start, end).map { it.beatsPerMinute })
+    }
+
     @Test
     fun temperatureChartUsesHalfHourDayAndMonthBucketsInLocalTime() {
         val zone = ZoneId.of("Asia/Taipei")
