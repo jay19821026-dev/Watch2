@@ -271,6 +271,20 @@ internal object HealthInsightInputPolicy {
     }
 }
 
+internal object HealthInsightWindowPolicy {
+    fun lastSevenLocalDatesStart(now: Instant, zone: ZoneId): Instant =
+        now.atZone(zone).toLocalDate().minusDays(6).atStartOfDay(zone).toInstant()
+
+    fun <T> retainOverlappingIntervals(
+        records: List<T>, start: Instant, end: Instant,
+        recordStart: (T) -> Instant, recordEnd: (T) -> Instant
+    ): List<T> = records.filter { record ->
+        val from = recordStart(record)
+        val to = recordEnd(record)
+        from.isBefore(to) && from.isBefore(end) && to.isAfter(start)
+    }
+}
+
 object HealthConnectActivityObservationPolicy {
     enum class State { AVAILABLE, PARTIAL, NO_RECORDS, PERMISSION_DENIED, PERMISSION_STATE_FAILED, READ_FAILED, DEFERRED }
 
@@ -443,12 +457,12 @@ class AlgorithmicInsightsEngine(context: Context) {
 
     suspend fun calculate(): Insights {
         val now = Instant.now()
-        val start = now.minus(7, ChronoUnit.DAYS)
-        val filter = TimeRangeFilter.between(start, now)
         val localZone = ZoneId.systemDefault()
         val today = now.atZone(localZone).toLocalDate()
+        val start = HealthInsightWindowPolicy.lastSevenLocalDatesStart(now, localZone)
+        val filter = TimeRangeFilter.between(start, now)
         val todayStart = DailyEnergyEstimate.startOfLocalDay(now, localZone)
-        val completeDailyWindowStart = today.minusDays(7).atStartOfDay(localZone).toInstant()
+        val completeDailyWindowStart = start
         val activityCaloriesFilter = TimeRangeFilter.between(completeDailyWindowStart, now)
         val granted = try {
             client.permissionController.getGrantedPermissions()
@@ -506,7 +520,7 @@ class AlgorithmicInsightsEngine(context: Context) {
             }
             return records
         }
-        val observationStart = today.minusDays(6).atStartOfDay(localZone).toInstant()
+        val observationStart = start
         val observationPeriodRange = HealthConnectActivityObservationPolicy.localDailyPeriodRange(
             today.minusDays(6), now, localZone
         )
@@ -628,7 +642,7 @@ class AlgorithmicInsightsEngine(context: Context) {
         )
         val heartRateOrigin = heartRates?.firstOrNull()?.metadata?.dataOrigin?.packageName
         val samples = heartRates.orEmpty().asSequence().flatMap { it.samples.asSequence() }
-            .filter { it.beatsPerMinute in 30L..220L }
+            .filter { it.beatsPerMinute in 30L..220L && !it.time.isBefore(start) && !it.time.isAfter(now) }
             .sortedBy { it.time }
             .toList()
 
@@ -740,11 +754,12 @@ class AlgorithmicInsightsEngine(context: Context) {
                 Duration.between(it.startTime, it.endTime).toMillis().toDouble()
             )
         }
-        val rawSleep = readContainedIntervals(
-            "睡眠", HealthPermission.getReadPermission(SleepSessionRecord::class), start, now,
-            read = { client.readAllRecords(SleepSessionRecord::class, filter) },
-            recordStart = { it.startTime }, recordEnd = { it.endTime }
-        )
+        val rawSleep = readRecords("睡眠", HealthPermission.getReadPermission(SleepSessionRecord::class)) {
+            HealthInsightWindowPolicy.retainOverlappingIntervals(
+                client.readAllRecords(SleepSessionRecord::class, filter), start, now,
+                { it.startTime }, { it.endTime }
+            )
+        }
         val sleep = selectUnambiguousSource(
             "睡眠", rawSleep, origin = { it.metadata.dataOrigin.packageName },
             completeness = { 1 }, measuredAt = { it.endTime }

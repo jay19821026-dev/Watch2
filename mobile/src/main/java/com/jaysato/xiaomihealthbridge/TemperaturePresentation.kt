@@ -22,14 +22,17 @@ internal object TemperaturePresentation {
             value?.let { channel.copy(value = it) }
         }
         return available.filter { freshness(it, now) == "fresh" }
-            .maxByOrNull(Channel::measuredAt) ?: available.firstOrNull()
+            .maxByOrNull(Channel::measuredAt)
+            ?: available.filter { freshness(it, now) == "stale" }
+                .maxByOrNull(Channel::measuredAt)
+            ?: available.firstOrNull()
     }
 
     fun freshness(channel: Channel, now: Long): String = when {
         channel.measuredAt <= 0L -> "measurement_time_missing"
         channel.measuredAt > now -> "future_timestamp"
-        !HealthAnalysisFreshnessPolicy.hasTrustedSensorTimestamp(channel.timestampSource) -> "timestamp_untrusted"
-        HealthAnalysisFreshnessPolicy.isFreshSensor(
+        !HealthAnalysisFreshnessPolicy.hasTrustedMeasurementTimestamp(channel.timestampSource) -> "timestamp_untrusted"
+        HealthAnalysisFreshnessPolicy.isFreshMeasurement(
             channel.measuredAt, channel.timestampSource, now, MAX_AGE_MILLIS
         ) -> "fresh"
         else -> "stale"

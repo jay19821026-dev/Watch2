@@ -184,6 +184,8 @@ class WearControlService : WearableListenerService() {
             }
             PATH_TEMPERATURE_NOW -> startTemperatureMeasurement()
             PATH_PPG_NOW -> startRawVitals(RawVitalsProbe.Kind.PPG)
+            PATH_PPG_HR_RAW_NOW -> startRawVitals(RawVitalsProbe.Kind.MAX_HEART_RATE)
+            PATH_PPG_SPO2_RAW_NOW -> startRawVitals(RawVitalsProbe.Kind.SPO2)
             PATH_ECG_NOW -> startRawVitals(RawVitalsProbe.Kind.ECG)
             PATH_BIOZ_NOW -> startRawVitals(RawVitalsProbe.Kind.BIOZ)
             PATH_OFF_BODY_NOW -> startRawVitals(RawVitalsProbe.Kind.OFF_BODY)
@@ -205,6 +207,8 @@ class WearControlService : WearableListenerService() {
         when (intent?.action) {
             ACTION_MEASURE_TEMPERATURE -> startTemperatureMeasurement()
             ACTION_MEASURE_PPG -> startRawVitals(RawVitalsProbe.Kind.PPG)
+            ACTION_MEASURE_PPG_HR_RAW -> startRawVitals(RawVitalsProbe.Kind.MAX_HEART_RATE)
+            ACTION_MEASURE_PPG_SPO2_RAW -> startRawVitals(RawVitalsProbe.Kind.SPO2)
             ACTION_MEASURE_ECG -> startRawVitals(RawVitalsProbe.Kind.ECG)
             ACTION_MEASURE_BIOZ -> startRawVitals(RawVitalsProbe.Kind.BIOZ)
             ACTION_SENSOR_SUITE -> startSensorSuite()
@@ -2211,12 +2215,16 @@ class WearControlService : WearableListenerService() {
         const val PATH_OXYGEN_NOW = "/control/oxygen-now"
         const val PATH_TEMPERATURE_NOW = "/control/temperature-now"
         const val PATH_PPG_NOW = "/control/ppg-now"
+        const val PATH_PPG_HR_RAW_NOW = "/control/ppg-hr-raw-now"
+        const val PATH_PPG_SPO2_RAW_NOW = "/control/ppg-spo2-raw-now"
         const val PATH_ECG_NOW = "/control/ecg-now"
         const val PATH_BIOZ_NOW = "/control/bioz-now"
         const val PATH_OFF_BODY_NOW = "/control/off-body-now"
         const val PATH_SENSOR_SUITE = "/control/sensor-suite"
         const val ACTION_MEASURE_TEMPERATURE = "com.jaysato.xiaomihealthbridge.MEASURE_TEMPERATURE"
         const val ACTION_MEASURE_PPG = "com.jaysato.xiaomihealthbridge.MEASURE_PPG"
+        const val ACTION_MEASURE_PPG_HR_RAW = "net.ailisa.healthbridge.MEASURE_PPG_HR_RAW"
+        const val ACTION_MEASURE_PPG_SPO2_RAW = "net.ailisa.healthbridge.MEASURE_PPG_SPO2_RAW"
         const val ACTION_MEASURE_ECG = "com.jaysato.xiaomihealthbridge.MEASURE_ECG"
         const val ACTION_MEASURE_BIOZ = "com.jaysato.xiaomihealthbridge.MEASURE_BIOZ"
         const val ACTION_SENSOR_SUITE = "com.jaysato.xiaomihealthbridge.SENSOR_SUITE"

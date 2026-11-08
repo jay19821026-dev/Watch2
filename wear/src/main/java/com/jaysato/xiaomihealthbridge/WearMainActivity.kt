@@ -326,6 +326,11 @@ class WearMainActivity : ComponentActivity() {
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
+                addView(measureButton("心率光學 raw", WearControlService.ACTION_MEASURE_PPG_HR_RAW, "#D94672"), LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = dp(4) })
+                addView(measureButton("血氧光學 raw", WearControlService.ACTION_MEASURE_PPG_SPO2_RAW, "#258C9C"), LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginStart = dp(4) })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
                 addView(measureButton("體溫", WearControlService.ACTION_MEASURE_TEMPERATURE, "#FFB347"), LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = dp(4) })
                 addView(measureButton("全掃描", WearControlService.ACTION_SENSOR_SUITE, "#56AEFF"), LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginStart = dp(4) })
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })

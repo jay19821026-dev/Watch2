@@ -6,6 +6,18 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TemperaturePresentationTest {
+    @Test
+    fun healthServicesMeasurementTimeIsTrustedAndNewestHistoricalReadingWins() {
+        val now = 200_000_000L
+        val older = channel("thermometer", 1_000L, 31.0).copy(
+            timestampSource = HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE
+        )
+        val newer = older.copy(source = "feature", value = 32.0, measuredAt = 2_000L)
+
+        assertEquals("stale", TemperaturePresentation.freshness(newer, now))
+        assertEquals(newer, TemperaturePresentation.select(listOf(older, newer), now))
+        assertEquals("fresh", TemperaturePresentation.freshness(newer, 2_500L))
+    }
     private val now = 200_000_000L
     private val trusted = "android_sensor_event_elapsed_realtime"
 

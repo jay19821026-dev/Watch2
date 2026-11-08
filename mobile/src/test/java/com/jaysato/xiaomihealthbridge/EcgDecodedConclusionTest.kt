@@ -28,4 +28,17 @@ class EcgDecodedConclusionTest {
         assertTrue(item.conclusion.contains("不能據此判定正常／異常"))
         assertTrue(item.conclusion.contains("胸痛／胸悶"))
     }
+
+    @Test
+    fun freshDecodedSubsetProducesSpecificResearchConclusionWithoutClinicalLabel() {
+        val item = HealthConclusionEngine.ecgConclusion(
+            samples = 0, eventCount = 573, qualityScore = 64, hr = null,
+            rrCount = 0, titleRhythm = null, measuredAt = 1000, now = 2000,
+            timestampSource = "sensor_event", decodedEventCount = 263, decodedValueCount = 2630
+        )
+        assertEquals("2630 點 · 研究解碼", item.valueText)
+        assertTrue(item.conclusion.contains("263 個事件形成 2630 個研究波形點"))
+        assertTrue(item.conclusion.contains("不輸出 bpm"))
+        assertFalse(item.conclusion.contains("正常心律"))
+    }
 }

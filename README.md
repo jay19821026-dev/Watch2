@@ -10,7 +10,7 @@ AILISA Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 
 > 上圖為不含真實個資的示意圖；實際功能與支援項目以原始碼、裝置能力及 `SUPPORT_MATRIX.md` 為準。
 
-目前測試版本：`4.0.0` test 25（雙端 Debug versionCode `193`）。原始碼同時包含：
+目前開發版本：`4.0.0` test 26（雙端 Debug versionCode `196`）；公開下載仍為 test 25，test 26 待雙端實機驗證。原始碼同時包含：
 
 - `mobile/`：Android 手機 App
 - `wear/`：Wear OS 手錶 App
@@ -94,6 +94,10 @@ Mi Fitness 9.8.348i 的 clean-room 靜態反組譯、資料管線差異、可合
 Watch 2 Pro 4.0 原廠手錶 APK、ECG 啟用閘門與功能入口逐項盤點，請見 [`docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`](docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md)。
 
 PPG、BioZ、ECG 的原廠感測器擷取與結果服務，以及 AILISA 可寫入 Health Connect 的資料邊界，請見[中英文訊號對照](docs/OEM_PPG_BIOZ_ECG_HEALTH_CONNECT_TRACE.md)。原始事件不會冒充經校準的生理或醫療結果。
+
+資料時間範圍與原廠同步封裝的差異，請見[中英文資料時間窗對照](docs/OEM_DATA_WINDOW_COMPARISON_4_0.md)。
+
+原廠每項功能的量測呼叫、AILISA 現況與仍缺的原廠結果，見[完整中英文差異清單](docs/OEM_TO_AILISA_FEATURE_GAP_4_0.md)。
 
 手機共用 APK 的完整功能類別、產品功能鍵與這隻 Watch 2 Pro 即時感測器清單的中英文對照，請見 [`docs/OEM_APK_CAPABILITY_BREAKDOWN.md`](docs/OEM_APK_CAPABILITY_BREAKDOWN.md)。
 

@@ -53,6 +53,45 @@ class ClinicalLabActivity : ComponentActivity() {
             setOnClickListener { startActivity(Intent(this@ClinicalLabActivity, PpgEvidenceActivity::class.java)) }
         })
         body.addView(disclaimerBanner(), margins(top = 12, bottom = 16))
+        body.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(14), dp(14), dp(14), dp(14))
+            setBackgroundColor(Color.rgb(24, 31, 44))
+            addView(TextView(this@ClinicalLabActivity).apply {
+                text = "原廠使用的光學原始通道"
+                textSize = 17f; setTextColor(Color.WHITE)
+            })
+            addView(TextView(this@ClinicalLabActivity).apply {
+                text = "心率 PPG＝65597；血氧 PPG＝65596。兩者是原始事件，並非已計算的 bpm 或 SpO₂ 百分比。"
+                textSize = 12f; setTextColor(HealthVisuals.secondary)
+            }, margins(top = 6))
+            val state = TextView(this@ClinicalLabActivity).apply {
+                text = "選擇通道並在手錶佩戴狀態擷取。"
+                textSize = 12f; setTextColor(HealthVisuals.secondary)
+            }
+            listOf(
+                Triple("擷取心率光學 raw", "/control/ppg-hr-raw-now", "max_hr"),
+                Triple("擷取血氧光學 raw", "/control/ppg-spo2-raw-now", "spo2_raw")
+            ).forEach { (label, command, kind) ->
+                addView(Button(this@ClinicalLabActivity).apply {
+                    text = label; isAllCaps = false
+                    setOnClickListener {
+                        sendWatchCommand(command) { outcome ->
+                            state.text = WearCommandDispatcher.feedback(outcome,
+                                "命令已送達；資料同步後點選下方查看來源。")
+                        }
+                    }
+                }, margins(top = 8))
+                addView(Button(this@ClinicalLabActivity).apply {
+                    text = "查看${label.removePrefix("擷取")}資料"; isAllCaps = false
+                    setOnClickListener {
+                        startActivity(Intent(this@ClinicalLabActivity, RawSensorDetailActivity::class.java)
+                            .putExtra("kind", kind))
+                    }
+                })
+            }
+            addView(state, margins(top = 6))
+        }, margins(bottom = 16))
         body.addView(advancedSection("進階：ECG 校準工具", automaticEcgCalibrationPanel()), margins(bottom = 16))
         listOf(
             Modality("ppg", "PPG", "光學脈搏", Color.rgb(255, 90, 120), "/control/ppg-now"),
@@ -1249,9 +1288,15 @@ object WatchFeatureInventory {
         Item("心率 MeasureClient", State.ON, "手錶前景／掃描可量測並同步"),
         Item("步數／距離／卡路里被動同步", State.ON, "PassiveListener 已註冊公開型別"),
         Item("運動／GPS 步行", State.ON, "手錶可啟動步行工作階段"),
-        Item("SpO₂ 原始擷取", State.PARTIAL, "HAL／OEM 頁可擷取；未公開百分比校準，Health Services 無標準型別"),
-        Item("溫度原始通道", State.ON, "可擷取原始值；單位／整機校準未驗證，不換算體溫"),
-        Item("PPG／ECG／BIOZ 原始訊號品質", State.ON, "研究實驗室＋手錶快捷鍵；不宣稱醫療校準"),
+        Item("SpO₂ 光學原始通道 65596", State.PARTIAL, "已提供手動擷取；原廠百分比由服務 20485 回傳，原始值沒有已驗證換算"),
+        Item("溫度原始通道 65590／65591", State.PARTIAL, "可擷取原始值；原廠服務 20500 的結果與 raw 欄位分開，不換算為體溫"),
+        Item("心率光學 65597／一般 PPG 65572", State.PARTIAL, "已提供分開擷取；本次需有事件、時間及品質證據才顯示研究結論"),
+        Item("ECG 65573／BioZ 65599", State.PARTIAL, "已提供原始事件與研究結論；原廠私有演算法、校準及啟用狀態不由本 App 代替"),
+        Item("原廠 ECG 啟用與心律結果", State.UNAVAILABLE, "原廠 ECG 畫面讀取服務啟用狀態並使用 libfitness；本 App 只有獨立原始研究路徑"),
+        Item("原廠體成分數值", State.UNAVAILABLE, "原廠服務 20487 回傳體成分結果；BioZ 65599 原始值無已驗證換算"),
+        Item("原廠血氧百分比", State.UNAVAILABLE, "原廠服務 20485 回傳結果；可另讀已授權的 Health Connect 血氧紀錄"),
+        Item("原廠溫度結果", State.UNAVAILABLE, "原廠服務 20500 回傳 float；本 App 的 65590／65591 原始值不冒充該結果"),
+        Item("原廠壓力數值", State.UNAVAILABLE, "原廠壓力頁使用服務 20486；目前無相同來源的授權結果"),
         Item("全感測器掃描", State.ON, "依序獨占 MAX86178"),
         Item("離腕／佩戴校正", State.ON, "Android off-body 語意"),
         Item("指南針／返航", State.ON, "手錶端獨立頁"),
@@ -1260,8 +1305,8 @@ object WatchFeatureInventory {
         Item("靜止心率長期自動", State.UNAVAILABLE, "缺少可靠靜止狀態 API"),
         Item("HRV／逐拍 RR（Health Services）", State.UNAVAILABLE, "標準型別未暴露；僅波形研究估計"),
         Item("呼吸速率自動", State.UNAVAILABLE, "無公開感測器；可手動輸入"),
-        Item("血壓硬體", State.UNAVAILABLE, "Watch 2 Pro 無血壓感測器／API"),
-        Item("睡眠分期 REM／深睡", State.UNAVAILABLE, "HC 僅總時長級"),
+        Item("血壓硬體", State.UNAVAILABLE, "本機感測器清單未見可驗證血壓量測通道；可記錄外部袖帶讀值"),
+        Item("睡眠分期 REM／深睡", State.UNAVAILABLE, "原廠有私有睡眠解析；目前沒有可驗證的本機分期來源紀錄"),
         Item("壓力／PAI／身體電量（小米私有）", State.UNAVAILABLE, "無第三方 API，不破解 HAL")
     )
 }

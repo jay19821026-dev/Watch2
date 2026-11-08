@@ -114,24 +114,27 @@ class AiHealthAnalysisActivity : ComponentActivity() {
                 addView(text("其他已完成的單項結果仍保留；沒有以合成數值替代。", 12f, Color.WHITE), lp(top = 8))
             }, lp(bottom = 12))
         }
+        val lead = AnalysisLeadSummary.from(measurementReport.items)
         content.addView(panel().apply {
-            addView(text("健康量測判讀", 18f, Color.WHITE, true))
-            addView(text(engineAnalysis.measurements.headline, 20f, Color.WHITE, true), lp(top = 8))
-            addView(text(engineAnalysis.measurements.detail, 12f, HealthVisuals.secondary), lp(top = 4))
-            val stateColor = when {
-                result.measuredAttentionCount > 0 -> Color.rgb(255, 101, 119)
-                result.measuredWatchCount > 0 -> Color.rgb(255, 190, 77)
-                result.measuredNormalCount > 0 -> Color.rgb(57, 211, 151)
-                else -> HealthVisuals.blue
+            addView(text("目前結論", 16f, HealthVisuals.secondary, true))
+            addView(text(lead.headline, 21f, Color.WHITE, true), lp(top = 8))
+            lead.recordedLines.forEach { addView(text(it, 16f, Color.WHITE), lp(top = 8)) }
+            if (lead.researchLines.isNotEmpty()) {
+                addView(text("原始訊號", 14f, HealthVisuals.secondary, true), lp(top = 12))
+                lead.researchLines.forEach { addView(text(it, 14f, Color.WHITE), lp(top = 6)) }
             }
-            addView(text(result.measurementHeadline, 17f, stateColor, true), lp(top = 10))
-            addView(text(result.measurementDetail, 12f, HealthVisuals.secondary), lp(top = 4))
-            addView(text("${measurementReport.overallHeadline}\n${measurementReport.overallDetail}", 12f, Color.WHITE), lp(top = 6))
+            addView(text("下一步：${lead.nextAction}", 13f, HealthVisuals.blue), lp(top = 14))
+            addView(Button(context).apply {
+                text = "查看來源與判讀依據"; isAllCaps = false
+                setOnClickListener {
+                    showDetail("量測依據", "${engineAnalysis.measurements.headline}\n${engineAnalysis.measurements.detail}\n\n${measurementReport.overallHeadline}\n${measurementReport.overallDetail}")
+                }
+            }, lp(top = 8))
         }, lp(bottom = 14))
         if (insights.readiness == null) {
             content.addView(panel().apply {
-                addView(text("恢復／準備度分數未計算", 17f, Color.WHITE, true))
-                addView(text("${result.headline}。HRV 個人基準、有效睡眠或時間配對資料不足，只限制這項複合分數；不影響上方已取得的單項量測判讀。", 13f, HealthVisuals.secondary), lp(top = 6))
+                addView(text("恢復分數等待資料", 16f, Color.WHITE, true))
+                addView(text("需要近期 HRV、睡眠與時間配對資料；上方已取得的單項結果仍可查看。", 13f, HealthVisuals.secondary), lp(top = 6))
                 addView(Button(context).apply {
                     text = "查看缺少的輸入"; isAllCaps = false
                     setOnClickListener {
@@ -148,14 +151,9 @@ class AiHealthAnalysisActivity : ComponentActivity() {
             LocalAiHealthAnalyzer.Level.ATTENTION -> Color.rgb(255, 101, 119)
         }
         content.addView(panel().apply {
-            addView(text(if (result.score != null) "恢復觀察 · 規則估分" else "資料摘要", 13f, HealthVisuals.secondary))
-            val summaryValue = result.score?.toString() ?: when {
-                result.observedValueCount > 0 -> "已有部分資料"
-                result.level == LocalAiHealthAnalyzer.Level.INSUFFICIENT -> "等待資料"
-                else -> "資料觀察"
-            }
-            addView(text(summaryValue, if (result.score == null) 28f else 54f, color, true))
-            addView(text(result.headline, 18f, Color.WHITE, true))
+            addView(text(if (result.score != null) "恢復觀察 · 規則估分" else "已記錄的其他資料", 13f, HealthVisuals.secondary))
+            result.score?.let { addView(text(it.toString(), 54f, color, true)) }
+            if (result.score != null) addView(text(result.headline, 18f, Color.WHITE, true))
             insights.latestObservedRestingHeartRateBpm?.let {
                 addView(text("靜息心率  ${"%.0f".format(it)} bpm\n${insights.latestObservedRestingHeartRateAt?.atZone(java.time.ZoneId.systemDefault())?.format(java.time.format.DateTimeFormatter.ofPattern("MM/dd HH:mm")) ?: "時間未知"}", 23f, Color.WHITE), lp(top = 8))
             }

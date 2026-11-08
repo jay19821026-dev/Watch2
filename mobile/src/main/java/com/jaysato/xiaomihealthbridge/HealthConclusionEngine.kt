@@ -422,6 +422,8 @@ object HealthConclusionEngine {
         decodedEventCount: Int = 0,
         decodedValueCount: Int = 0
     ): Item {
+        val decoded = decodedEventCount > 0 && decodedEventCount <= eventCount && decodedValueCount > 0
+        val evidencePoints = if (decoded) maxOf(samples, decodedValueCount) else samples
         val provenance = buildString {
             append("來源：公開 Sensor HAL 原始通道")
             append(" · 時間來源：${timestampSource?.takeIf(String::isNotBlank) ?: "UNKNOWN"}")
@@ -434,9 +436,8 @@ object HealthConclusionEngine {
                 }
             )
         }
-        if (samples <= 0 || measuredAt <= 0L || now - measuredAt !in 0..TEN_MINUTES) {
-            if (samples > 0 || eventCount > 0) {
-                val decoded = decodedEventCount > 0 && decodedEventCount <= eventCount && decodedValueCount > 0
+        if (evidencePoints <= 0 || measuredAt <= 0L || now - measuredAt !in 0..TEN_MINUTES) {
+            if (evidencePoints > 0 || eventCount > 0) {
                 val evidence = if (decoded) "$eventCount 個原始事件 · $decodedEventCount 個研究解碼事件／$decodedValueCount 點"
                     else if (samples > 0) "$samples 點歷史原始資料" else "$eventCount 個歷史原始事件"
                 return Item(
@@ -451,9 +452,17 @@ object HealthConclusionEngine {
                 Level.UNAVAILABLE, null, false)
         }
         val compare = buildString {
-            append("原始樣本 $samples · 工程訊號品質 ${ResearchScoreDisplay.format(qualityScore)}")
+            append(if (decoded) "研究解碼 $decodedEventCount/$eventCount 個事件 · $decodedValueCount 點" else "原始樣本 $samples")
+            append(" · 工程訊號品質 ${ResearchScoreDisplay.format(qualityScore)}")
             if (rrCount > 0) append(" · 研究 RR 間隔數 $rrCount")
             append(" · $provenance · 無裝置級臨床驗證")
+        }
+        if (samples <= 0 && decoded) {
+            return Item(
+                "ecg", "ECG", "$decodedValueCount 點 · 研究解碼", compare,
+                "本次取得 $eventCount 個 ECG 原始事件，其中 $decodedEventCount 個事件形成 $decodedValueCount 個研究波形點。已能確認資料存在；逐點時鐘與裝置校準尚未驗證，因此不輸出 bpm 或正常／異常心律判讀。請查看波形並保持電極接觸後重測。$ECG_RESEARCH_SAFETY_NOTE",
+                Level.RESEARCH, null, true
+            )
         }
         if (samples < MIN_ECG_SAMPLES) {
             return Item(
@@ -652,10 +661,12 @@ object HealthConclusionEngine {
                 "沒有可用的有限裝置讀值。", Level.UNAVAILABLE, null, false)
         }
         val trustedMeasurementTime = measuredAt > 0L &&
-            HealthAnalysisFreshnessPolicy.hasTrustedSensorTimestamp(timestampSource) && measuredAt <= now
+            HealthAnalysisFreshnessPolicy.hasTrustedMeasurementTimestamp(timestampSource) && measuredAt <= now
+        val measurementTimeOrigin = if (timestampSource == HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE)
+            "Health Services 資料點時間" else "感測事件時間"
         val timeDescription = when {
             trustedMeasurementTime && now - measuredAt <= 24 * 60 * 60 * 1000L ->
-                "量測時間 ${DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(java.util.Date(measuredAt))}（感測事件時間）"
+                "量測時間 ${DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(java.util.Date(measuredAt))}（$measurementTimeOrigin）"
             trustedMeasurementTime ->
                 "歷史量測時間 ${DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(java.util.Date(measuredAt))}（超過 24 小時）"
             receivedAt > 0L && receivedAt <= now ->

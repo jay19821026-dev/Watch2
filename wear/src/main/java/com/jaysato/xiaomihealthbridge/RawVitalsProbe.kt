@@ -567,19 +567,19 @@ class RawVitalsProbe(
         val hasRawValueCount: Boolean = biomedical
     ) {
         HEART_RATE("heart_rate_raw", "心率感測通道", "android.sensor.heart_rate", biomedical = true),
-        MAX_HEART_RATE("max_hr", "MAX86178 光學心率封包", "com.google.wear.sensor.hr", biomedical = true, needsOemMode = true),
+        MAX_HEART_RATE("max_hr", "心率光學原始通道 65597", "com.google.wear.sensor.hr", biomedical = true, needsOemMode = true),
         MI_SPO2("mi_spo2", "Xiaomi SpO₂ 演算法", "com.google.wear.sensor.mi.spo2", biomedical = true, needsOemMode = true),
-        SPO2("spo2_raw", "SpO₂ 原始通道", "com.google.wear.sensor.spo2", biomedical = true, needsOemMode = true),
-        PPG("ppg", "PPG 光學波形", "com.google.wear.sensor.ppg", biomedical = true, needsOemMode = true),
-        ECG("ecg", "ECG 原始事件值", "com.google.wear.sensor.ecg", biomedical = true, needsContact = true),
-        BIOZ("bioz", "BIOZ 阻抗波形", "com.google.wear.sensor.bioz", biomedical = true, needsOemMode = true, needsContact = true),
+        SPO2("spo2_raw", "血氧光學原始通道 65596", "com.google.wear.sensor.spo2", biomedical = true, needsOemMode = true),
+        PPG("ppg", "一般 PPG 原始通道 65572", "com.google.wear.sensor.ppg", biomedical = true, needsOemMode = true),
+        ECG("ecg", "ECG 原始事件值 65573", "com.google.wear.sensor.ecg", biomedical = true, needsContact = true),
+        BIOZ("bioz", "BioZ 阻抗原始通道 65599", "com.google.wear.sensor.bioz", biomedical = true, needsOemMode = true, needsContact = true),
         BIOZ_RESPIRATION(
             "bioz_respiration", "呼吸研究（BioZ）", "com.google.wear.sensor.bioz",
             biomedical = true, needsOemMode = true, needsContact = true
         ),
         LIFE_Q_OTT("lifeq_ott", "LifeQ OTT 通道", "com.lifeq.wear.sensor.ott", biomedical = true, needsOemMode = true),
-        BODY_TEMPERATURE("body_temperature_raw", "體表溫度原始通道", "com.google.wear.sensor.bodytemperature", hasRawValueCount = true),
-        THERMOMETER("thermometer", "溫度演算法通道", "com.google.wear.sensor.algo.temperature", hasRawValueCount = true),
+        BODY_TEMPERATURE("body_temperature_raw", "體表溫度原始通道 65590", "com.google.wear.sensor.bodytemperature", hasRawValueCount = true),
+        THERMOMETER("thermometer", "溫度演算法通道 65591", "com.google.wear.sensor.algo.temperature", hasRawValueCount = true),
         BOARD_TEMPERATURE("board_temperature", "主板溫度", "com.google.wear.sensor.boardtemperature"),
         TEMPERATURE_ALARM("temperature_alarm", "溫度警示", "com.google.wear.sensor.temperature_alarm"),
         PRESSURE("pressure", "氣壓計", "android.sensor.pressure"),

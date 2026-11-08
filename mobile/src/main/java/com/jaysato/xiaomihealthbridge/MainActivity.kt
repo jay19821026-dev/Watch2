@@ -265,6 +265,8 @@ class MainActivity : ComponentActivity() {
             addView(actionButton("啟動手錶體表溫度量測") { sendWatchCommand("/control/temperature-now") }, margins(top = 10))
             addView(actionButton("啟動手錶 SpO₂ 感測") { sendWatchCommand("/control/oxygen-now") }, margins(top = 10))
             addView(actionButton("啟動 PPG 原始波形擷取") { sendWatchCommand("/control/ppg-now") }, margins(top = 10))
+            addView(actionButton("擷取原廠心率光學通道原始值（65597）") { sendWatchCommand("/control/ppg-hr-raw-now") }, margins(top = 10))
+            addView(actionButton("擷取原廠血氧光學通道原始值（65596）") { sendWatchCommand("/control/ppg-spo2-raw-now") }, margins(top = 10))
             addView(actionButton("查看手錶血壓限制說明") { sendWatchCommand("/control/optical-bp-now") }, margins(top = 10))
             addView(actionButton("啟動 ECG 研究量測") { sendWatchCommand("/control/ecg-now") }, margins(top = 10))
             addView(actionButton("啟動 BioZ 原始波形擷取") { sendWatchCommand("/control/bioz-now") }, margins(top = 10))
