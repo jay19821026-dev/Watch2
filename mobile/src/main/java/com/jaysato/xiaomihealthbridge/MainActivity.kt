@@ -1042,18 +1042,18 @@ class MainActivity : ComponentActivity() {
                             "kg · 使用你儲存的個人資料；非本次量測，更新日期未記錄", EMPTY_TREND)
                     }
                 }
-                stepsCard.text = metricText("步數", steps?.let { "%,d".format(it) } ?: "— —", "步 · ${aggregateUnavailableReason("步數", aggregateSteps?.toDouble(), aggregateStepOrigins)}；7 日原始紀錄趨勢${trendStatusSuffix(stepTrendAssessment)}", sparkline(stepTrendValues))
+                stepsCard.text = metricText("步數", steps?.let { "%,d".format(it) } ?: "— —", if (steps != null) "步 · 今日累計" else "今天沒有步數紀錄", sparkline(stepTrendValues))
                 val calorieDetail = when {
-                    calories != null -> "大卡 · Health Connect 去重彙總；7 日原始紀錄趨勢${trendStatusSuffix(calorieTrendAssessment)}"
-                    latestDailyCalories != null -> "大卡 · ${latestDailyCalories.date} 可讀紀錄 · ${if (latestDailyCalories.isSourceMaximum) "來源最高值，非去重總熱量" else "單一來源紀錄，非彙總"}；7 日原始紀錄趨勢${trendStatusSuffix(calorieTrendAssessment)}"
-                    else -> "大卡 · ${aggregateUnavailableReason("活動卡路里", aggregateCalories?.inKilocalories, aggregateCalorieOrigins)}；7 日原始紀錄趨勢${trendStatusSuffix(calorieTrendAssessment)}"
+                    calories != null -> "大卡 · 今日活動消耗"
+                    latestDailyCalories != null -> "大卡 · ${latestDailyCalories.date} 的紀錄"
+                    else -> "今天沒有活動熱量紀錄"
                 }
                 caloriesCard.text = metricText("消耗的熱量", (calories ?: latestDailyCalories?.kilocalories)?.let { "%,.0f".format(it) } ?: "— —", calorieDetail, sparkline(calorieTrendValues))
                 sleepCard.text = metricText(
-                    "睡眠時段", sleepHours?.let { "%.1f".format(it) } ?: "— —", "小時 · Health Connect session 時長（未依睡眠階段核算實睡時數）· $sleepValueSource；7 日交集 session 趨勢${trendStatusSuffix(sleepTrendAssessment)}",
+                    "睡眠時段", sleepHours?.let { "%.1f".format(it) } ?: "— —", if (sleepHours != null) "小時 · 睡眠紀錄時長" else "沒有近期睡眠紀錄",
                     sparkline(sleepTrendValues)
                 )
-                distanceCard.text = metricText("距離", distance?.let { "%.2f".format(it / 1000) } ?: "— —", "km · ${aggregateUnavailableReason("距離", aggregateDistance?.inMeters, aggregateDistanceOrigins)}；7 日原始紀錄趨勢${trendStatusSuffix(distanceTrendAssessment)}", sparkline(distanceTrendValues))
+                distanceCard.text = metricText("距離", distance?.let { "%.2f".format(it / 1000) } ?: "— —", if (distance != null) "km · 今日累計" else "今天沒有距離紀錄", sparkline(distanceTrendValues))
                 temperatureCard.text = metricText(
                     "體表溫度",
                     latestTemperature?.let { "%.1f".format(it.temperature.inCelsius) }
