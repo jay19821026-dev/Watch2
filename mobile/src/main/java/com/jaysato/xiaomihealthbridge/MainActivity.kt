@@ -458,6 +458,7 @@ class MainActivity : ComponentActivity() {
         val pendingHeartRateSamples = HeartRateWriter(this).pendingSampleCount()
         val error = prefs.getString(HeartRateDataListenerService.KEY_LAST_ERROR, null)
         val controlStatus = prefs.getString("control_status", null)
+        val controlStatusSuccess = prefs.getBoolean("control_status_success", false)
         val controlStatusTime = prefs.getLong("control_status_time", 0)
         status.text = buildString {
             append(if (available) "●  Health Connect 已就緒" else "○  Health Connect 不可用")
@@ -468,10 +469,11 @@ class MainActivity : ComponentActivity() {
             if (pendingHeartRateSamples > 0) append("\n待寫入 Health Connect：$pendingHeartRateSamples 筆")
             if (error != null) append("\n\n⚠ $error")
             if (controlStatus != null) {
+                val readableControlStatus = ControlStatusDisplayPolicy.describe(controlStatus, controlStatusSuccess)
                 val isCurrent = !ControlStatusFreshness.isStale(
                     controlStatusTime, System.currentTimeMillis(), SensorDisplayState.APP_DISPLAY_FRESHNESS_MILLIS
                 )
-                append(if (isCurrent) "\n\n手錶控制回報\n$controlStatus" else "\n\n上次手錶控制回報（已過期）\n$controlStatus")
+                append(if (isCurrent) "\n\n手錶控制回報\n$readableControlStatus" else "\n\n上次手錶控制回報（已過期）\n$readableControlStatus")
                 if (controlStatusTime > 0) append("\n${DateFormat.getDateTimeInstance().format(Date(controlStatusTime))}")
             }
         }
