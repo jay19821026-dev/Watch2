@@ -129,8 +129,12 @@ internal object WearMeasurementPolicy {
             } else {
                 "掃描完成，部分項目有資料；到手機查看各項結果"
             }
-        } else {
-            message.substringBefore(" 光學候選通道").substringBefore(" 呼吸率未獨立量測").take(96)
+        } else when {
+            message.contains("充電中") -> "手錶正在充電，貼腕量測未執行；請拔除充電器後再測"
+            message.contains("失敗") || message.contains("權限不足") -> "掃描未完成；請檢查權限與佩戴後重試"
+            message.contains("逾時") || message.contains("中斷") -> "掃描未完成；可重新開始"
+            message.contains("完成") -> "掃描完成；請到手機查看各項結果"
+            else -> "正在收集手錶資料；完成後到手機查看結果"
         }
     }
 

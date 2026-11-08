@@ -153,7 +153,14 @@ class WearMeasurementPolicyTest {
             "這次沒有取得量測資料，請確認佩戴後重測",
             WearMeasurementPolicy.compactSensorSuiteStatus(message.replace("26/36", "0/36"))
         )
-        assertTrue(WearMeasurementPolicy.compactSensorSuiteStatus("掃描啟動失敗：權限不足").length <= 96)
+        assertEquals(
+            "掃描未完成；請檢查權限與佩戴後重試",
+            WearMeasurementPolicy.compactSensorSuiteStatus("掃描啟動失敗：權限不足")
+        )
+        assertEquals(
+            "正在收集手錶資料；完成後到手機查看結果",
+            WearMeasurementPolicy.compactSensorSuiteStatus("生醫通道 1/8：已註冊；等待事件")
+        )
         assertTrue(WearMeasurementPolicy.hasRecentSensorSuiteStatus(100L, 200L, 100L))
         assertFalse(WearMeasurementPolicy.hasRecentSensorSuiteStatus(0L, 200L, 100L))
         assertFalse(WearMeasurementPolicy.hasRecentSensorSuiteStatus(100L, 201L, 100L))
