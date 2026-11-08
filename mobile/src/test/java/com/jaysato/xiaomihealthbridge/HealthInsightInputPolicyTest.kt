@@ -114,9 +114,9 @@ class HealthInsightInputPolicyTest {
         assertEquals(RecordedTotalCaloriesState.AMBIGUOUS,
             RecordedTotalCaloriesPolicy.classify(HealthConnectPermissionPolicy.State.GRANTED, multipleSources))
         assertTrue(RecordedTotalCaloriesPolicy.display(RecordedTotalCaloriesState.NO_RECORDS, null, null).contains("今天沒有同步紀錄"))
-        assertTrue(RecordedTotalCaloriesPolicy.display(RecordedTotalCaloriesState.AMBIGUOUS, null, null).contains("區間重疊"))
+        assertTrue(RecordedTotalCaloriesPolicy.display(RecordedTotalCaloriesState.AMBIGUOUS, null, null).contains("無法可靠合計"))
         assertTrue(RecordedTotalCaloriesPolicy.display(RecordedTotalCaloriesState.AVAILABLE, 12, "watch", 1, 0).contains("不代表全天總量"))
-        assertTrue(RecordedTotalCaloriesPolicy.display(RecordedTotalCaloriesState.BOUNDARY_EXCLUDED, null, null, 0, 2).contains("跨越日期邊界"))
+        assertTrue(RecordedTotalCaloriesPolicy.display(RecordedTotalCaloriesState.BOUNDARY_EXCLUDED, null, null, 0, 2).contains("跨日紀錄"))
     }
 
     @Test

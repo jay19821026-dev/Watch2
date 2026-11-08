@@ -136,14 +136,14 @@ internal object RecordedTotalCaloriesPolicy {
     }
 
     fun display(state: RecordedTotalCaloriesState, kcal: Int?, origin: String?, recordCount: Int = 0, excludedBoundaryRecords: Int = 0): String = when (state) {
-        RecordedTotalCaloriesState.AVAILABLE -> "Health Connect 今日已記錄總熱量區間加總：${kcal ?: "—"} kcal（$recordCount 筆；單一來源：${origin ?: "未標示"}）。覆蓋完整性未確認，不代表全天總量；不與活動熱量估計相加。"
-        RecordedTotalCaloriesState.PARTIAL -> "Health Connect 今日已記錄總熱量區間小計：${kcal ?: "—"} kcal（$recordCount 筆；另排除 $excludedBoundaryRecords 筆跨日區間）。覆蓋完整性未確認，不代表全天總量。"
-        RecordedTotalCaloriesState.PERMISSION_DENIED -> "Health Connect 今日總消耗熱量：未授權讀取；可至權限設定允許。"
-        RecordedTotalCaloriesState.PERMISSION_QUERY_FAILED -> "Health Connect 今日總消耗熱量：權限狀態查詢失敗。"
-        RecordedTotalCaloriesState.READ_FAILED -> "Health Connect 今日總消耗熱量：讀取失敗；請稍後重試。"
-        RecordedTotalCaloriesState.NO_RECORDS -> "Health Connect 今日總消耗熱量：今天沒有同步紀錄。"
-        RecordedTotalCaloriesState.BOUNDARY_EXCLUDED -> "Health Connect 今日總消耗熱量：$excludedBoundaryRecords 筆紀錄跨越日期邊界，已排除；今日沒有可合計的完整區間。"
-        RecordedTotalCaloriesState.AMBIGUOUS -> "Health Connect 今日總消耗熱量：來源多重、區間重疊或數值無效，保留原始紀錄但不合計。"
+        RecordedTotalCaloriesState.AVAILABLE -> "今日已記錄總消耗熱量 ${kcal ?: "—"} kcal；不代表全天總量，也不要與活動熱量相加。"
+        RecordedTotalCaloriesState.PARTIAL -> "今日部分總消耗熱量 ${kcal ?: "—"} kcal；還有跨日紀錄，不能當成全天總量。"
+        RecordedTotalCaloriesState.PERMISSION_DENIED -> "今日總消耗熱量：尚未允許讀取；可至權限設定開啟。"
+        RecordedTotalCaloriesState.PERMISSION_QUERY_FAILED -> "今日總消耗熱量：暫時無法確認讀取權限。"
+        RecordedTotalCaloriesState.READ_FAILED -> "今日總消耗熱量：讀取失敗，請稍後重試。"
+        RecordedTotalCaloriesState.NO_RECORDS -> "今日總消耗熱量：今天沒有同步紀錄。"
+        RecordedTotalCaloriesState.BOUNDARY_EXCLUDED -> "今日總消耗熱量：只有跨日紀錄，今天尚無可單獨合計的熱量。"
+        RecordedTotalCaloriesState.AMBIGUOUS -> "今日總消耗熱量：紀錄無法可靠合計，請查看原始紀錄。"
     }
 }
 
