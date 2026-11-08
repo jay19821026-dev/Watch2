@@ -173,7 +173,7 @@ class MeasureResultActivity : ComponentActivity() {
             setPadding(0, 0, 0, dp(12))
         })
         root.addView(Button(this).apply {
-            text = "查看數據與來源"; isAllCaps = false
+            text = "查看結果說明"; isAllCaps = false
             setOnClickListener {
                 android.app.AlertDialog.Builder(this@MeasureResultActivity)
                     .setTitle("$title · 量測詳情")
@@ -187,7 +187,7 @@ class MeasureResultActivity : ComponentActivity() {
         )
         if (shouldOfferRetry) {
             root.addView(Button(this).apply {
-                text = "重新量測${if (kind == "ppg") " PPG" else ""}"
+                text = "重新量測"
                 isAllCaps = false; textSize = 16f; setTextColor(Color.WHITE)
                 background = GradientDrawable().apply {
                     cornerRadius = dp(16).toFloat(); setColor(accent)
@@ -298,7 +298,7 @@ class MeasureResultActivity : ComponentActivity() {
                 }
             }
             .addOnFailureListener { error ->
-                Toast.makeText(this, "無法要求手錶量測：${error.localizedMessage ?: "連線錯誤"}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "目前無法連接手錶；請檢查連線後重試。", Toast.LENGTH_LONG).show()
             }
     }
 
@@ -481,9 +481,9 @@ internal object HeartRateMeaningPolicy {
     /** Context for a single typed BPM measurement; rest/activity state is unknown. */
     fun explain(bpm: Float): String = when {
         !bpm.isFinite() || bpm !in 30f..220f -> "這次心率讀值不在可解釋範圍；請重新量測。"
-        bpm < 60f -> "偏低（成人靜息參考 60–100 bpm）。若清醒休息時反覆偏低或感到頭暈，請就醫評估。"
+        bpm < 60f -> "偏低：成人靜息參考 60–100 bpm。若休息時反覆出現或感到頭暈，請就醫。"
         bpm <= 100f -> "在成人靜息參考範圍 60–100 bpm 內；活動時的範圍不同。"
-        else -> "偏高（成人靜息參考 60–100 bpm）。若剛活動，休息後再測；若持續偏高或心悸，請就醫評估。"
+        else -> "偏高：成人靜息參考 60–100 bpm。休息後再測；若持續偏高或心悸，請就醫。"
     }
 }
 
