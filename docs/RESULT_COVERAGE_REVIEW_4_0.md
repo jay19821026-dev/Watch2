@@ -25,6 +25,8 @@ This is a code-path review, not a claim that every sensor has produced a live Wa
 
 Previously `MeasureResultValuePolicy` replaced every noncurrent value with `—`, including an ECG/PPG **raw event count**. The optical primary value also showed `—` whenever a pulse estimate did not qualify. The result page now keeps a known raw point/event count with an explicit noncurrent/unknown-time label, while still hiding stale bpm. A short conclusion card is always shown for received data, missing data, or a usable value. The Health Services heart-rate path now counts its feature record as received data rather than looking for a raw sensor record. `MeasureResultActivityTest` covers unknown-time raw counts and stale optical count versus bpm.
 
+The health conclusion previously stopped showing a trusted heart-rate history after 24 hours even though the cached measurement still existed. It now shows the latest stored trusted heart-rate record with its original date, and explicitly says it is outside the current 10-minute analysis window. This does not turn historical data into a current measurement.
+
 先前結果頁會把所有非近期資料都顯示成 `—`，連已收到的 ECG／PPG 原始事件數也遮掉；PPG 估算脈率未通過時也只有 `—`。現在保留可信的原始點／事件數，標明時間未知或歷史資料；舊 bpm 仍不顯示為現值。結果卡分別說明本次取得數值、只取得原始資料、或未收到資料。
 
 ## Release gate / 發行門檻

@@ -280,6 +280,22 @@ class HealthConclusionEngineTest {
     }
 
     @Test
+    fun olderTrustedHeartRateRemainsVisibleWithItsOriginalDate() {
+        val measuredAt = System.currentTimeMillis() - 14L * 24L * 60L * 60L * 1000L
+        val raw = preferences(mapOf(
+            "health_connect_heart_rate_bpm" to 75f,
+            "health_connect_heart_rate_time" to measuredAt,
+            "health_connect_heart_rate_origin" to "watch-app"
+        ))
+
+        val item = HealthConclusionEngine.heartConclusion(raw, preferences(emptyMap()))
+
+        assertEquals("75 bpm · 歷史紀錄", item.valueText)
+        assertTrue(item.conclusion.contains(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(measuredAt))))
+        assertTrue(item.conclusion.contains("不作目前結論"))
+    }
+
+    @Test
     fun olderHeartRateIsExplainedButNotPresentedAsCurrentConclusion() {
         val measuredAt = System.currentTimeMillis() - 15 * 60_000L
         val feature = preferences(mapOf(

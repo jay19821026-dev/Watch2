@@ -194,8 +194,8 @@ object HealthConclusionEngine {
         if (candidate == null) {
             val historyCandidate = listOfNotNull(
                 raw.getFloat("health_connect_heart_rate_bpm", Float.NaN).takeIf {
-                    it in 30f..220f && now - raw.getLong("health_connect_heart_rate_time", 0L) in
-                        (TEN_MINUTES + 1)..HeartRatePresentationPolicy.HOME_HISTORY_WINDOW_MILLIS &&
+                    it in 30f..220f && now - raw.getLong("health_connect_heart_rate_time", 0L) > TEN_MINUTES &&
+                        raw.getLong("health_connect_heart_rate_time", 0L) in 1L..now &&
                         !raw.getString("health_connect_heart_rate_origin", "").isNullOrBlank()
                 }?.let {
                     HeartRateCandidate(it.toDouble(), raw.getLong("health_connect_heart_rate_time", 0L),
@@ -206,7 +206,7 @@ object HealthConclusionEngine {
                         feature.getLong("whs_heart_rate_timestamp", 0L),
                         feature.getString("whs_heart_rate_timestamp_source", null),
                         now,
-                        HeartRatePresentationPolicy.HOME_HISTORY_WINDOW_MILLIS
+                        Long.MAX_VALUE
                     )
                 }
                     ?.let { HeartRateCandidate(it.toDouble(), feature.getLong("whs_heart_rate_timestamp", 0L), "Health Services", false) },
@@ -215,17 +215,18 @@ object HealthConclusionEngine {
                         raw.getLong("whs_heart_rate_time", 0L),
                         raw.getString("whs_heart_rate_timestamp_source", null),
                         now,
-                        HeartRatePresentationPolicy.HOME_HISTORY_WINDOW_MILLIS
+                        Long.MAX_VALUE
                     )
                 }
                     ?.let { HeartRateCandidate(it.toDouble(), raw.getLong("whs_heart_rate_time", 0L), "手錶心率", false) }
             ).filter {
                 val age = now - it.measuredAt
-                it.measuredAt > 0L && age in (TEN_MINUTES + 1)..HeartRatePresentationPolicy.HOME_HISTORY_WINDOW_MILLIS
+                it.measuredAt > 0L && age > TEN_MINUTES
             }.maxByOrNull { it.measuredAt }
             val explanation = if (historyCandidate != null) {
-                val ageMinutes = (now - historyCandidate.measuredAt) / 60_000L
-                "有較舊的心率紀錄（${historyCandidate.source}，約 $ageMinutes 分鐘前），但超出本頁 10 分鐘分析輸入窗；不作目前結論。"
+                val recordedAt = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+                    .format(java.util.Date(historyCandidate.measuredAt))
+                "有較舊的心率紀錄（${historyCandidate.source}，$recordedAt），但超出本頁 10 分鐘分析輸入窗；不作目前結論。"
             } else {
                 "目前沒有符合本頁 10 分鐘分析輸入窗的心率紀錄；請在手錶量測或佩戴同步。"
             }
