@@ -138,12 +138,6 @@ object SensorHealthAlgorithms {
     fun cadence(steps: Long, activeMinutes: Double): Double? =
         if (steps > 0 && activeMinutes > 0) steps / activeMinutes else null
 
-    fun vo2MaxHeartRateRatio(age: Int, restingHeartRate: Double): Double? {
-        if (age !in 13..100 || restingHeartRate !in 30.0..120.0) return null
-        val estimatedMaximum = 208.0 - 0.7 * age
-        return (15.3 * estimatedMaximum / restingHeartRate).coerceIn(10.0, 85.0)
-    }
-
     fun activityRegularity(dailySteps: List<Long>): Int? {
         val clean = dailySteps.filter { it >= 0 }
         if (clean.size < 3 || clean.average() <= 0.0) return null

@@ -1050,7 +1050,9 @@ class AlgorithmicInsightsEngine(context: Context) {
         val trimpBaselineWindowStartAt = usedTrimpRestingHeartRateTimes.minOrNull()
         val trimpBaselineWindowEndAt = usedTrimpRestingHeartRateTimes.maxOrNull()
         val trainingLoad = trimp?.roundToInt()
-        val vo2HeartRatio = if (profile != null && baseline != null) SensorHealthAlgorithms.vo2MaxHeartRateRatio(profile.age, baseline) else null
+        // Uth's heart-rate ratio method requires measured maximal heart rate and
+        // population-specific validation. An age-predicted HRmax is not that input.
+        val vo2HeartRatio: Double? = null
         val observedAggregateStepDays = HealthConnectActivityObservationPolicy.observedDailyStepCounts(stepsObservation)
         val activityRegularity = SensorHealthAlgorithms.activityRegularity(observedAggregateStepDays)
         val restingDeviation = resting?.let {
@@ -1257,7 +1259,7 @@ class AlgorithmicInsightsEngine(context: Context) {
             if (trimp != null && trimpRestingHeartRateOrigins.any { it != trimpHeartRateOrigin }) {
                 append("TRIMP 資料來源：心率 $trimpHeartRateOrigin；靜息心率 ${trimpRestingHeartRateOrigins.sorted().joinToString()}；同來源優先、再依同日量測時間配對，屬跨來源研究估算\n")
             }
-            append("VO₂max 公式估算（年齡推算 HRmax；非運動測試）  ${vo2HeartRatio?.let { "%.1f ml/kg/min".format(it) } ?: "需要靜息心率與年齡"}\n")
+            append("VO₂max：未估算；目前沒有實測最大心率或本裝置配對運動測試，不能把年齡推算心率代入研究比率當作量測結果。\n")
             append("近 7 日步數一致性（Health Connect aggregate 有值日 n=$activityRegularityObservedDays；探索規則分，非完整週）  ${activityRegularity?.let { "$it/100" } ?: "至少需要 3 個有 aggregate 紀錄日"}\n")
             append("靜息心率偏移  ${restingDeviation?.let { "%+.0f bpm".format(it) } ?: "等待靜息心率紀錄"}\n")
             append("社交時差  ${socialJetlagMinutes?.let { "$it 分鐘" } ?: "需要平日與週末睡眠"}\n")
