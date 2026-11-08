@@ -308,13 +308,23 @@ class WearEcgActivity : ComponentActivity() {
         val eventPreview = EcgEventPreview.oemPacketCandidates(
             snapshot.eventRawValueRows, snapshot.ecgEventContactStates, snapshot.eventTimestampsNs, snapshot.eventCount
         )
-        chart.setSamples(eventPreview)
-        chart.contentDescription = "ECG 最近連續原始封包的前 10 欄候選值預覽；略過本次前 20 個起始事件，僅含第 11 欄標記 1000、同步配戴狀態及有效遞增事件時間戳的事件；超過一秒的事件間隔會斷開預覽；電極接觸、取樣時鐘與單位仍未校準"
-        chart.visibility = if (eventPreview.size >= 2) View.VISIBLE else View.GONE
+        // Always let the owner inspect received numeric events. A missing OEM marker or
+        // on-body callback only disqualifies the qualified preview, not the raw data view.
+        val rawFieldPreview = EcgEventPreview.firstField(rows)
+        val showQualifiedPreview = eventPreview.size >= 2
+        val visiblePreview = if (showQualifiedPreview) eventPreview else rawFieldPreview
+        chart.setSamples(visiblePreview)
+        chart.contentDescription = if (showQualifiedPreview) {
+            "符合已觀察原廠封包條件的前 10 欄研究預覽；時間及單位未校準"
+        } else {
+            "原始 ECG 感測事件第 1 欄數值，按事件順序顯示；未通過封包條件，不代表已解碼心電波形"
+        }
+        chart.visibility = if (visiblePreview.size >= 2) View.VISIBLE else View.GONE
         headline.text = if (active) "量測中 · ${snapshot.eventCount} 個 Sensor API 事件" else "已保存 ${snapshot.eventCount} 個原始事件"
         val layout = decoded.layoutComparison
         detail.text = buildString {
             append("欄位映射：未驗證（${decoded.status}）；原始保存：${snapshot.eventRawValuesStatus}。近期預覽 ${rows.size} 列 × 16 欄 = ${decoded.inspectedFieldValueCount} 個欄位數值；前 10 欄假設候選 ${decoded.candidateValueCount} 個，不是已解碼 ECG 樣本。\n")
+            append(if (showQualifiedPreview) "圖表：符合已觀察封包條件的候選值。\n" else "圖表：原始事件第 1 欄數值（${rawFieldPreview.size} 點）；未符合封包條件，仍可查看已收到的數值。\n")
             append("原廠 APK 對照：原廠程式讀取感測器 65573、每列前 10 欄，並在第 11 欄（索引 10）為 1000 且離腕感測器回報配戴時才交由原廠演算法處理。近期 ${EcgEventPreview.oemMarkerCount(rows)}/${rows.size} 列有 1000 標記；本 APP 對齊離腕事件時間後，${snapshot.ecgEventContactStates.takeLast(rows.size).count { it == 1 }} 列有近期配戴狀態。離腕偵測不等於電極接觸，不作接觸品質、mV 或節律判斷。\n")
             append("原廠量測略過前 ${EcgEventPreview.OEM_OBSERVED_WARMUP_EVENTS} 個 ECG 回呼；本 APP 保留所有原始事件，只在研究預覽略過這段起始資料。預覽另要求事件時間戳遞增，超過 1 秒的事件間隔會斷開畫線；這是顯示規則，不是原廠 ADC 取樣率。手機 Mi Fitness 的正式 ECG 紀錄另有報告取樣頻率與至少 25 秒的收件條件，不能套用到這些 Sensor API 原始封包。\n")
             append("排列假設相鄰差絕對中位數：列優先 ${layout?.rowMajorMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}；欄優先 ${layout?.columnMajorMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}。同列 ${layout?.withinRowMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}；跨列邊界 ${layout?.rowBoundaryMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}。只是數值排列比較，不驗證欄位映射。\n")
