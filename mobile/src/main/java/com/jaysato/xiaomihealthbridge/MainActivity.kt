@@ -898,7 +898,7 @@ class MainActivity : ComponentActivity() {
                     .takeIf { it > 0.0 }
                 val sleepHours = aggregateSleepMinutes?.takeIf { sleepAggregateAccepted }?.div(60.0)
                     ?: (sleepSessionMinutes ?: sleepUnionMinutes)?.div(60.0)
-                val sleepValueSource = if (sleepAggregateAccepted) "Health Connect 平台彙總" else if (sleepSessionMinutes != null) "近 7 天完整睡眠區間加總（非平台彙總）" else if (sleepUnionMinutes != null) "近 7 天合併重疊後的睡眠區間（非平台彙總）" else aggregateUnavailableReason("睡眠", aggregateSleepMinutes, aggregateSleepOrigins)
+                val sleepValueSource = if (sleepAggregateAccepted) "Health Connect 平台彙總" else if (sleepSessionMinutes != null) "近 7 天交集睡眠紀錄區間加總（非平台彙總、非實睡時長）" else if (sleepUnionMinutes != null) "近 7 天交集睡眠紀錄合併區間（非平台彙總、非實睡時長）" else aggregateUnavailableReason("睡眠", aggregateSleepMinutes, aggregateSleepOrigins)
                 getSharedPreferences("health_summary_query_diagnostics", MODE_PRIVATE).edit()
                     .putLong("query_started_at_ms", endTime.toEpochMilli())
                     .putLong("today_start_ms", todayStart.toEpochMilli())
@@ -906,7 +906,7 @@ class MainActivity : ComponentActivity() {
                     .putInt("oxygen_today_records", oxygenRecords.size)
                     .putString("oxygen_read_state", if (oxygenRecords.isNotEmpty()) "RECORDS_RECEIVED" else unavailableState("血氧"))
                     .putInt("sleep_complete_history_records", sleepSessions.size)
-                    .putString("sleep_read_state", if (sleepSessions.isNotEmpty()) "COMPLETE_INTERVAL_RECORDS_RECEIVED" else unavailableState("睡眠"))
+                    .putString("sleep_read_state", if (sleepSessions.isNotEmpty()) "OVERLAPPING_INTERVAL_RECORDS_RECEIVED" else unavailableState("睡眠"))
                     .putString("sleep_aggregate_state", aggregateUnavailableReason("睡眠", aggregateSleepMinutes, aggregateSleepOrigins))
                     .putBoolean("sleep_aggregate_accepted", sleepAggregateAccepted)
                     .putBoolean("sleep_session_fallback_used", !sleepAggregateAccepted && (sleepSessionMinutes != null || sleepUnionMinutes != null))

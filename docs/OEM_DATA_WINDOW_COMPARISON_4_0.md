@@ -15,4 +15,6 @@ AILISA's 10 minute *current* sensor freshness gate and 30 hour *recent sleep* vi
 
 AILISA 的「目前感測資料 10 分鐘」及「近期睡眠 30 小時」是本程式政策，**不是**已驗證的原廠門檻。歷史值仍可附量測時間顯示。ECG、BioZ、PPG 若缺可信樣本時基，不能用心率同步封裝的 30 分鐘區間補足。
 
+The phone home summary now applies the same overlap-and-clip rule to sleep-session fallback totals. Its label says *recorded interval*, because the OEM `SleepSyncBiz` uses bed/wake timestamps and stage records separately; the interval sum is not verified actual sleep. / 手機首頁的睡眠備援總時長也改為保留交集、按查詢界線裁切，並標明是紀錄區間，不能當作原廠實睡時長。
+
 Verification / 驗證：`mobile:testDebugUnitTest`, `wear:testDebugUnitTest`, `mobile:assembleDebug`, `wear:assembleDebug` passed after the window correction. `HealthInsightWindowPolicyTest` covers local midnight, daylight saving and a sleep session crossing the boundary. / 修正後雙端單元測試與 Debug 建置通過，測試涵蓋本地午夜、夏令時間及跨界睡眠。
