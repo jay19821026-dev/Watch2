@@ -28,7 +28,8 @@ class AnalysisLeadSummaryTest {
             null, true
         )
         val result = AnalysisLeadSummary.from(listOf(raw, measured))
-        assertEquals(listOf("心率：77 bpm · 正常"), result.displayLines)
+        assertEquals("心率：77 bpm · 正常", result.headline)
+        assertTrue(result.displayLines.isEmpty())
         assertTrue(result.researchLines.isEmpty())
     }
 
@@ -42,7 +43,8 @@ class AnalysisLeadSummaryTest {
             HealthConclusionEngine.Level.RESEARCH, null, true
         )
         val result = AnalysisLeadSummary.from(listOf(sleep, ecg))
-        assertEquals(listOf("睡眠：42.2 小時 · 7 日紀錄 · 已記錄"), result.displayLines)
+        assertEquals("睡眠：42.2 小時 · 7 日紀錄 · 已記錄", result.headline)
+        assertTrue(result.displayLines.isEmpty())
         assertFalse(result.headline.contains("216"))
     }
 }

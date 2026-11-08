@@ -20,9 +20,12 @@ internal object AnalysisLeadSummary {
         val readableReference = research.filter {
             ConsumerMetricPresentation.from(it).state in setOf("研究估算", "已記錄", "歷史紀錄", "心律未判定")
         }
+        val readableLines = (recorded + readableReference).take(4).map {
+            val display = ConsumerMetricPresentation.from(it)
+            "${display.title}：${display.value} · ${display.state}"
+        }
         val headline = when {
-            recorded.isNotEmpty() -> "已有 ${recorded.size} 項健康紀錄${if (readableReference.isNotEmpty()) "，另有 ${readableReference.size} 項參考資料" else ""}"
-            readableReference.isNotEmpty() -> "已有 ${readableReference.size} 項可查看的參考資料"
+            readableLines.isNotEmpty() -> readableLines.first()
             research.isNotEmpty() -> "手錶訊號已收到，尚無可用健康讀值"
             else -> "目前沒有新的可用量測"
         }
@@ -33,10 +36,7 @@ internal object AnalysisLeadSummary {
         }
         return Result(
             headline,
-            (recorded + readableReference).take(4).map {
-                val display = ConsumerMetricPresentation.from(it)
-                "${display.title}：${display.value} · ${display.state}"
-            },
+            readableLines.drop(1),
             emptyList(),
             nextAction
         )
