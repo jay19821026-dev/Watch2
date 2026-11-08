@@ -1266,16 +1266,14 @@ class HealthConclusionEngineTest {
         assertEquals(listOf("心率", "血氧", "ECG", "溫度原始值", "體成分", "脈搏"), displays.map { it.title })
         displays.forEachIndexed { index, display ->
             assertTrue("${display.title} must show a result", display.value.isNotBlank() && display.value != "待量測")
-            assertEquals("${display.title} remains labelled as research", "研究資料", display.state)
+            assertEquals("${display.title} remains a non-physiological result", "尚無健康結果", display.state)
             assertEquals("${display.title} result exists", true, results[index].available)
         }
-        assertTrue(displays[1].value.contains("原始樣本 0"))
-        assertTrue(displays[1].value.contains("原始事件 8"))
+        assertEquals("重新量測", displays[1].value)
         assertFalse(Regex("\\d+\\s*%").containsMatchIn(displays[1].value))
-        assertTrue(displays[2].value.contains("128 點"))
-        assertTrue(displays[3].value.contains("33.3"))
-        assertTrue(displays[4].value.contains("128"))
-        assertTrue(displays[5].value.contains("128"))
+        assertEquals("重新量測", displays[2].value)
+        assertEquals("重新量測", displays[4].value)
+        assertEquals("重新量測", displays[5].value)
         assertTrue(results[5].clinicalCompare.contains("校準：未驗證"))
     }
 

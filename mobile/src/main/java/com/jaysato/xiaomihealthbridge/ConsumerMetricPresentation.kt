@@ -21,6 +21,8 @@ object ConsumerMetricPresentation {
                     listOf("事件", "樣本", "原始", "解碼", "點").none(value::contains)
             }
         val value = when {
+            item.level == HealthConclusionEngine.Level.RESEARCH &&
+                item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL -> "重新量測"
             physiologicalValue != null -> physiologicalValue
             item.id == "glucose" -> "未支援"
             item.available && item.valueText.isNotBlank() && item.valueText !in setOf("—", "不可用") -> item.valueText
@@ -31,7 +33,7 @@ object ConsumerMetricPresentation {
             else -> when (item.userState) {
                 HealthConclusionEngine.UserState.NORMAL -> "正常"
                 HealthConclusionEngine.UserState.ATTENTION -> "需留意"
-                HealthConclusionEngine.UserState.RESEARCH -> "研究資料"
+                HealthConclusionEngine.UserState.RESEARCH -> "尚無健康結果"
                 HealthConclusionEngine.UserState.UNAVAILABLE -> "尚無結果"
             }
         }

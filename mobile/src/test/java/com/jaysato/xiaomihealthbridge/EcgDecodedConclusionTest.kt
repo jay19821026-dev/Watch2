@@ -8,8 +8,8 @@ import org.junit.Test
 class EcgDecodedConclusionTest {
     @Test
     fun homeCardDoesNotPromiseNormalOrAbnormalWhenInputsMayBeInsufficient() {
-        assertTrue(EcgHomeCardPresentationPolicy.supportingText("2600 個原始值").contains("可能無法判定"))
-        assertTrue(EcgHomeCardPresentationPolicy.supportingText(null).contains("可能無法判定"))
+        assertTrue(EcgHomeCardPresentationPolicy.supportingText("2600 個原始值").contains("量測後查看結果"))
+        assertTrue(EcgHomeCardPresentationPolicy.supportingText(null).contains("量測後查看結果"))
         assertEquals("最近一次研究心律結果", EcgHomeCardPresentationPolicy.supportingText("72 bpm · 研究估算 · RR 4"))
     }
 

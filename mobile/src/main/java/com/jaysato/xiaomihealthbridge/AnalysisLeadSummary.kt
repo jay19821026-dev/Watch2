@@ -19,7 +19,7 @@ internal object AnalysisLeadSummary {
         }
         val headline = when {
             recorded.isNotEmpty() -> "已有 ${recorded.size} 項可顯示的健康紀錄"
-            research.isNotEmpty() -> "目前取得原始訊號，尚無可比較的生理結果"
+            research.isNotEmpty() -> "目前沒有可用健康結果，請重新量測"
             else -> "目前沒有新的可用量測"
         }
         val nextAction = when {
@@ -30,7 +30,7 @@ internal object AnalysisLeadSummary {
         return Result(
             headline,
             recorded.take(4).map { "${it.title}：${it.valueText}" },
-            research.take(3).map { "${it.title}：${it.valueText}" },
+            emptyList(),
             nextAction
         )
     }

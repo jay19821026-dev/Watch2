@@ -68,7 +68,7 @@ class HealthConclusionActivity : ComponentActivity() {
                 exportDebugMatrix(report)
             }
             reportContainer.visibility = android.view.View.VISIBLE
-            reportContainer.addView(hero(report.overallHeadline, report.overallDetail))
+            reportContainer.addView(hero("已記錄的健康數值", "請看各項讀值與參考範圍；無效量測可重新進行。"))
             report.items.forEach { item -> reportContainer.addView(itemCard(item)) }
             reportContainer.addView(TextView(this).apply {
                 text = report.disclaimer
@@ -109,6 +109,7 @@ class HealthConclusionActivity : ComponentActivity() {
     }
 
     private fun itemCard(item: HealthConclusionEngine.Item) = LinearLayout(this).apply {
+        val display = ConsumerMetricPresentation.from(item)
         orientation = LinearLayout.VERTICAL
         background = GradientDrawable().apply {
             cornerRadius = dp(16).toFloat()
@@ -124,20 +125,36 @@ class HealthConclusionActivity : ComponentActivity() {
             HealthConclusionEngine.Level.UNAVAILABLE -> Color.rgb(142, 142, 147)
         }
         addView(TextView(context).apply {
-            text = "${item.title} · ${levelLabel(item.level)}"
+            text = display.title
             textSize = 15f; setTextColor(accent); setTypeface(typeface, Typeface.BOLD)
         })
         addView(TextView(context).apply {
-            text = item.valueText; textSize = 28f; setTextColor(Color.BLACK); setTypeface(typeface, Typeface.BOLD)
+            text = display.value; textSize = 28f; setTextColor(Color.BLACK); setTypeface(typeface, Typeface.BOLD)
             setPadding(0, dp(4), 0, 0)
         })
         addView(TextView(context).apply {
-            text = "結論：${item.conclusion}"
+            text = if (item.level == HealthConclusionEngine.Level.RESEARCH || item.level == HealthConclusionEngine.Level.UNAVAILABLE) {
+                "這次沒有可用的健康判讀；請重新量測。"
+            } else when (item.id) {
+                "hr" -> "成人靜息心率參考 60–100 bpm；活動時不使用此範圍判斷。"
+                "spo2" -> "多數健康成人血氧常見參考 95–100%。"
+                else -> when (item.level) {
+                    HealthConclusionEngine.Level.GOOD -> "本次讀值落在參考範圍。"
+                    HealthConclusionEngine.Level.WATCH -> "這項讀值建議再次觀察。"
+                    HealthConclusionEngine.Level.ATTENTION -> "這項讀值偏離參考範圍，建議重測確認。"
+                    else -> "請查看讀值與資料來源。"
+                }
+            }
             textSize = 14f; setTextColor(Color.rgb(28, 28, 30)); setPadding(0, dp(6), 0, 0)
         })
-        addView(TextView(context).apply {
-            text = "風險：${riskLabel(item.level)}"
-            textSize = 13f; setTextColor(Color.rgb(70, 70, 80)); setPadding(0, dp(5), 0, 0)
+        addView(Button(context).apply {
+            text = "查看數據與來源"; isAllCaps = false
+            setOnClickListener {
+                android.app.AlertDialog.Builder(this@HealthConclusionActivity)
+                    .setTitle(item.title)
+                    .setMessage("${item.valueText}\n\n${item.clinicalCompare}\n\n${item.conclusion}")
+                    .setPositiveButton("知道了", null).show()
+            }
         })
         if (HealthConclusionSummaryPolicy.shouldShowScore(item)) {
             addView(TextView(context).apply {

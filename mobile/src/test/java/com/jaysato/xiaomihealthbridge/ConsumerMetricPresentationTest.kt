@@ -4,13 +4,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ConsumerMetricPresentationTest {
-    @Test fun historicalRawCountsRemainVisibleAndAreNotCalledAnActiveMeasurement() {
+    @Test fun historicalRawCountsStayOutOfConsumerResult() {
         val item = HealthConclusionEngine.Item(
             "ecg", "ECG", "3170 個原始事件 · 260 個研究解碼事件／2600 點",
             "", "", HealthConclusionEngine.Level.RESEARCH, null, true
         )
-        assertEquals("3170 個原始事件 · 260 個研究解碼事件／2600 點", ConsumerMetricPresentation.from(item).value)
-        assertEquals("研究資料", ConsumerMetricPresentation.from(item).state)
+        assertEquals("重新量測", ConsumerMetricPresentation.from(item).value)
+        assertEquals("尚無健康結果", ConsumerMetricPresentation.from(item).state)
     }
 
     @Test fun oxygenKeepsPhysiologicalValueWithoutDatabaseWording() {
@@ -38,7 +38,7 @@ class ConsumerMetricPresentationTest {
 
         val display = ConsumerMetricPresentation.from(item)
 
-        assertEquals("72 bpm · 研究估算", display.value)
-        assertEquals("研究資料", display.state)
+        assertEquals("重新量測", display.value)
+        assertEquals("尚無健康結果", display.state)
     }
 }

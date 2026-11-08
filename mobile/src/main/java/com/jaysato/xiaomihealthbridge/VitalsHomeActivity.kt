@@ -178,7 +178,7 @@ class VitalsHomeActivity : ComponentActivity() {
         val heartRateDetail = (if (hr == null && hrConclusion == null) {
             val evidence = rawSamplesLabel(raw, "heart_rate_raw")
             val reason = unavailableSensorReason(raw, "heart_rate_raw", now)
-            "$reason · 原始資料：$evidence"
+            "$reason · $evidence"
         } else when {
             hr == null && hrConclusion?.valueText?.contains("研究估算") == true -> "研究估算 · 非手錶直出"
             hr == null && hrConclusion?.valueText?.contains("歷史紀錄") == true -> "歷史讀值 · 非即時"
@@ -225,13 +225,13 @@ class VitalsHomeActivity : ComponentActivity() {
                         .format(java.util.Date(it))
                 }
             )
-            spo2.valueText.contains("歷史") -> "歷史原始資料 · 尚無百分比校準"
-            else -> "近期原始資料 · 尚無百分比校準"
+            spo2.valueText.contains("歷史") -> "尚無可用的血氧讀值，請重新量測"
+            else -> "尚無可用的血氧讀值，請重新量測"
         }
         root.addView(tile(
             "血氧",
             if (spo2Recorded) VitalsCardPresentationPolicy.recordedSpO2Headline(spo2?.valueText)
-            else spo2?.valueText ?: rawSamplesLabel(raw, spo2Kind),
+            else rawSamplesLabel(raw, spo2Kind),
             spo2Detail,
             Color.rgb(10, 132, 255), measurementPath = "/control/oxygen-now"
         ) {
@@ -240,8 +240,8 @@ class VitalsHomeActivity : ComponentActivity() {
         root.addView(tile(
             "ECG 心電圖",
             if (ecgAvailability == SensorResultAvailability.RESULT_AVAILABLE) ecgDisplayValue(raw)
-            else ecgAvailability?.label ?: "待量測",
-            EcgHomeCardPresentationPolicy.supportingText(ecg?.valueText, ecgAvailability) + "\n獨立原始量測；原廠 ECG 須由 Mi Fitness 啟用。",
+            else if (ecgAvailability == null) "待量測" else "重新量測",
+            EcgHomeCardPresentationPolicy.supportingText(ecg?.valueText, ecgAvailability),
             Color.rgb(52, 199, 89), measurementPath = "/control/ecg-now"
         ) {
             startActivity(Intent(this, IrregularRhythmActivity::class.java))
@@ -513,12 +513,7 @@ class VitalsHomeActivity : ComponentActivity() {
     private fun rawSamplesLabel(raw: android.content.SharedPreferences, kind: String): String {
         val samples = raw.getInt("${kind}_raw_value_count", raw.getInt("${kind}_samples", 0))
         val events = raw.getInt("${kind}_event_count", 0)
-        return when {
-            samples > 0 && events > 0 -> "$samples 個原始值 · $events 個事件"
-            samples > 0 -> "$samples 個原始值"
-            events > 0 -> "$events 個原始事件"
-            else -> "—"
-        }
+        return if (samples > 0 || events > 0) "尚無健康讀值，請重測" else "待量測"
     }
 
     private fun ecgDisplayValue(raw: android.content.SharedPreferences): String {

@@ -39,9 +39,9 @@ class AiHealthAnalysisUiStateContractTest {
             )
         )
 
-        assertEquals("研究資料", display.state)
+        assertEquals("尚無健康結果", display.state)
         assertFalse(display.state == "正常" || display.state == "需留意")
-        assertTrue(display.value.contains("3170"))
+        assertEquals("重新量測", display.value)
     }
 
     @Test
@@ -66,8 +66,8 @@ class AiHealthAnalysisUiStateContractTest {
             item("spo2", "—", HealthConclusionEngine.Level.UNAVAILABLE, available = false)
         )
 
-        assertEquals("0 點", measuredZero.value)
-        assertEquals("研究資料", measuredZero.state)
+        assertEquals("重新量測", measuredZero.value)
+        assertEquals("尚無健康結果", measuredZero.state)
         assertEquals("尚無結果", missing.state)
         assertFalse(measuredZero.value == missing.value)
     }

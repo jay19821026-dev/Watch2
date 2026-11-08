@@ -271,20 +271,7 @@ class WearEcgActivity : ComponentActivity() {
             snapshot.acquisitionStopReason,
             completedSegments
         )
-        startButton.text = if (snapshot.eventCount > 0) "繼續收集（新區段）" else "重新量測"
-        headline.text = when {
-            snapshot.eventCount <= 0 -> "尚無事件"
-            snapshot.acquisitionStopReason == "time_limit_reached" -> "ECG 研究解碼完成 · 時間／單位未校準"
-            snapshot.acquisitionStopReason == "signal_stalled" -> "訊號中斷 · 保留部分資料"
-            auto -> "量測完成"
-            else -> "已手動結束"
-        }
-        if (snapshot.eventCount <= 0) detail.text = "未收到 ECG 事件。請雙指同時按住錶冠與側鍵，錶帶貼合，重試。"
-        when (snapshot.acquisitionStopReason) {
-            "no_callback_timeout" -> detail.append("\n啟動後 8 秒未收到感測事件，已停止以節省電量。")
-            "signal_stalled" -> detail.append("\n感測事件中斷，已停止並保留目前資料。")
-            "time_limit_reached" -> detail.append("\n本區段已結束並保存原始事件；時間戳未驗證，波形以索引軸呈現。不輸出 bpm、RR 或疾病判定。按「繼續收集」開始下一區段。")
-        }
+        startButton.text = "重新量測"
         if (continueAutomatically) {
             headline.text = "持續收集中 · 已保存第 ${completedSegments} 區段"
             detail.append("\n將自動開始下一區段（最多 ${EcgCapturePolicy.MAX_AUTO_SEGMENTS} 區段）；按「結束並保存」可隨時停止。")
@@ -303,8 +290,6 @@ class WearEcgActivity : ComponentActivity() {
         lastSampleCount = snapshot.eventCount
         if (active && !shouldRenderPreview()) return
         val rows = if (active) snapshot.eventRawValueRows.takeLast(120) else snapshot.eventRawValueRows
-        val decoded = EcgRawEventDecoder.decode(rows)
-        val structureConclusion = EcgEventStructureInterpreter.interpret(rows.size, decoded.layoutComparison)
         val eventPreview = EcgEventPreview.oemPacketCandidates(
             snapshot.eventRawValueRows, snapshot.ecgEventContactStates, snapshot.eventTimestampsNs, snapshot.eventCount,
             runCatching { android.provider.Settings.Global.getInt(contentResolver, "wear_wrist_orientation_mode", 0) }.getOrDefault(0)
@@ -321,23 +306,13 @@ class WearEcgActivity : ComponentActivity() {
             "原始 ECG 感測事件第 1 欄數值，按事件順序顯示；未通過封包條件，不代表已解碼心電波形"
         }
         chart.visibility = if (visiblePreview.size >= 2) View.VISIBLE else View.GONE
-        headline.text = if (active) "量測中 · ${snapshot.eventCount} 個 Sensor API 事件" else "已保存 ${snapshot.eventCount} 個原始事件"
-        val layout = decoded.layoutComparison
-        detail.text = buildString {
-            append("欄位映射：未驗證（${decoded.status}）；原始保存：${snapshot.eventRawValuesStatus}。近期預覽 ${rows.size} 列 × 16 欄 = ${decoded.inspectedFieldValueCount} 個欄位數值；前 10 欄假設候選 ${decoded.candidateValueCount} 個，不是已解碼 ECG 樣本。\n")
-            append(if (showQualifiedPreview) "圖表：符合已觀察封包條件的候選值。\n" else "圖表：原始事件第 1 欄數值（${rawFieldPreview.size} 點）；未符合封包條件，仍可查看已收到的數值。\n")
-            append("原廠 APK 對照：原廠程式讀取感測器 65573、每列前 10 欄，並在第 11 欄（索引 10）為 1000 且離腕感測器回報配戴時才交由原廠演算法處理。近期 ${EcgEventPreview.oemMarkerCount(rows)}/${rows.size} 列有 1000 標記；本 APP 對齊離腕事件時間後，${snapshot.ecgEventContactStates.takeLast(rows.size).count { it == 1 }} 列有近期配戴狀態。離腕偵測不等於電極接觸，不作接觸品質、mV 或節律判斷。\n")
-            append("原廠量測略過前 ${EcgEventPreview.OEM_OBSERVED_WARMUP_EVENTS} 個 ECG 回呼；本 APP 保留所有原始事件，只在研究預覽略過這段起始資料。預覽另要求事件時間戳遞增，超過 1 秒的事件間隔會斷開畫線；這是顯示規則，不是原廠 ADC 取樣率。手機 Mi Fitness 的正式 ECG 紀錄另有報告取樣頻率與至少 25 秒的收件條件，不能套用到這些 Sensor API 原始封包。\n")
-            append("排列假設相鄰差絕對中位數：列優先 ${layout?.rowMajorMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}；欄優先 ${layout?.columnMajorMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}。同列 ${layout?.withinRowMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}；跨列邊界 ${layout?.rowBoundaryMedianAbsoluteDelta?.let { "%.3f".format(it) } ?: "—"}。只是數值排列比較，不驗證欄位映射。\n")
-            append("第 12 欄（索引 11）僅作計數器假設檢查：+10 ${layout?.counterPlusTenTransitions ?: 0} 次、重置／重複 ${layout?.counterResetTransitions ?: 0} 次、其他遞增 ${layout?.otherCounterTransitions ?: 0} 次；不據此認定語義。\n")
-            append("封包結構結論：${structureConclusion.headline}\n")
-            structureConclusion.details.forEach { append("· $it\n") }
-            append("時間戳、ADC 取樣時鐘及振幅單位未知；保留原始事件供重播驗證。")
-        }
+        headline.text = if (active) "正在量測 ECG" else if (showQualifiedPreview) "ECG 訊號已取得" else "本次 ECG 檢測無效"
+        detail.text = if (active) "雙指穩定接觸錶冠與側鍵，保持不動" else if (showQualifiedPreview)
+            "量測已完成，請在手機查看結果。" else "未取得可分析的心電波形，請重新量測。"
         rhythmStatus.text = when {
-            active -> "研究結果：量測中 · 已收到 ${snapshot.eventCount} 個原始事件"
-            snapshot.eventCount <= 0 -> "研究結論：無法判定（未收到 ECG 事件，請重新量測）"
-            else -> "研究結論：無法判定節律 · ${snapshot.eventCount} 個原始事件／${snapshot.samples} 個已解碼樣本；欄位與取樣時鐘尚未驗證"
+            active -> "量測中"
+            snapshot.eventCount <= 0 || !showQualifiedPreview -> "本次無效，請重新量測"
+            else -> "已取得波形；手機尚未顯示心律結果"
         }
     }
 

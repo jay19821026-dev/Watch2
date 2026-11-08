@@ -13,8 +13,8 @@ class AnalysisLeadSummaryTest {
         }
         val result = AnalysisLeadSummary.from(items)
         assertTrue(result.recordedLines.isEmpty())
-        assertEquals(2, result.researchLines.size)
-        assertTrue(result.headline.contains("原始訊號"))
+        assertTrue(result.researchLines.isEmpty())
+        assertTrue(result.headline.contains("重新量測"))
         assertFalse(result.headline.contains("正常"))
     }
 
@@ -29,6 +29,6 @@ class AnalysisLeadSummaryTest {
         )
         val result = AnalysisLeadSummary.from(listOf(raw, measured))
         assertEquals(listOf("心率：77 bpm"), result.recordedLines)
-        assertEquals(listOf("ECG：221 個原始事件"), result.researchLines)
+        assertTrue(result.researchLines.isEmpty())
     }
 }
