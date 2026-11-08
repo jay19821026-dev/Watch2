@@ -38,5 +38,5 @@ Project: https://ailisa.net/portfolio/ailisa-health-bridge
 
 ## Evidence before posting / 發布前核對
 
-- Test 31 is public on GitHub Release and ailisa.net (Site version pending update). Both APKs passed builds and unit tests, but ADB listed no devices before publication; no test 31 install or live measurement is claimed. The site's watch photo is an older test 20 capture. Signed Play AABs have not been uploaded. Do not claim OEM ECG unlock or clinical validation.
+- Test 31 is public on GitHub Release and ailisa.net (Site version 202). Both APKs passed builds and unit tests, but ADB listed no devices before publication; no test 31 install or live measurement is claimed. The site's watch photo is an older test 20 capture. Signed Play AABs have not been uploaded. Do not claim OEM ECG unlock or clinical validation.
 - Add the project to the user's own LinkedIn profile only after the authenticated profile and destination fields can be verified. Record the resulting project URL after saving.

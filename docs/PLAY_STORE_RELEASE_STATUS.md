@@ -1,14 +1,15 @@
 # Play Store release status / Play 商店發行狀態
 
 Last verified / 最後驗證：2026-11-08
-Last built bundle / 上次已建置 AAB：test 29 原始碼，新套件手機 `versionCode 204`、手錶 `205`；候選 upload key 簽章，尚未上傳 Play。
-Current source / 目前原始碼：test 31 雙端 Debug 為 `4.0.0`／`versionCode 209`、套件 `net.ailisa.healthbridge`。包含 test 30 依原廠正值篩選對照排除 Health Connect 血氧零值、移除未校驗血氧分數的修正；手機版另新增[每日資料報告](DAILY_HEALTH_REPORT_4_0.md)，只列同日可追溯資料與缺口。雙端單元測試、Debug 建置、APK 套件與簽章檢查通過；目前無 ADB 裝置可驗證安裝與量測。Play 候選 AAB 仍是 test 29 原始碼，**不能代表 test 31**，上傳前必須重建並核對 Console 版號。先前 test 25 雙端 APK 已安裝；舊手機資料橋接已完成一次實機匯入，手錶本機資料尚未搬遷。詳見 [對照文件](OEM_DATA_WINDOW_COMPARISON_4_0.md)。
+Last built bundle / 上次已建置 AAB：test 31 原始碼，新套件手機 `versionCode 210`、手錶 `211`；候選 upload key 簽章，尚未上傳 Play。
+Current source / 目前原始碼：test 31 雙端 Debug 為 `4.0.0`／`versionCode 209`、套件 `net.ailisa.healthbridge`。包含 test 30 依原廠正值篩選對照排除 Health Connect 血氧零值、移除未校驗血氧分數的修正；手機版另新增[每日資料報告](DAILY_HEALTH_REPORT_4_0.md)，只列同日可追溯資料與缺口。雙端單元測試、Debug 建置、APK 套件與簽章檢查通過；目前無 ADB 裝置可驗證安裝與量測。對 [Health Connect 支援範圍](HEALTH_CONNECT_COMPATIBILITY_4_0.md) 與原廠輸出的邊界另有說明。test 31 Play 候選 AAB 已本機建置、尚未經 Console 接受；正式版號仍須核對 Console 既有紀錄。先前 test 25 雙端 APK 已安裝；舊手機資料橋接已完成一次實機匯入，手錶本機資料尚未搬遷。詳見 [對照文件](OEM_DATA_WINDOW_COMPARISON_4_0.md)。
 Package / 套件：`net.ailisa.healthbridge`
 
-The test 17 signed AABs have the old package ID. The new-package test 18–28 AABs are superseded by test 29 local candidates. Final codes, upload-certificate enrollment and Play Console health declarations still require Console inspection. / test 17 為舊套件、test 18–28 為舊候選，均已由 test 29 本機候選取代；尚未上傳或通過 Play 審核。
+The test 17 signed AABs have the old package ID. The new-package test 18–30 AABs are superseded by test 31 local candidates. Final codes, upload-certificate enrollment and Play Console health declarations still require Console inspection. / test 17 為舊套件、test 18–30 為舊候選，均已由 test 31 本機候選取代；尚未上傳或通過 Play 審核。
 
 ## Verified / 已驗證
 
+- Test 31 signed AABs use `net.ailisa.healthbridge`, mobile/Wear codes `210`/`211`. Both `bundleRelease` and `lintVitalRelease` passed; bundletool 1.17.2 validated and decoded both manifests (only Wear declares the watch feature); `jarsigner -verify` passed. Local SHA-256: phone `206419901C80DA6F0B3C0A77B23CA2FDD70818130E0F835302AC1A1EB8C1096B`, Wear `3207114D301735F2100CD33E91F2072A466A091C58FB378BE95CD6EB7F00DCEA`. Ignored copies: `dist/play-candidates/test31/`. Neither has been uploaded to or accepted by Play. / test 31 雙端簽署 AAB 已本機驗證，尚未上傳或通過 Play。
 - Test 29 signed AABs use `net.ailisa.healthbridge`, mobile/Wear codes `204`/`205`. Both `bundleRelease` and `lintVitalRelease` passed; bundletool 1.17.2 validated both bundles and decoded their package/version; `jarsigner -verify` passed. Local SHA-256: phone `2F7863A714BD4268704F33A0C02E1ECBF4A392A6FABF0A0CB4DB44C7D12A0994`, Wear `E0AE771175606AC4F840CDABFE6E01FCE7BD1FA3525DCC2CBFC18299D0588CC9`. Ignored copies are in `dist/play-candidates/test29/`. Neither has been uploaded to or accepted by Play. / test 29 雙端 AAB 已本機建置、bundletool 驗證並確認簽章，尚未經 Play Console 接受。
 
 - Test 28 signed AABs use `net.ailisa.healthbridge`, mobile/Wear codes `201`/`202`. Both `bundleRelease` and `lintVitalRelease` passed; bundletool 1.17.2 validated each bundle and decoded package/version, and `jarsigner -verify` passed. Local SHA-256: phone `7AC0A3F0DABFA0D8E25FE7A6D85649CBEAFCA3DD26263A86EF0E0F726D3C1022`, Wear `4D13D5605952E24C8481988CCA8FD754FD92735C6B694A6500F849D60AB1286F`. Ignored copies are in `dist/play-candidates/test28/`. Play Console acceptance has **not** been checked for these files. / test 28 雙端 AAB 已本機建置、bundletool 驗證並確認簽章，尚未經 Play Console 接受。
