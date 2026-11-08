@@ -83,25 +83,21 @@ class IrregularRhythmActivity : ComponentActivity() {
 
         if (!hasEvidence) {
             root.addView(card(displayedTitle, consumerStatus.detail, Color.rgb(142, 142, 147)))
-        } else if (!estimateUsable || title.isNullOrBlank()) {
+        } else if (consumerStatus.state == EcgConsumerStatus.State.UNDETERMINED) {
             root.addView(card(
                 "本次沒有心律結果",
                 "請讓手指貼緊電極、手臂保持不動，再量測一次。",
                 Color.rgb(90, 200, 250)
             ))
         } else {
-            val accent = when {
-                estimateUsable && title.contains("房顫") -> Color.rgb(255, 59, 48)
-                estimateUsable && title.contains("不整") -> Color.rgb(255, 149, 0)
-                estimateUsable && (title.contains("竇性") || title.contains("規則")) -> Color.rgb(52, 199, 89)
-                else -> Color.rgb(90, 200, 250)
-            }
+            val accent = if (consumerStatus.state == EcgConsumerStatus.State.ABNORMAL)
+                Color.rgb(255, 149, 0) else Color.rgb(52, 199, 89)
             root.addView(card("最近結果", displayedTitle, accent))
             root.addView(card(
                 "摘要",
                 buildString {
                     displayedBpm?.let { append("%.0f bpm · ".format(it)) }
-                    append("${if (title.contains("不整") || title.contains("房顫")) "心律跡象需留意" else "心律間距規則"}")
+                    append(consumerStatus.detail)
                     if (time > 0) {
                         append('\n')
                         append(SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date(time)))

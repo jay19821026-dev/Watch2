@@ -49,6 +49,9 @@ class EcgConsumerStatusTest {
             EcgConsumerStatus.State.UNDETERMINED,
             EcgConsumerStatus.classify(true, "", true).state
         )
+        val unrecognized = EcgConsumerStatus.classify(true, "訊號品質待確認", true)
+        assertEquals(EcgConsumerStatus.State.UNDETERMINED, unrecognized.state)
+        assertEquals("尚無心律結果", unrecognized.label)
     }
 
     @Test fun completedCaptureWithEvidenceShowsUndeterminedInsteadOfMeasuring() {
