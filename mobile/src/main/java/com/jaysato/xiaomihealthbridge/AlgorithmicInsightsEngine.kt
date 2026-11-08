@@ -906,14 +906,11 @@ class AlgorithmicInsightsEngine(context: Context) {
         val sleepSessionEndAt = uniqueSleep.orEmpty().asSequence()
             .filter { it.endTime.isAfter(sleepWindowStart) && !it.endTime.isAfter(now) && it.startTime.isBefore(now) }
             .maxOfOrNull { it.endTime }
-        val sleepRecordsAmbiguous = !rawSleep.isNullOrEmpty() && sleep == null
-        val hasRecentRecordedSleep = sleepSessionEndAt != null
-        val sleepInference = if (!SleepInferencePolicy.shouldInfer(rawSleep != null, sleepRecordsAmbiguous, hasRecentRecordedSleep)) null else SleepInferencePolicy.infer(
-            samples.map { SleepInferencePolicy.Sample(it.time, it.beatsPerMinute.toDouble()) }, now, localZone
-        )
-        val inferredSleep = sleepInference?.hours
-        val sleepInferred = sleepHours == null && inferredSleep != null
-        val effectiveSleep = sleepHours?.takeIf { it > 0 } ?: inferredSleep
+        // A low heart-rate span does not establish a sleep session or its duration.
+        // Only stage-complete recorded sleep may enter health summaries and scoring.
+        val sleepInference: SleepInferencePolicy.Result? = null
+        val sleepInferred = false
+        val effectiveSleep = sleepHours?.takeIf { it > 0 }
         var todayCaloriesProvenance: String? = null
         val todayCalorieRecords = calories?.filter { it.startTime >= todayStart && it.endTime <= now }
             ?.takeIf { it.isNotEmpty() }
