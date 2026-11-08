@@ -222,8 +222,8 @@ class WearEcgActivity : ComponentActivity() {
         stopButton.text = "結束並保存原始資料"
         if (::doneButton.isInitialized) doneButton.visibility = android.view.View.GONE
         headline.text = "持續收集中 · 第 ${completedSegments + 1} 區段"
-        detail.text = "雙指接觸電極以觸發手錶事件。格式通過研究解碼後會顯示索引軸相對波形；沒有時間及裝置校準時不換算 mV、RR 或心率。"
-        rhythmStatus.text = "節律：需可信時間與波形校準"
+        detail.text = "雙指穩定接觸錶冠與側鍵，手臂平放並保持不動。"
+        rhythmStatus.text = "正在等待量測結果"
         chart.setSamples(emptyList())
         handler.removeCallbacks(quietCheck)
         handler.removeCallbacks(hardStop)

@@ -146,7 +146,7 @@ class WorkoutAnalysisActivity : ComponentActivity() {
             speed?.let { append("\n平均速度  ${"%.1f km/h".format(it)}") }
             averageHeartRate?.let { append("\n平均心率  ${"%.0f bpm".format(it)}") }
         }), lp(bottom = 14))
-        content.addView(panel("Health Connect 運動樣本", buildString {
+        content.addView(panel("運動時的其他紀錄", buildString {
             append(metricSummary("速度", "km/h", speedSamples))
             append("\n")
             append(metricSummary("步頻", "步／分鐘", cadenceSamples))

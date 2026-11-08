@@ -22,7 +22,6 @@ class NoiseSummaryActivity : ComponentActivity() {
         val raw = RawSensorStore.open(this@NoiseSummaryActivity)
         val dbfs = raw.getFloat("noise_dbfs", Float.NaN).takeIf { it.isFinite() }
         val dba = raw.getFloat("noise_dba", Float.NaN).takeIf { it.isFinite() }
-        val samples = raw.getInt("noise_samples", 0)
         val time = raw.getLong("noise_time", 0L)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -42,7 +41,6 @@ class NoiseSummaryActivity : ComponentActivity() {
             addView(TextView(context).apply {
                 text = when {
                     dba != null -> "%.0f".format(dba)
-                    dbfs != null -> "%.0f".format(dbfs)
                     else -> "—"
                 }
                 textSize = 48f; setTextColor(Color.BLACK); setTypeface(typeface, Typeface.BOLD)
@@ -50,14 +48,14 @@ class NoiseSummaryActivity : ComponentActivity() {
             addView(TextView(context).apply {
                 text = when {
                     dba != null -> "dBA（已參考校正）"
-                    dbfs != null -> "dBFS 原始（未校正）"
-                    else -> "尚無手錶噪音資料"
+                    dbfs != null -> "已有量測；尚未校正，無法判斷環境噪音強度"
+                    else -> "尚無手錶噪音讀值"
                 }
                 textSize = 14f; setTextColor(Color.rgb(110, 110, 120))
             })
-            if (samples > 0 || time > 0) {
+            if (time > 0) {
                 addView(TextView(context).apply {
-                    text = "樣本 $samples · ${if (time > 0) java.text.SimpleDateFormat("MM/dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(time)) else "—"}"
+                    text = "更新於 ${java.text.SimpleDateFormat("MM/dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(time))}"
                     textSize = 13f; setTextColor(Color.rgb(120, 120, 130))
                     setPadding(0, dp(6), 0, 0)
                 })
@@ -65,7 +63,7 @@ class NoiseSummaryActivity : ComponentActivity() {
         })
         root.addView(card("說明") {
             addView(TextView(context).apply {
-                text = "麥克風讀值需手錶端參考聲級計校正後才輸出 dBA。未校正前僅顯示研究用 dBFS。"
+                text = "噪音強度需要校正後才能與常見聲級參考比較。請在安靜環境重新量測，或先完成聲級校正。"
                 textSize = 14f; setTextColor(Color.rgb(60, 60, 67))
             })
         })
@@ -85,9 +83,13 @@ class NoiseSummaryActivity : ComponentActivity() {
                         }
                         Wearable.getMessageClient(this@NoiseSummaryActivity)
                             .sendMessage(node.id, "/control/noise-now", byteArrayOf())
+                            .addOnSuccessListener {
+                                android.widget.Toast.makeText(this@NoiseSummaryActivity, "已通知手錶開始量測", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener {
+                                android.widget.Toast.makeText(this@NoiseSummaryActivity, "無法通知手錶，請確認連線", android.widget.Toast.LENGTH_LONG).show()
+                            }
                     }
-                startActivity(Intent(this@NoiseSummaryActivity, UnavailableFeatureActivity::class.java)
-                    .putExtra("feature", "noise"))
             }
             layoutParams = LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(8) }
         })

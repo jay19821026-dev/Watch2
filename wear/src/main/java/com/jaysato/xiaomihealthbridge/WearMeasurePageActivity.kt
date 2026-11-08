@@ -785,7 +785,7 @@ class WearMeasurePageActivity : ComponentActivity() {
             mode == Mode.HEART_RATE -> "這次沒有量到心率"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && primary != null -> "光學研究估算完成 · 已同步手機"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && opticalCaptureUsable -> "這次沒有可用的脈搏讀值"
-            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && snapshot.samples > 0 -> "這次脈搏量測無效"
+            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && snapshot.samples > 0 -> "這次沒有脈搏結果 · 請重新量測"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) -> "沒有收到可用光學訊號"
             mode == Mode.TEMPERATURE && snapshot.worn == false -> "請戴好手錶後重測"
             mode == Mode.TEMPERATURE && snapshot.worn == null -> "請確認手錶貼合手腕後重測"
