@@ -11,6 +11,8 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.lifecycle.lifecycleScope
@@ -19,10 +21,13 @@ import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
+import kotlin.reflect.KClass
 import kotlin.math.*
 
 class WorkoutAnalysisActivity : ComponentActivity() {
     private lateinit var content: LinearLayout
+    private data class WorkoutMetricSample(val time: Instant, val value: Double, val origin: String)
+    private data class WorkoutMetricResult(val samples: List<WorkoutMetricSample>, val status: String? = null)
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
@@ -72,14 +77,45 @@ class WorkoutAnalysisActivity : ComponentActivity() {
             } catch (_: Exception) {
                 emptyList<HeartRateRecord.Sample>() to "心率資料讀取失敗；這不代表運動期間沒有心率。"
             }
-            showWorkout(workout, heartSamples, readError)
+            val speed = readWorkoutMetric(workout, SpeedRecord::class) { record ->
+                record.samples.map { WorkoutMetricSample(it.time, it.speed.inMetersPerSecond * 3.6, record.metadata.dataOrigin.packageName) }
+            }
+            val cadence = readWorkoutMetric(workout, StepsCadenceRecord::class) { record ->
+                record.samples.map { WorkoutMetricSample(it.time, it.rate, record.metadata.dataOrigin.packageName) }
+            }
+            showWorkout(workout, heartSamples, readError, speed, cadence)
+        }
+    }
+
+    private suspend fun <T : androidx.health.connect.client.records.Record> readWorkoutMetric(
+        workout: WorkoutRouteStore.Workout,
+        type: KClass<T>,
+        samples: (T) -> List<WorkoutMetricSample>,
+    ): WorkoutMetricResult {
+        return try {
+            val client = HealthConnectClient.getOrCreate(this)
+            if (HealthPermission.getReadPermission(type) !in client.permissionController.getGrantedPermissions()) {
+                return WorkoutMetricResult(emptyList(), "未授權；請在 Health Connect 允許此類資料的讀取權限。")
+            }
+            val start = Instant.ofEpochMilli(workout.start)
+            val end = Instant.ofEpochMilli(workout.end)
+            val records = client.readAllRecords(type, TimeRangeFilter.between(start, end), maxRecords = 2_000)
+            WorkoutMetricResult(records.flatMap(samples).filter { !it.time.isBefore(start) && !it.time.isAfter(end) && it.value.isFinite() && it.value >= 0.0 })
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: HealthConnectReadLimitException) {
+            WorkoutMetricResult(emptyList(), "紀錄超過 2,000 筆，本次沒有顯示不完整的統計。")
+        } catch (_: Exception) {
+            WorkoutMetricResult(emptyList(), "讀取失敗；不能視為沒有資料。")
         }
     }
 
     private fun showWorkout(
         workout: WorkoutRouteStore.Workout,
         heartSamples: List<HeartRateRecord.Sample>,
-        heartRateReadError: String?
+        heartRateReadError: String?,
+        speedSamples: WorkoutMetricResult,
+        cadenceSamples: WorkoutMetricResult,
     ) {
         val exerciseHeartSamples = heartSamples.filter { it.time.toEpochMilli() <= workout.end }
         val distanceMeters = workout.points.zipWithNext().sumOf { (a, b) -> distance(a.latitude, a.longitude, b.latitude, b.longitude) }
@@ -107,8 +143,14 @@ class WorkoutAnalysisActivity : ComponentActivity() {
             append("距離  ${"%.2f".format(distanceMeters / 1000.0)} km\n")
             append("時間  ${"%.0f".format(durationMinutes)} 分鐘\n")
             append("平均配速  ${pace?.let(::formatPace) ?: "資料不足"}\n")
-            append("平均速度  ${speed?.let { "%.1f km/h".format(it) } ?: "資料不足"}\n")
+            append("GPS 推算平均速度  ${speed?.let { "%.1f km/h".format(it) } ?: "資料不足"}\n")
             append("平均心率  ${averageHeartRate?.let { "%.0f bpm".format(it) } ?: "資料不足"}")
+        }), lp(bottom = 14))
+        content.addView(panel("Health Connect 運動樣本", buildString {
+            append(metricSummary("速度", "km/h", speedSamples))
+            append("\n")
+            append(metricSummary("步頻", "步／分鐘", cadenceSamples))
+            append("\n僅依此路線的時間範圍查找。來源套件與時間相符仍不能單獨證明由這隻手錶量測；樣本平均不等於 GPS 推算速度。")
         }), lp(bottom = 14))
         content.addView(panel("訓練與爬升", buildString {
             append("累積爬升  ${"%.0f".format(elevationGain)} m\n")
@@ -129,6 +171,14 @@ class WorkoutAnalysisActivity : ComponentActivity() {
         }
         content.addView(SeriesChartView(this, exerciseHeartSamples.map { it.beatsPerMinute.toDouble() }, Color.rgb(255, 96, 118)), LinearLayout.LayoutParams(-1, dp(150)))
         content.addView(text("VO₂max、訓練負荷與爬升效率為運動估算值，會隨 GPS 與心率資料完整度改變。", 12f, HealthVisuals.secondary), lp(top = 12))
+    }
+
+    private fun metricSummary(label: String, unit: String, result: WorkoutMetricResult): String {
+        result.status?.let { return "$label：$it" }
+        if (result.samples.isEmpty()) return "$label：此路線時段沒有可讀樣本。"
+        return result.samples.groupBy { it.origin.ifBlank { "來源未標示" } }.toSortedMap().entries.joinToString("\n") { (origin, samples) ->
+            "$label · $origin：${samples.size} 個樣本；樣本平均 ${"%.1f".format(samples.map { it.value }.average())} $unit"
+        }
     }
 
     private fun panel(title: String, message: String) = LinearLayout(this).apply {

@@ -10,7 +10,7 @@ This independent project is not affiliated with, endorsed by, or sponsored by Xi
 
 > The hero is a privacy-safe illustrative mockup. Actual features and support depend on the source, device capabilities, and `SUPPORT_MATRIX.md`.
 
-Current test version: `4.0.0` test 17 (matching Debug versionCode `169`). The source tree contains:
+Current test version: `4.0.0` test 22 (matching Debug versionCode `184`). The source tree contains:
 
 - `mobile/` — Android phone app
 - `wear/` — Wear OS watch app
@@ -35,6 +35,7 @@ All screenshots are demo screens containing no personal data. More examples: [su
 - Test 15 adds OEM-sourced preparation tips for raw SpO₂ and temperature and a [step-by-step comparison of typed OEM service results with public Android sensor events](docs/OEM_SPO2_TEMPERATURE_SOURCE_TRACE.md). Raw values remain uncalibrated.
 - Test 16 distinguishes the OEM typed stress service from this project's HRV research score and adds a user-tapped entry to the OEM stress screen. The two results are not interchangeable.
 - Test 17 uses Mi Fitness's manual blood-pressure/glucose record paths to correct misleading optical-BP labels and blocks legacy estimates from appearing as mmHg. The phone records external cuff readings only.
+- Test 22 compares the Health Connect workout paths in Mi Fitness 3.53.0i and the paired phone's 3.59.2i. The workout page separates GPS-estimated speed from authorized speed and cadence samples by source package. See the [static comparison](docs/MI_FITNESS_3_53_0I_XAPK_COMPARISON.md).
 
 ## Medical disclaimer
 
@@ -44,13 +45,13 @@ ECG remains research-only unless device-specific lead mapping, ADC timing, and r
 
 ## APKs
 
-Matching 4.0.0 test 21 APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) or [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.21):
+Matching 4.0.0 test 22 APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) or [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.22):
 
-- `AILISAHealthBridge-Mobile-4.0.0-vc181-test21-debug.apk` — Android phone
-- `AILISAHealthBridge-Wear-4.0.0-vc181-test21-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
+- `AILISAHealthBridge-Mobile-4.0.0-vc184-test22-debug.apk` — Android phone
+- `AILISAHealthBridge-Wear-4.0.0-vc184-test22-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
 - [test 18 legacy migration bridge](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.18) — update the old phone app first if migrating encrypted records
 
-Debug APKs use an Android development signature and are not Play Store releases. The new `net.ailisa.healthbridge` package coexists with the old app. Read the [migration guide](docs/PACKAGE_MIGRATION_4_0.en.md) and keep the old installations. Verify the [test 21 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.21/SHA256SUMS-4.0.0-test.21.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
+Debug APKs use an Android development signature and are not Play Store releases. The new `net.ailisa.healthbridge` package coexists with the old app. Read the [migration guide](docs/PACKAGE_MIGRATION_4_0.en.md) and keep the old installations. Verify the [test 22 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.22/SHA256SUMS-4.0.0-test.22.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
 
 The ready-to-paste bilingual Play Store listing, console selections, release notes, and graphic-asset inventory are in [`docs/PLAY_STORE_LISTING_COPY.md`](docs/PLAY_STORE_LISTING_COPY.md). Release flow, privacy, Data safety, and Health apps declaration materials are in [`docs/PLAY_STORE_RELEASE_GUIDE.en.md`](docs/PLAY_STORE_RELEASE_GUIDE.en.md), [`docs/PRIVACY_POLICY.en.md`](docs/PRIVACY_POLICY.en.md), and [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md).
 

@@ -114,7 +114,7 @@ class HealthConnectOriginAuditActivity : ComponentActivity() {
                 try {
                     val records = client.readAllRecords(type, filter, maxRecords = 2_000)
                     if (records.isEmpty()) {
-                        lines += "$label：已授權，近七天沒有可讀紀錄。"
+                        lines += "$label：已授權，近七天沒有可讀紀錄；不能據此判定手錶不支援。"
                         return
                     }
                     val totalSamples = sampleCount?.let { count -> records.sumOf { count(it).toLong() } }
@@ -164,6 +164,7 @@ class HealthConnectOriginAuditActivity : ComponentActivity() {
             )
             lines += ""
             lines += "Mi Fitness 3.53.0i 的反組譯顯示多個心率樣本可能合併為一筆 Health Connect 紀錄；紀錄筆數不等於量測次數。步數來源也可能是 Android 裝置的合成套件名稱；來源套件不能單獨證明 Watch 2 Pro 量測。"
+            lines += "若要核對 Mi Fitness 卻仍是零筆：請檢查原廠 App 在目前地區是否提供 Health Connect、是否已授權並完成手錶同步。速度與步頻走運動紀錄路徑，沒有相應運動時也可能是零筆；本 App 無法代替原廠開啟匯出。"
             result.text = lines.joinToString("\n")
         }
     }
