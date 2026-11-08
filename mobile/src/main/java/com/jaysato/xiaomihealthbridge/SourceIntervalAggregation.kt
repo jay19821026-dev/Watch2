@@ -15,7 +15,8 @@ internal object SourceIntervalAggregation {
         MULTIPLE_DATA_ORIGINS,
         INVALID_INTERVAL,
         INVALID_VALUE,
-        OVERLAPPING_INTERVALS
+        OVERLAPPING_INTERVALS,
+        DUPLICATE_SAMPLE_TIMESTAMPS
     }
 
     data class Assessment(val eligible: Boolean, val rejection: Rejection? = null)

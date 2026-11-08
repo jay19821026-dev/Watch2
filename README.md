@@ -10,7 +10,7 @@ AILISA Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 
 > 上圖為不含真實個資的示意圖；實際功能與支援項目以原始碼、裝置能力及 `SUPPORT_MATRIX.md` 為準。
 
-目前測試版本：`4.0.0` test 24（雙端 Debug versionCode `190`）。原始碼同時包含：
+目前測試版本：`4.0.0` test 25（雙端 Debug versionCode `193`）。原始碼同時包含：
 
 - `mobile/`：Android 手機 App
 - `wear/`：Wear OS 手錶 App
@@ -37,6 +37,7 @@ AILISA Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 - test 22 對照 Mi Fitness 3.53.0i 與配對手機 3.59.2i 的 Health Connect 運動資料路徑；運動頁分別顯示 GPS 推算速度與已授權的速度、步頻樣本，並保留來源套件。詳見[反組譯對照](docs/MI_FITNESS_3_53_0I_XAPK_COMPARISON.md)。
 - test 23 對照兩版原廠步數匯出前的來源分組規則，修正平台彙總不可用時的備援：不再直接把多來源原始步數相加，並標示單一來源最高值不是去重總步數。
 - test 24 對照兩版原廠活動熱量的來源分組匯出；平台彙總不可用時，只顯示同日可讀、無重疊紀錄的來源最高小計，並標明不是去重或完整日總熱量。
+- test 25 對照原廠把多個心率樣本裝入一筆 Health Connect 紀錄的方式；首頁趨勢改按實際樣本時間與來源判斷，避免把紀錄區間重疊誤當成樣本重疊。
 
 ## 重要醫療聲明
 
@@ -46,13 +47,13 @@ AILISA Health Bridge 是一個 Android 手機 + Wear OS 雙端開源研究專案
 
 ## APK 安裝
 
-4.0.0 test 24 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) 或 [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.24) 下載：
+4.0.0 test 25 雙端測試 APK 可由 [ailisa.net 下載頁](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) 或 [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.25) 下載：
 
-- `AILISAHealthBridge-Mobile-4.0.0-vc190-test24-debug.apk`：安裝到 Android 手機
-- `AILISAHealthBridge-Wear-4.0.0-vc190-test24-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
+- `AILISAHealthBridge-Mobile-4.0.0-vc193-test25-debug.apk`：安裝到 Android 手機
+- `AILISAHealthBridge-Wear-4.0.0-vc193-test25-debug.apk`：安裝到 Xiaomi Watch 2 Pro／相容 Wear OS 裝置
 - [test 18 舊版資料搬遷橋接 APK](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.18)：需要搬遷時先覆蓋安裝在舊版手機 App
 
-Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。新套件識別碼為 `net.ailisa.healthbridge`，會與舊版並存；請先讀[搬遷指南](docs/PACKAGE_MIGRATION_4_0.en.md)，不要解除安裝舊版。安裝前請核對 [test 24 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.24/SHA256SUMS-4.0.0-test.24.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
+Debug APK 使用 Android 開發用簽章，適合側載測試，不是正式商店發行版。新套件識別碼為 `net.ailisa.healthbridge`，會與舊版並存；請先讀[搬遷指南](docs/PACKAGE_MIGRATION_4_0.en.md)，不要解除安裝舊版。安裝前請核對 [test 25 SHA-256](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.25/SHA256SUMS-4.0.0-test.25.txt)；詳見[中英文安裝與測試說明](docs/4.0_TEST_INSTALL.md)。
 
 專案也提供 PowerShell 安裝腳本；它會建置目前版本、檢查套件名稱／版本／簽章，再以 `adb install -r` 保留既有 App 資料：
 

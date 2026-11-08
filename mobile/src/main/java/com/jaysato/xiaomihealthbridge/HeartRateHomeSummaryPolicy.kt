@@ -39,6 +39,7 @@ internal object HeartRateHomeSummaryPolicy {
         val reason = when (aggregation.rejection) {
             SourceIntervalAggregation.Rejection.MULTIPLE_DATA_ORIGINS -> "多來源未合併"
             SourceIntervalAggregation.Rejection.OVERLAPPING_INTERVALS -> "區間重疊未合併"
+            SourceIntervalAggregation.Rejection.DUPLICATE_SAMPLE_TIMESTAMPS -> "樣本時間重複未合併"
             SourceIntervalAggregation.Rejection.INVALID_INTERVAL -> "時段無效，未合併"
             SourceIntervalAggregation.Rejection.INVALID_VALUE -> "部分數值無效，未合併"
             else -> "趨勢條件不足"

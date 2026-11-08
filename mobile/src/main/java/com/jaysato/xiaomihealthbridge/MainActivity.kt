@@ -635,21 +635,17 @@ class MainActivity : ComponentActivity() {
                 val rawHeartRates = readSafely("心率", HealthPermission.getReadPermission(HeartRateRecord::class)) {
                     client.readAllRecords(HeartRateRecord::class, heartRate24hFilter)
                 }.orEmpty()
-                val heartRateMeasurements = rawHeartRates.map { record ->
-                    val values = record.samples.map { it.beatsPerMinute.toDouble() }
-                    val average = values.average()
-                    SourceIntervalMeasurement(record.metadata.dataOrigin.packageName, record.startTime, record.endTime, average)
+                val heartRateSourceSamples = rawHeartRates.flatMap { record ->
+                    record.samples.map { sample -> HeartRateSampleTrendPolicy.Sample(
+                        record.metadata.dataOrigin.packageName, sample.time, sample.beatsPerMinute.toDouble()
+                    ) }
                 }
-                val heartRateAssessment = SourceIntervalAggregation.assess(heartRateMeasurements)
-                val heartRateSummarySamples = rawHeartRates.flatMap { record ->
-                    record.samples.filter { HealthConnectSampleTimePolicy.isWithinHalfOpenRange(it.time, heartRate24hStart, endTime) }
-                        .map { sample ->
-                            HeartRateHomeSummaryPolicy.Sample(
-                                friendlySource(record.metadata.dataOrigin.packageName), sample.time,
-                                sample.beatsPerMinute.toDouble()
-                            )
-                        }
-                }
+                val heartRateAssessment = HeartRateSampleTrendPolicy.assess(
+                    heartRateSourceSamples, heartRate24hStart, endTime
+                )
+                val heartRateSummarySamples = heartRateSourceSamples
+                    .filter { it.origin.isNotBlank() && HealthConnectSampleTimePolicy.isWithinHalfOpenRange(it.time, heartRate24hStart, endTime) }
+                    .map { HeartRateHomeSummaryPolicy.Sample(friendlySource(it.origin), it.time, it.bpm) }
                 val todayHeartRateRange = HeartRateDailySummaryPolicy.summarizeWindow(
                     heartRateSummarySamples.map {
                         HeartRateDailySummaryPolicy.Sample(it.time.toEpochMilli(), it.bpm, it.source)
@@ -1377,6 +1373,7 @@ class MainActivity : ComponentActivity() {
         SourceIntervalAggregation.Rejection.NO_RECORDS -> " · 尚無趨勢紀錄"
         SourceIntervalAggregation.Rejection.MULTIPLE_DATA_ORIGINS -> " · 多來源，趨勢暫不合併"
         SourceIntervalAggregation.Rejection.OVERLAPPING_INTERVALS -> " · 區間重疊，趨勢暫不合併"
+        SourceIntervalAggregation.Rejection.DUPLICATE_SAMPLE_TIMESTAMPS -> " · 樣本時間重複，趨勢暫不合併"
         SourceIntervalAggregation.Rejection.INVALID_INTERVAL -> " · 時段資料無效，趨勢不計"
         SourceIntervalAggregation.Rejection.INVALID_VALUE -> " · 數值無效，趨勢不計"
     }
