@@ -306,9 +306,9 @@ class WearEcgActivity : ComponentActivity() {
             "心電圖訊號預覽；這次訊號尚不能判讀，請重新量測。"
         }
         chart.visibility = if (visiblePreview.size >= 2) View.VISIBLE else View.GONE
-        headline.text = if (active) "正在擷取 ECG 訊號" else if (snapshot.eventCount > 0) "已擷取 ECG 訊號" else "尚未取得 ECG 訊號"
+        headline.text = if (active) "正在量測心電訊號" else if (snapshot.eventCount > 0) "已收到心電訊號" else "這次沒有收到心電訊號"
         detail.text = if (active) "雙指穩定接觸錶冠與側鍵，保持不動" else if (showQualifiedPreview)
-            "量測已完成，請在手機查看結果。" else "未取得可分析的心電波形，請重新量測。"
+            "訊號已保存；可在手機查看這次紀錄。" else "訊號不清楚；請保持手指接觸電極後重測。"
         rhythmStatus.text = when {
             active -> "量測中"
             snapshot.eventCount <= 0 -> "手錶尚未收到訊號"
