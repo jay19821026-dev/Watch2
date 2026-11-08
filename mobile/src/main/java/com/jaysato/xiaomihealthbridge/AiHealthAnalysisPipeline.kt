@@ -72,7 +72,7 @@ internal object AiHealthAnalysisPipeline {
         estimatedDailyCalories = null,
         ansAdvice = null,
         readiness = null,
-        unavailableInputs = listOf("本次趨勢資料階段發生例外；原始測量未修改")
+        unavailableInputs = listOf("本次趨勢資料暫時讀不到")
     )
 
     private fun fallbackEngineAnalysis(items: List<HealthConclusionEngine.Item>): LocalHealthAnalysisEngine.Analysis {
@@ -132,10 +132,10 @@ internal object AiHealthAnalysisPipeline {
     private fun fallbackExplanation(report: HealthConclusionEngine.Report) = LocalAiHealthAnalyzer.Result(
         level = LocalAiHealthAnalyzer.Level.INSUFFICIENT,
         score = null,
-        headline = "趨勢說明暫不可用；請查看下方單項判讀",
+        headline = "趨勢說明暫時讀不到；請查看各項健康結果",
         observedValueCount = report.items.count { it.available },
-        observations = listOf("趨勢說明階段發生例外；沒有生成替代生理數值。"),
-        actions = listOf("可重新分析；原始測量與逐項判讀保留。"),
+        observations = listOf("這次無法整理近期變化。"),
+        actions = listOf("稍後重新分析，或查看各項健康結果。"),
         measurementHeadline = report.overallHeadline,
         measurementDetail = report.overallDetail,
         measuredNormalCount = report.items.count { it.available && it.userState == HealthConclusionEngine.UserState.NORMAL },

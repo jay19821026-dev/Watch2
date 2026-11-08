@@ -118,11 +118,13 @@ class AiHealthAnalysisActivity : ComponentActivity() {
         }, lp(bottom = 14))
         if (pipelineWarnings.isNotEmpty()) {
             content.addView(panel().apply {
-                addView(text("部分分析暫不可用", 16f, Color.rgb(255, 190, 77), true))
-                pipelineWarnings.forEach { warning ->
-                    addView(text(warning, 12f, HealthVisuals.secondary), lp(top = 5))
-                }
-                addView(text("其他已完成的單項結果仍保留；沒有以合成數值替代。", 12f, Color.WHITE), lp(top = 8))
+                addView(text("部分趨勢暫時讀不到", 16f, Color.rgb(255, 190, 77), true))
+                addView(text("已取得的健康結果仍可查看；稍後可重新分析。", 13f, Color.WHITE), lp(top = 8))
+                addView(Button(context).apply {
+                    text = "查看讀取狀態"
+                    isAllCaps = false
+                    setOnClickListener { showDetail("讀取狀態", pipelineWarnings.joinToString("\n")) }
+                }, lp(top = 8))
             }, lp(bottom = 12))
         }
         val lead = AnalysisLeadSummary.from(measurementReport.items)
