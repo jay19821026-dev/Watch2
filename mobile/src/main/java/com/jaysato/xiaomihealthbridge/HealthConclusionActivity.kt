@@ -108,39 +108,17 @@ class HealthConclusionActivity : ComponentActivity() {
             textSize = 28f; setTextColor(Color.BLACK); setTypeface(typeface, Typeface.BOLD)
             setPadding(0, dp(4), 0, 0)
         })
+        val interpretation = ConsumerMetricPresentation.explanation(item)
         addView(TextView(context).apply {
-            val recordedValue = item.valueText.substringBefore('%').trim().toDoubleOrNull()
-            text = if (item.id == "spo2" && item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL) {
-                if (recordedValue != null && recordedValue in 70.0..100.0) ConsumerVitalsSummary.oxygen(recordedValue).detail else "請重新量測血氧。"
-            } else if (item.id == "hr" && item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL) {
-                val bpm = item.valueText.substringBefore("bpm").trim().toDoubleOrNull()
-                if (bpm == null) "尚無心率讀值" else "成人靜息參考 60–100 bpm；這筆是${if (item.valueText.contains("歷史紀錄")) "歷史紀錄" else "量測紀錄"}。"
-            } else if (item.level == HealthConclusionEngine.Level.RESEARCH || item.level == HealthConclusionEngine.Level.UNAVAILABLE) {
-                when (item.id) {
-                    "ecg" -> "這次沒有心律結果；可在手錶重新量測。"
-                    "ppg", "hr", "hrv" -> "這次沒有心率相關讀值；請戴好手錶後重測。"
-                    "spo2" -> "這次沒有血氧讀值；請戴好手錶後重測。"
-                    "glucose" -> "這支手錶沒有血糖量測功能。"
-                    else -> "${display.state}；點選查看量測方式。"
-                }
-            } else when (item.id) {
-                "hr" -> "成人靜息心率參考 60–100 bpm；活動時不使用此範圍判斷。"
-                "spo2" -> "多數健康成人血氧常見參考 95–100%。"
-                else -> when (item.level) {
-                    HealthConclusionEngine.Level.GOOD -> "本次讀值落在參考範圍。"
-                    HealthConclusionEngine.Level.WATCH -> "這項讀值建議再次觀察。"
-                    HealthConclusionEngine.Level.ATTENTION -> "這項讀值偏離參考範圍，建議重測確認。"
-                    else -> "請查看讀值與資料來源。"
-                }
-            }
+            text = interpretation
             textSize = 14f; setTextColor(Color.rgb(28, 28, 30)); setPadding(0, dp(6), 0, 0)
         })
         addView(Button(context).apply {
             text = "查看詳情"; isAllCaps = false
             setOnClickListener {
                 android.app.AlertDialog.Builder(this@HealthConclusionActivity)
-                    .setTitle(item.title)
-                    .setMessage("${item.valueText}\n\n${item.clinicalCompare}\n\n${item.conclusion}")
+                    .setTitle(display.title)
+                    .setMessage("${display.value} · ${display.state}\n\n$interpretation")
                     .setPositiveButton("知道了", null).show()
             }
         })

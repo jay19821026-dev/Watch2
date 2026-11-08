@@ -1,6 +1,7 @@
 package com.jaysato.xiaomihealthbridge
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class ConsumerMetricPresentationTest {
@@ -11,6 +12,8 @@ class ConsumerMetricPresentationTest {
         )
         assertEquals("重新量測", ConsumerMetricPresentation.from(item).value)
         assertEquals("尚無健康結果", ConsumerMetricPresentation.from(item).state)
+        assertEquals("這次沒有可解讀的心律結果；請在手錶重新量測。", ConsumerMetricPresentation.explanation(item))
+        assertFalse(ConsumerMetricPresentation.explanation(item).contains("事件"))
     }
 
     @Test fun oxygenKeepsPhysiologicalValueWithoutDatabaseWording() {

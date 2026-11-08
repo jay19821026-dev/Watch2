@@ -215,7 +215,7 @@ class AiHealthAnalysisActivity : ComponentActivity() {
                         else -> Color.rgb(182, 190, 205)
                     }
                     row.addView(metricTile(display.title, display.value, display.state, accent) {
-                        showDetail(display.title, "${display.value}\n\n${display.state}\n\n${item.conclusion}")
+                        showDetail(display.title, "${display.value} · ${display.state}\n\n${ConsumerMetricPresentation.explanation(item)}")
                     }, LinearLayout.LayoutParams(0, -1, 1f).apply { setMargins(dp(3), 0, dp(3), 0) })
                 }
                 if (group.size == 1) row.addView(LinearLayout(context), LinearLayout.LayoutParams(0, 1, 1f))
