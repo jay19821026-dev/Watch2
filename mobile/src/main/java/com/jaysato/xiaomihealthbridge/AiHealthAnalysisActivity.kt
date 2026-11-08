@@ -229,10 +229,6 @@ class AiHealthAnalysisActivity : ComponentActivity() {
             addView(text("飲水與補水", 20f, Color.WHITE, true))
             addView(text(hydrationSummary, 16f, Color.WHITE), lp(top = 8))
         }, lp(bottom = 14))
-        content.addView(panel().apply {
-            addView(text("ECG＋BioZ 輔助分析", 20f, Color.WHITE, true))
-            addView(text("ECG 提供電位波形；BioZ 可研究接觸與動作干擾。配對分析需要同步取樣與電極映射，目前兩通道分別顯示，不將阻抗換算成 ECG。", 13f, HealthVisuals.secondary), lp(top = 6))
-        }, lp(bottom = 14))
         val availableHealthPrompts = HealthRiskScreening.evaluate(this@AiHealthAnalysisActivity).filter { screen ->
             screen.state !in setOf("目前不可判讀", "需要新鮮袖帶讀值", "本次無效，請重測", "本次未取得結果")
         }

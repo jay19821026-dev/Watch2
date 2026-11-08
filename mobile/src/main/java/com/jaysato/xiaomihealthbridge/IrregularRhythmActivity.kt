@@ -154,7 +154,7 @@ class IrregularRhythmActivity : ComponentActivity() {
             text = "查看波形"
             isAllCaps = false
             setOnClickListener {
-                commandFeedback.text = "正在開啟 ECG 原始資料與波形…"
+                commandFeedback.text = "正在開啟心電圖波形…"
                 try {
                     startActivity(
                         Intent(this@IrregularRhythmActivity, RawSensorDetailActivity::class.java)
@@ -162,7 +162,7 @@ class IrregularRhythmActivity : ComponentActivity() {
                             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     )
                 } catch (error: android.content.ActivityNotFoundException) {
-                    commandFeedback.text = "無法開啟 ECG 原始資料頁，請重新啟動 App 後再試。"
+                    commandFeedback.text = "無法開啟心電圖波形，請重新啟動 App 後再試。"
                     android.widget.Toast.makeText(
                         this@IrregularRhythmActivity,
                         commandFeedback.text,
