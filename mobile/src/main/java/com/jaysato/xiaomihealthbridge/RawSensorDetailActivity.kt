@@ -520,6 +520,7 @@ class RawSensorDetailActivity : ComponentActivity() {
                     }, margins(bottom = 12))
                 }
             }
+            val resultContentCount = childCount
             if (kind == "ecg" && ecgResearchAnalysis != null) {
                 addView(panel().apply {
                     addView(label("ECG 研究頻譜與品質分析", 19f, Color.rgb(100, 210, 255)))
@@ -901,8 +902,38 @@ class RawSensorDetailActivity : ComponentActivity() {
                 addView(label("ECG 校準狀態", 18f, Color.rgb(255, 190, 95)))
                 addView(label("MAX86178 晶片資料表列出 single-lead 能力、約 ±1000 mV 輸入範圍、200 mVpp AC 動態範圍、0.05–40 Hz 參考頻寬與 15.3 ENOB；這些是晶片參考規格，不是 Xiaomi Watch 2 Pro 的實際電極接法或校準值。\n\n官方未提供本手錶的 ADC 至 mV 換算、增益、取樣時鐘或臨床驗證常數，因此目前只保留 Android Sensor API 原始事件值與描述性檢查。", 13f, HealthVisuals.secondary), margins(top = 8))
             }, margins(top = 12))
+            if (childCount > resultContentCount) {
+                val technicalDetails = LinearLayout(this@RawSensorDetailActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    visibility = View.GONE
+                }
+                while (childCount > resultContentCount) {
+                    val child = getChildAt(resultContentCount)
+                    removeViewAt(resultContentCount)
+                    technicalDetails.addView(child)
+                }
+                addView(label("查看波形與技術資料　⌄", 16f, HealthVisuals.blue).apply {
+                    setPadding(0, dp(12), 0, dp(12))
+                    setOnClickListener {
+                        technicalDetails.visibility = if (technicalDetails.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                        text = if (technicalDetails.visibility == View.VISIBLE) "收起波形與技術資料　⌃" else "查看波形與技術資料　⌄"
+                    }
+                })
+                addView(technicalDetails)
+            }
         }
-        setContentView(ScrollView(this).apply { setBackgroundColor(Color.rgb(6, 10, 16)); addView(body) })
+        val scroll = ScrollView(this).apply {
+            setBackgroundColor(Color.rgb(6, 10, 16))
+            clipToPadding = false
+            addView(body)
+        }
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(scroll) { view, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
+        setContentView(scroll)
+        scroll.requestApplyInsets()
     }
 
     private fun disclaimer(kind: String): String = when (kind) {

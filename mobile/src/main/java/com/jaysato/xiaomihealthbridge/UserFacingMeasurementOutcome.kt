@@ -69,9 +69,9 @@ internal object UserFacingMeasurementOutcome {
             SensorDisplayState.FUTURE_TIMESTAMP,
             SensorDisplayState.TIMESTAMP_UNKNOWN -> Outcome(
                 Kind.STALE,
-                if (state == SensorDisplayState.STALE) "資料過期" else "時間無法確認",
-                "這筆資料不能代表目前狀態",
-                "請重新量測取得有可信時間的資料"
+                "請重新量測",
+                if (state == SensorDisplayState.STALE) "最近一次量測已過期" else "這筆紀錄缺少可確認的量測時間",
+                "在手錶重新量測"
             )
             SensorDisplayState.CONDITION_NOT_MET -> if (sourceStatus in setOf("needs_oem", "needs_oem_mode")) {
                 Outcome(
