@@ -3,6 +3,7 @@ package com.jaysato.xiaomihealthbridge
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -69,6 +70,7 @@ class DailyHealthReportTest {
         ), now, ZoneOffset.UTC)
         assertTrue(report.observations.any { it.contains("睡眠 7.2 小時") && !it.contains("sleep.source") })
         assertTrue(report.observations.any { it.contains("血氧 94–97%") && it.contains("有偏低紀錄") && !it.contains("oxygen.source") })
+        assertEquals("今天有血氧偏低紀錄；靜止後可再量一次。", report.explanation)
         assertFalse(report.missing.any { it.startsWith("睡眠：") || it.startsWith("血氧：") })
 
         val stale = DailyHealthReport.from(base().copy(

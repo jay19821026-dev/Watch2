@@ -20,6 +20,7 @@ object DailyHealthReport {
         val date = generatedAt.atZone(zone).toLocalDate()
         val observations = mutableListOf<String>()
         val missing = mutableListOf<String>()
+        var hasLowOxygenRecord = false
         val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
 
         fun sameDay(time: Instant?): Boolean = time?.atZone(zone)?.toLocalDate() == date
@@ -78,12 +79,15 @@ object DailyHealthReport {
 
         val oxygen = insights.dailyOxygenSummary
         if (oxygen != null && oxygen.validSampleCount > 0 && sameDay(oxygen.firstValidSampleAt) && sameDay(oxygen.lastValidSampleAt)) {
-            val oxygenStatus = if (oxygen.minimumPercent < 95.0) "有偏低紀錄" else "在常見參考範圍"
+            hasLowOxygenRecord = oxygen.minimumPercent < 95.0
+            val oxygenStatus = if (hasLowOxygenRecord) "有偏低紀錄" else "在常見參考範圍"
             observations += "血氧 ${String.format(Locale.US, "%.0f–%.0f", oxygen.minimumPercent, oxygen.maximumPercent)}% · $oxygenStatus · 今天的紀錄，非目前值"
         } else missing += "血氧：今天沒有可用紀錄"
 
         val explanation = if (observations.isEmpty()) {
             "今天尚無可用的健康紀錄；請檢查同步與讀取權限。"
+        } else if (hasLowOxygenRecord) {
+            "今天有血氧偏低紀錄；靜止後可再量一次。"
         } else {
             "今天的健康紀錄如下。"
         }
