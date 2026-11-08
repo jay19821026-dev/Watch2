@@ -3,6 +3,7 @@ package com.jaysato.xiaomihealthbridge
 import android.graphics.Color
 import android.graphics.Typeface
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -131,9 +132,9 @@ class AiHealthAnalysisActivity : ComponentActivity() {
             lead.displayLines.forEach { addView(text(it, 16f, Color.WHITE), lp(top = 8)) }
             addView(text("下一步：${lead.nextAction}", 13f, HealthVisuals.blue), lp(top = 14))
             addView(Button(context).apply {
-                text = "查看來源與判讀依據"; isAllCaps = false
+                text = "查看各項健康結果"; isAllCaps = false
                 setOnClickListener {
-                    showDetail("量測依據", "${engineAnalysis.measurements.headline}\n${engineAnalysis.measurements.detail}\n\n${measurementReport.overallHeadline}\n${measurementReport.overallDetail}")
+                    startActivity(Intent(this@AiHealthAnalysisActivity, HealthConclusionActivity::class.java))
                 }
             }, lp(top = 8))
         }, lp(bottom = 14))

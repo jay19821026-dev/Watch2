@@ -6,6 +6,20 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AnalysisLeadSummaryTest {
+    @Test fun attentionResultLeadsBeforeNormalReading() {
+        val heart = HealthConclusionEngine.Item(
+            "heart_rate", "心率", "77 bpm", "", "已記錄", HealthConclusionEngine.Level.GOOD,
+            null, true, HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL
+        )
+        val oxygen = HealthConclusionEngine.Item(
+            "spo2", "血氧", "94%", "", "需留意", HealthConclusionEngine.Level.ATTENTION,
+            null, true, HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL
+        )
+        val result = AnalysisLeadSummary.from(listOf(heart, oxygen))
+        assertTrue(result.headline.startsWith("血氧：94%"))
+        assertTrue(result.displayLines.any { it.startsWith("心率：77 bpm") })
+    }
+
     @Test fun rawEcgAndBiozDoNotBecomeMeasuredHealthResults() {
         val items = listOf("ECG", "BioZ").map { title ->
             HealthConclusionEngine.Item(title.lowercase(), title, "221 個原始事件",

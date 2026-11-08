@@ -20,7 +20,14 @@ internal object AnalysisLeadSummary {
         val readableReference = research.filter {
             ConsumerMetricPresentation.from(it).state in setOf("研究估算", "已記錄", "歷史紀錄", "心律未判定")
         }
-        val readableLines = (recorded + readableReference).take(4).map {
+        val prioritizedRecorded = recorded.sortedBy { item ->
+            when (item.level) {
+                HealthConclusionEngine.Level.ATTENTION -> 0
+                HealthConclusionEngine.Level.WATCH -> 1
+                else -> 2
+            }
+        }
+        val readableLines = (prioritizedRecorded + readableReference).take(4).map {
             val display = ConsumerMetricPresentation.from(it)
             "${display.title}：${display.value} · ${display.state}"
         }
