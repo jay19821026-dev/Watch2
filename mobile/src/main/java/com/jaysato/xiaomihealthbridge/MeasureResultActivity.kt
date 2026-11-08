@@ -541,7 +541,10 @@ internal object MeasureResultValuePolicy {
                 SensorDisplayState.STALE -> "資料已過期，不能代表目前量測"
                 SensorDisplayState.TIMESTAMP_UNKNOWN, SensorDisplayState.FUTURE_TIMESTAMP ->
                     "量測時間未確認"
-                else -> null
+                SensorDisplayState.NOT_MEASURED -> "這次沒有量到"
+                SensorDisplayState.CONDITION_NOT_MET -> "這次尚未完成量測"
+                SensorDisplayState.QUALITY_REJECTED -> "訊號不清楚，請重測"
+                else -> state.label
             }
             return Presentation(
                 value = "—",

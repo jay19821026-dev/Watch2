@@ -1,17 +1,17 @@
 package com.jaysato.xiaomihealthbridge
 
 internal enum class SensorDisplayState(val label: String, val exportValue: String) {
-    NOT_MEASURED("未收到感測事件", "not_measured"),
-    CONDITION_NOT_MET("量測條件未滿足", "condition_not_met"),
-    QUALITY_REJECTED("已收到訊號，但品質未通過", "rejected_quality"),
-    CALIBRATION_MISSING("已收到原始資料，但缺少裝置校準", "calibration_missing"),
-    STALE("非近期掃描資料", "stale"),
-    FUTURE_TIMESTAMP("時間戳位於未來，無法確認新鮮度", "future_timestamp"),
-    TIMESTAMP_UNKNOWN("已有資料，但時間戳缺失或來源不可信", "timestamp_unknown"),
-    RAW_ONLY("已收到原始資料（研究用途，非生理量測值）", "raw_or_research_data_only"),
-    SIGNAL_VALID_RESEARCH("訊號品質通過（研究用途，非醫療校準）", "signal_quality_passed_research_only"),
-    DERIVED_ESTIMATE("推估資料（非此感測器實測）", "derived_estimate_not_hardware_measurement"),
-    AVAILABLE("已收到資料（非疾病診斷）", "hardware_data_available_non_diagnostic");
+    NOT_MEASURED("這次沒有量到", "not_measured"),
+    CONDITION_NOT_MET("這次尚未完成量測", "condition_not_met"),
+    QUALITY_REJECTED("訊號不清楚，請重測", "rejected_quality"),
+    CALIBRATION_MISSING("已收到訊號，尚無可用讀值", "calibration_missing"),
+    STALE("這是較早的紀錄", "stale"),
+    FUTURE_TIMESTAMP("量測時間有誤", "future_timestamp"),
+    TIMESTAMP_UNKNOWN("量測時間未確認", "timestamp_unknown"),
+    RAW_ONLY("已收到訊號，尚無可用讀值", "raw_or_research_data_only"),
+    SIGNAL_VALID_RESEARCH("訊號可供研究參考", "signal_quality_passed_research_only"),
+    DERIVED_ESTIMATE("這是估計值", "derived_estimate_not_hardware_measurement"),
+    AVAILABLE("已有可用讀值", "hardware_data_available_non_diagnostic");
 
     companion object {
         const val APP_DISPLAY_FRESHNESS_MILLIS = 30 * 60 * 1000L

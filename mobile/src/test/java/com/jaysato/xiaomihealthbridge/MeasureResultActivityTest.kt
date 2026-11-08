@@ -63,6 +63,19 @@ class MeasureResultActivityTest {
     }
 
     @Test
+    fun unsuccessfulMeasurementShowsAnActionableConclusion() {
+        val noMeasurement = MeasureResultValuePolicy.present(
+            "ppg", "—", "", 0, "needs_oem_mode", now - 1_000L, now
+        )
+        val poorSignal = MeasureResultValuePolicy.present(
+            "ppg", "72", "bpm", 20, "rejected_quality", now - 1_000L, now
+        )
+        assertEquals("這次尚未完成量測", noMeasurement.headline)
+        assertEquals("訊號不清楚，請重測", poorSignal.headline)
+        assertEquals("—", poorSignal.value)
+    }
+
+    @Test
     fun oldPulseEstimateAndRawCountAreHidden() {
         val staleTime = now - SensorDisplayState.APP_DISPLAY_FRESHNESS_MILLIS - 1L
         val estimate = MeasureResultValuePolicy.present("ppg", "72", "研究估算 bpm", 45,
