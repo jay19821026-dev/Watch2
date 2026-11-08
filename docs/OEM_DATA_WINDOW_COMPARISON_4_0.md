@@ -15,6 +15,12 @@ The local 9.8.348i decompilation exposes `com/xiaomi/fit/fitness/export/data/ite
 
 These comparisons establish field and time semantics visible in decompiled code, not equality of live readings or clinical algorithms. Device-side paired samples and a verified OEM export would be needed for numerical parity. / 此處只證實可見程式的欄位與時間語意；沒有同時段實測樣本，不能宣稱數值或醫學判讀一致。
 
+### Heart-rate and oxygen chart buckets / 心率與血氧圖表分桶
+
+Both inspected versions' `HeartRateBiz.splitDailyReport` and `Spo2Biz.splitDailyReport` use half-hour buckets for `days` and day buckets for `weeks`/`months`. In each chart bucket they write an integer array of **distinct values**, not one average. `Spo2Biz` also calculates a separate daily integer mean, min, max and count below 90 from typed positive `Spo2Item` values. The 3.59.2i `Spo2Biz` has additional source-ID grouping after the inspected latest-record calculation; the 9.8.348i excerpt does not establish identical downstream report contents. These are display/report transformations, not evidence of sensor calibration or a diagnostic rule. / 兩版日圖均以半小時、週／月圖以天分桶；每桶保留不重複整數值陣列，並非單一平均。3.59.2i 另有後續來源 ID 整理，不能直接宣稱兩版報表完全相同。
+
+AILISA's phone detail chart previously drew heart rate in fixed five-minute/hour/day/week UTC-second buckets and oxygen as individual dots. It now uses **local half-hour** buckets for day and **local-day** buckets for week/month, with a local-month bucket for AILISA's extra year view. It draws the minimum-to-maximum range (or one dot for a single value) from the selected Health Connect source. Its overview statistics and raw rows remain based on individual Health Connect values; they do not implement the OEM distinct-value arrays, source grouping or integer daily mean. / AILISA 詳細頁已改成本地半小時／天／月的圖表粒度，以選定來源的最低至最高值畫線；統計與原始列仍取自 Health Connect 單筆值，不冒充原廠去重陣列或日均值。
+
 Checked against the locally decompiled Mi Fitness 3.59.2i APK on 2026-11-08. Paths below refer to local research material, not files shipped in this repository. Decompiled Java can misrepresent Kotlin boundaries; the statements here are limited to visible call paths. This audit does **not** establish the OEM's clinical decision window or signal calibration.
 
 本頁對照 2026-11-08 本機反組譯的 Mi Fitness 3.59.2i。所列路徑是研究用本機素材，不隨 AILISA 發行。反組譯 Java 對 Kotlin 邊界可能失真；下表只記載能核對的呼叫路徑，**不能**據此宣稱掌握原廠臨床判讀窗或訊號校準。

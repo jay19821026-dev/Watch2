@@ -587,6 +587,11 @@ class MetricDetailActivity : ComponentActivity() {
                 "圖表按${TemperatureChartWindowPolicy.bucketLabel(period)}彙整同來源腕部紀錄的算術平均；上方最新值與下方原始紀錄仍為單筆量測。這不是原廠 skinTemp 圖表。",
                 12, muted
             ))
+        } else if (metric == "heart_rate" || metric == "oxygen") {
+            hero.addView(text(
+                "圖表按${TemperatureChartWindowPolicy.bucketLabel(period)}分桶，顯示同來源原始紀錄的最低與最高值；時間粒度參照兩版 Mi Fitness 型別化圖表，數值與原廠彙總不保證一致。",
+                12, muted
+            ))
         }
         if (display.isNotEmpty()) {
             val chart = DetailChart(display) { point ->
@@ -799,12 +804,16 @@ class MetricDetailActivity : ComponentActivity() {
                 canvas.drawText(label, (plotWidth() * fraction).toFloat().coerceAtMost(plotWidth() - paint.measureText(label)), height - dp(6).toFloat(), paint)
             }
             paint.color = accent; paint.strokeWidth = dp(3).toFloat(); paint.strokeCap = Paint.Cap.ROUND
-            if(metric == "heart_rate") {
-                val bucketSeconds = when (period) { 0 -> 300L; 1 -> 3600L; 3 -> 86400L * 7; else -> 86400L }
-                data.groupBy { it.time.epochSecond / bucketSeconds }.values.forEach { bucket ->
+            if(metric == "heart_rate" || metric == "oxygen") {
+                data.groupBy { TemperatureChartWindowPolicy.bucketStart(it.time, period, zone) }.forEach { (bucketStart, bucket) ->
                     val highest = bucket.maxBy { it.value }
                     val lowest = bucket.minBy { it.value }
-                    canvas.drawLine(x(bucket.first()), y(highest), x(bucket.first()), y(lowest), paint)
+                    val xPosition = x(Point(bucketStart, lowest.value, lowest.source))
+                    if (highest.value == lowest.value) {
+                        canvas.drawCircle(xPosition, y(lowest), dp(2).toFloat(), paint)
+                    } else {
+                        canvas.drawLine(xPosition, y(highest), xPosition, y(lowest), paint)
+                    }
                 }
             } else data.forEach { point ->
                 if(cumulative) {
