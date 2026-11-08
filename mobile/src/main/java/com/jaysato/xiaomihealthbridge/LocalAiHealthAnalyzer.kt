@@ -124,10 +124,9 @@ object LocalAiHealthAnalyzer {
         }
         val headline = when (level) {
             Level.INSUFFICIENT -> when {
-                observedValueCount > 0 -> "已取得 $observedValueCount 項健康觀察；整合總分仍待配對資料"
-                observedDomains == 0 -> "尚無足夠健康紀錄，暫不評分"
-                insights.confidence == "不足" -> "部分指標可查看；整體可信度不足，暫不合成評分"
-                else -> "已有部分指標；資料不完整，暫不評分"
+                observedValueCount > 0 -> "已有個別健康紀錄，請查看各項結果"
+                observedDomains == 0 -> "今天尚無可比較的日常趨勢"
+                else -> "已有個別指標，請查看各項結果"
             }
             Level.STABLE -> "今日狀態大致穩定"
             Level.WATCH -> "有幾項恢復訊號值得留意"

@@ -74,7 +74,7 @@ class LocalAiHealthAnalyzerTest {
 
         assertEquals(LocalAiHealthAnalyzer.Level.INSUFFICIENT, result.level)
         assertEquals(null, result.score)
-        assertTrue(result.headline.contains("已取得"))
+        assertTrue(result.headline.contains("已有個別健康紀錄"))
         assertEquals(3, result.teamReviews.size)
         assertTrue(result.observations.any { it.contains("壓力估算目前平穩") })
         assertTrue(result.observations.any { it.contains("睡眠時間約") })
@@ -101,7 +101,7 @@ class LocalAiHealthAnalyzerTest {
 
         assertEquals(LocalAiHealthAnalyzer.Level.INSUFFICIENT, result.level)
         assertEquals(null, result.score)
-        assertTrue(result.headline.contains("已取得"))
+        assertTrue(result.headline.contains("已有個別健康紀錄"))
         assertTrue(result.observedValueCount >= 1)
         assertTrue(result.teamReviews.first { it.role == "睡眠觀察" }.finding.contains("6.5 小時"))
     }
@@ -123,7 +123,7 @@ class LocalAiHealthAnalyzerTest {
         assertEquals(LocalAiHealthAnalyzer.Level.INSUFFICIENT, result.level)
         assertEquals(null, result.score)
         assertEquals(3, result.observedValueCount)
-        assertTrue(result.headline.contains("3 項健康觀察"))
+        assertTrue(result.headline.contains("已有個別健康紀錄"))
     }
 
     @Test fun hrvWithoutStressEnergyOrSleepDoesNotBecomeStableOrScore100() {

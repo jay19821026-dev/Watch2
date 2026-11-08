@@ -146,9 +146,9 @@ class AiHealthAnalysisActivity : ComponentActivity() {
             LocalAiHealthAnalyzer.Level.ATTENTION -> Color.rgb(255, 101, 119)
         }
         content.addView(panel().apply {
-            addView(text(if (result.score != null) "恢復觀察 · 規則估分" else "已記錄的其他資料", 13f, HealthVisuals.secondary))
-            result.score?.let { addView(text(it.toString(), 54f, color, true)) }
-            if (result.score != null) addView(text(result.headline, 18f, Color.WHITE, true))
+            addView(text("日常狀態參考", 13f, HealthVisuals.secondary))
+            addView(text(result.headline, 20f, color, true), lp(top = 8))
+            result.score?.let { addView(text("恢復參考分數 $it/100", 16f, HealthVisuals.secondary), lp(top = 8)) }
             insights.latestObservedRestingHeartRateBpm?.let {
                 addView(text("靜息心率  ${"%.0f".format(it)} bpm\n${insights.latestObservedRestingHeartRateAt?.atZone(java.time.ZoneId.systemDefault())?.format(java.time.format.DateTimeFormatter.ofPattern("MM/dd HH:mm")) ?: "時間未知"}", 23f, Color.WHITE), lp(top = 8))
             }
