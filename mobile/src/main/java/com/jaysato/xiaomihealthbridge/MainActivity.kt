@@ -720,7 +720,9 @@ class MainActivity : ComponentActivity() {
                 val caloriesAggregateAccepted = HealthConnectAggregatePolicy.acceptsPlatformTotal(aggregateCalories?.inKilocalories, aggregateCalorieOrigins)
                 val steps = aggregateSteps?.takeIf { stepsAggregateAccepted }
                 val latestDailySteps = RecentDailyMetricFallback.latestDailyTotal(
-                    stepRecords.map { it.startTime to it.count },
+                    stepRecords.map { RecentDailyMetricFallback.Record(
+                        it.metadata.dataOrigin.packageName, it.startTime, it.endTime, it.count
+                    ) },
                     java.time.ZoneId.systemDefault(),
                     java.time.LocalDate.now()
                 )
@@ -1087,7 +1089,10 @@ class MainActivity : ComponentActivity() {
                 }
                 val stepSummaryValue = when {
                     steps != null -> "%,d · 今日".format(steps)
-                    latestDailySteps != null -> "%,d · ${latestDailySteps.date}".format(latestDailySteps.total)
+                    latestDailySteps != null -> "%,d · ${latestDailySteps.date} · %s".format(
+                        latestDailySteps.total,
+                        if (latestDailySteps.isSourceMaximum) "來源最高值，非去重總步數" else "單一來源紀錄"
+                    )
                     else -> summaryUnavailable("步數")
                 }
                 val oxygenSummaryValue = latestOxygen?.let {
