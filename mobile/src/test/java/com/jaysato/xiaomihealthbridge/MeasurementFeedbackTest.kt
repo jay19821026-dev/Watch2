@@ -20,15 +20,15 @@ class MeasurementFeedbackTest {
     fun unscaledOpticalFramesAreDescribedAsResearchOnly() {
         val result = MeasurementFeedbackFactory.create("unscaled_optical", 160)
         assertTrue(result.receivedData)
-        assertEquals("已收到研究訊號", result.headline)
-        assertTrue(result.guidance.contains("不會把它當成醫療讀值"))
+        assertEquals("這次沒有可顯示的讀值", result.headline)
+        assertTrue(result.guidance.contains("原廠量測頁重測"))
     }
 
     @Test
     fun offWristRawEventsAreReportedSeparatelyFromWearQualification() {
         val offWrist = MeasurementFeedbackFactory.create("off_wrist", 10)
         assertTrue(offWrist.receivedData)
-        assertEquals("有資料，但偵測為離腕", offWrist.headline)
+        assertEquals("手錶沒有戴好", offWrist.headline)
         assertTrue(offWrist.guidance.contains("戴緊"))
         assertTrue(MeasurementFeedbackFactory.create("skipped_charging", 0).guidance.contains("拔除充電器"))
     }
@@ -37,14 +37,14 @@ class MeasurementFeedbackTest {
     fun invalidOpticalSignalIsReportedReceivedButNotAsUsableData() {
         val result = MeasurementFeedbackFactory.create("invalid_optical", 200)
         assertTrue(result.receivedData)
-        assertEquals("光學訊號品質不足", result.headline)
+        assertEquals("這次訊號不清楚", result.headline)
     }
 
     @Test
     fun derivedEstimatesAreNeverPresentedAsSensorMeasurements() {
         val result = MeasurementFeedbackFactory.create("derived_estimate", 1)
         assertFalse(result.receivedData)
-        assertEquals("僅有推估資料", result.headline)
-        assertTrue(result.guidance.contains("不是此感測器的實測"))
+        assertEquals("這次只有參考估算", result.headline)
+        assertTrue(result.guidance.contains("並非這次直接量到"))
     }
 }

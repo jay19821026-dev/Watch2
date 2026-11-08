@@ -759,12 +759,12 @@ class WearMeasurePageActivity : ComponentActivity() {
                 (WearMeasurementPolicy.directHeartRateBpm(snapshot) ?: optical?.pulseRateBpm)
                     ?.takeIf { it in 30.0..220.0 }
                     ?.let { "%.0f".format(it) to "bpm" }
-            Mode.PPG -> supplementalHeartRate?.let { "%.0f".format(it) to "Health Services bpm" }
+            Mode.PPG -> supplementalHeartRate?.let { "%.0f".format(it) to "bpm" }
                 ?: (optical?.pulseRateBpm ?: hrv?.bpm)?.takeIf { it in 30.0..220.0 }
-                    ?.let { "%.0f".format(it) to "PPG 研究估算 bpm" }
+                    ?.let { "%.0f".format(it) to "脈搏估算 bpm" }
             Mode.LIFE_Q_OTT ->
                 (optical?.pulseRateBpm ?: hrv?.bpm)?.takeIf { it in 30.0..220.0 }
-                    ?.let { "%.0f".format(it) to "光學研究估算 bpm" }
+                    ?.let { "%.0f".format(it) to "脈搏估算 bpm" }
             Mode.PRESSURE ->
                 (snapshot.average ?: snapshot.latest.firstOrNull())?.takeIf { it.isFinite() }
                     ?.let { "%.0f".format(it) to "hPa" }
@@ -776,11 +776,11 @@ class WearMeasurePageActivity : ComponentActivity() {
             else -> null
         }
         headline.text = when {
-            mode == Mode.PPG && supplementalHeartRate != null -> "已取得心率（Health Services）· PPG 原始資料另列"
+            mode == Mode.PPG && supplementalHeartRate != null -> "已取得心率讀值"
             snapshot.samples <= 0 -> "這次沒有量到讀值"
             mode == Mode.HEART_RATE && primary != null -> "心率已取得 · 已同步手機"
             mode == Mode.HEART_RATE -> "這次沒有量到心率"
-            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && primary != null -> "光學研究估算完成 · 已同步手機"
+            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && primary != null -> "已取得脈搏參考值"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && opticalCaptureUsable -> "這次沒有可用的脈搏讀值"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && snapshot.samples > 0 -> "這次沒有脈搏結果 · 請重新量測"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) -> "沒有收到可用光學訊號"

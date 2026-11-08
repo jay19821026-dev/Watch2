@@ -132,11 +132,6 @@ class MeasureResultActivity : ComponentActivity() {
                 "心率 $displayValue bpm · ${ConsumerVitalsSummary.heartRateLabel(displayValue.toDoubleOrNull() ?: 0.0)}"
             else -> "$title $displayValue ${resultPresentation.unit}"
         }
-        val note = if (kind == "ecg" || OpticalPulseDisplayPolicy.isOpticalKind(kind)) null
-        else raw.getString("${kind}_formula_note", null)
-                ?: raw.getString("hrv_research_formula_note", null)
-                ?: raw.getString("${kind}_summary", null)
-
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(24), dp(36), dp(24), dp(48))
@@ -179,7 +174,7 @@ class MeasureResultActivity : ComponentActivity() {
             setOnClickListener {
                 android.app.AlertDialog.Builder(this@MeasureResultActivity)
                     .setTitle("$title · 量測詳情")
-                    .setMessage(listOfNotNull(detail, resultPresentation.guidance ?: feedback.guidance, note).joinToString("\n\n"))
+                    .setMessage(listOfNotNull(detail, resultPresentation.guidance ?: feedback.guidance).joinToString("\n\n"))
                     .setPositiveButton("知道了", null).show()
             }
         })
@@ -525,6 +520,9 @@ internal object MeasureResultValuePolicy {
                 guidance = "舊版光學估計不具備裝置級驗證；請在血壓頁輸入外部袖帶讀值。"
             )
         }
+        if (unit == "原始資料點／事件") {
+            return Presentation("—", "", false, "這次沒有可顯示的健康讀值", "請戴好手錶後重新量測。")
+        }
         val state = SensorDisplayState.from(
             samples = samples,
             status = status.orEmpty(),
@@ -543,7 +541,7 @@ internal object MeasureResultValuePolicy {
                 else -> null
             }
             return Presentation(
-                value = if (unit == "原始資料點／事件" && samples > 0 && value != "—") value else "—",
+                value = "—",
                 unit = if (kind == "ecg" && unit == "bpm") "研究估算 bpm" else unit,
                 isCurrent = false,
                 headline = message,
