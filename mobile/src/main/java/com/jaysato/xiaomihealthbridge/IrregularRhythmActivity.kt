@@ -112,12 +112,12 @@ class IrregularRhythmActivity : ComponentActivity() {
         }
 
         root.addView(Button(this).apply {
-            text = "ECG 啟用說明"
+            text = "原廠 ECG 怎麼啟用？"
             isAllCaps = false
             setOnClickListener {
                 android.app.AlertDialog.Builder(this@IrregularRhythmActivity)
                     .setTitle("原廠 ECG 啟用")
-                    .setMessage("原廠 ECG 需要在 Mi Fitness 的 ECG 卡片啟用。目前這支手錶的裝置頁沒有該卡片；AILISA 的重新量測按鈕無法代替原廠啟用。")
+                    .setMessage("請在 Mi Fitness 的手錶裝置頁查看 ECG 卡片並依指示啟用。若沒有 ECG 卡片，代表目前原廠未提供此啟用入口；AILISA 的量測按鈕無法替代原廠啟用。")
                     .setPositiveButton("知道了", null).show()
             }
         })
