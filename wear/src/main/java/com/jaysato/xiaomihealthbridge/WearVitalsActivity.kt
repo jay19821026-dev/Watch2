@@ -21,7 +21,7 @@ class WearVitalsActivity : ComponentActivity() {
                 item { metric("心率", hrSub, Color(0xFFFF3B30)) { measure(WearMeasurePageActivity.Mode.HEART_RATE) } }
                 item { metric("心率歷史", "日／週／月／年", Color(0xFFFF6482)) { open(WearHeartHistoryActivity::class.java) } }
                 item { metric("血氧", "SpO₂ 原始讀值", Color(0xFF0A84FF)) { measure(WearMeasurePageActivity.Mode.SPO2) } }
-                item { metric("溫度原始值", "單位未驗證 · 研究資料", Color(0xFFFF9F0A)) { measure(WearMeasurePageActivity.Mode.TEMPERATURE) } }
+                item { metric("腕部溫度", "量測後查看是否有可用讀值", Color(0xFFFF9F0A)) { measure(WearMeasurePageActivity.Mode.TEMPERATURE) } }
                 item { metric("HRV", "恢復與壓力", Color(0xFFBF5AF2)) { open(WearHrvActivity::class.java) } }
                 item { metric("心律通知", "ECG 研究篩檢", Color(0xFF34C759)) { open(WearRhythmActivity::class.java) } }
                 item { metric("呼吸", "BioZ 研究通道", Color(0xFF64D2FF)) { measure(WearMeasurePageActivity.Mode.RESPIRATION) } }

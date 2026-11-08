@@ -178,12 +178,11 @@ class WearHrvActivity : ComponentActivity() {
             )) ClinicalSensorFormulas.researchStressScore(hrv.nRmssd, hrv.bpm ?: optical.pulseRateBpm)
             else null
         val line = ClinicalSensorFormulas.summaryLine(optical, hrv, null, stressScore)
-        headline.text = when {
-            WearMeasurementPolicy.hasEnoughRrIntervalsForHrv(hrv.rrCount) -> "HRV 研究估算完成"
-            snap.samples > 0 -> "原始訊號已取得；目前不能估算 HRV"
-            else -> "HRV 無法估算"
-        }
-        detail.text = "$line\n${WearHealthConclusion.forHrv(hrv.rmssdMs)}\n${optical.note}\n${hrv.citations.take(2).joinToString(" · ")}"
+        headline.text = if (WearMeasurementPolicy.hasEnoughRrIntervalsForHrv(hrv.rrCount))
+            "HRV 量測完成" else "這次沒有可用的 HRV 讀值"
+        detail.text = if (WearMeasurementPolicy.hasEnoughRrIntervalsForHrv(hrv.rrCount))
+            WearHealthConclusion.forHrv(hrv.rmssdMs)
+        else "請戴好手錶，保持手腕靜止後重新量測。"
         startButton.text = "再次量測"
         if (publish && snap.samples > 0) {
             WearRawSensorPublisher.publish(

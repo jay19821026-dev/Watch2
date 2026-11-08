@@ -115,13 +115,13 @@ class MeasureResultActivity : ComponentActivity() {
         val resultConclusion = when {
             !feedback.receivedData -> "本次結果：$title 量測未完成。請確認佩戴與連線後重新量測。"
             supplementalHeartRate != null && displayValue != "—" ->
-                "本次結果：手錶心率 $displayValue bpm（Wear Health Services）。PPG 光學波形是另一筆研究資料。"
+                "心率 $displayValue bpm"
             kind == "ecg" && resultPresentation.unit == "原始資料點／事件" ->
-                "本次 ECG 檢測無效：無法判斷心律正常或異常。請穩定接觸電極並重新量測。"
+                "已擷取 ECG 訊號，目前尚無心律分析結果。"
             kind == "ppg" && resultPresentation.unit == "原始資料點／事件" ->
                 "本次 PPG 檢測無效：沒有可顯示的心率結果。請戴緊手錶、保持靜止後重新量測。"
             resultPresentation.unit == "原始資料點／事件" && displayValue != "—" ->
-                "本次結果：已取得 $title 感測資料；目前沒有可核對的生理數值，請查看量測狀態與來源。"
+                "這次沒有可用的$title 讀值。"
             displayValue == "—" ->
                 "本次結果：已收到 $title 資料，但這次沒有可核對的生理數值；請查看原因並重新量測。"
             else -> "本次結果：$title $displayValue ${resultPresentation.unit}；量測來源與時間見下方。"
@@ -157,8 +157,8 @@ class MeasureResultActivity : ComponentActivity() {
             typedHeartRate?.let { root.addView(card(HeartRateMeaningPolicy.explain(it), Color.WHITE)) }
         }
         root.addView(TextView(this).apply {
-            text = if (resultPresentation.unit == "原始資料點／事件" || displayValue == "—") "重新量測" else displayValue
-            textSize = if (text == "重新量測") 36f else 56f; setTextColor(Color.BLACK)
+            text = if (resultPresentation.unit == "原始資料點／事件" || displayValue == "—") "本次無結果" else displayValue
+            textSize = if (text == "本次無結果") 36f else 56f; setTextColor(Color.BLACK)
             setTypeface(typeface, Typeface.BOLD)
             gravity = android.view.Gravity.CENTER
         })
@@ -433,34 +433,12 @@ class MeasureResultActivity : ComponentActivity() {
             }
         }
 
-        private fun detailLine(kind: String, raw: android.content.SharedPreferences): String {
-            if (kind == "optical_bp") {
-                return "此手錶沒有經驗證的血壓量測；請使用外部袖帶讀值。"
-            }
-            val samples = rawValueCount(raw, kind)
-            val status = raw.getString("${kind}_status", null)
-            if (OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
-                return "有限原始值 ${SensorCountLabels.rawValueCount(samples)} · 預覽點 ${SensorCountLabels.count(raw.getInt("${kind}_preview_point_count", -1).takeIf { it >= 0 })} · 光學原始封包不是 bpm · 脈率僅顯示通過品質與新鮮度檢查的研究估算"
-            }
-            val stress = raw.getInt("${kind}_formula_stress_score", -1).takeIf { it >= 0 }
-                ?: raw.getInt("hrv_research_formula_stress_score", -1).takeIf { it >= 0 }
-            return buildString {
-                if (RawSensorPayloadPolicy.isBiomedicalKind(kind)) {
-                    append("有限原始值 ${SensorCountLabels.rawValueCount(samples)} · 預覽點 ${SensorCountLabels.count(raw.getInt("${kind}_preview_point_count", -1).takeIf { it >= 0 })} · 事件 ${SensorCountLabels.eventCount(raw.getInt("${kind}_event_count", -1).takeIf { raw.getInt("${kind}_event_count_known", 0) == 1 })}")
-                } else {
-                    val contractVersion = raw.getInt("${kind}_count_contract_version", 0)
-                    val eventCount = raw.getInt("${kind}_event_count", -1)
-                        .takeIf { raw.getInt("${kind}_event_count_known", 0) == 1 }
-                    if (contractVersion >= 2) {
-                        append("事件 ${SensorCountLabels.eventCount(eventCount)}")
-                    } else {
-                        append("尚無可顯示的原始值")
-                    }
-                }
-                status?.let { append(" · $it") }
-                stress?.let { append(" · 研究壓力分數 $it（非原廠）") }
-                if ((samples ?: 0) > 0 || raw.getInt("${kind}_event_count", 0) > 0) append(" · 已保存於手機")
-            }
+        private fun detailLine(kind: String, raw: android.content.SharedPreferences): String = when {
+            kind == "optical_bp" -> "此手錶沒有可用的血壓讀值；可輸入外部血壓計的結果。"
+            kind == "ecg" -> "這次沒有可判讀的心律結果；請確認電極接觸後重新量測。"
+            OpticalPulseDisplayPolicy.isOpticalKind(kind) -> "這次沒有可靠的脈搏讀值；請戴好手錶並保持靜止。"
+            raw.getInt("${kind}_event_count", 0) > 0 -> "手錶已完成擷取，但目前沒有可顯示的健康讀值。"
+            else -> "這次沒有收到可用讀值。"
         }
     }
 }
@@ -510,9 +488,9 @@ internal object HeartRateMeaningPolicy {
     /** Context for a single typed BPM measurement; rest/activity state is unknown. */
     fun explain(bpm: Float): String = when {
         !bpm.isFinite() || bpm !in 30f..220f -> "這次心率讀值不在可解釋範圍；請重新量測。"
-        bpm < 60f -> "這次心跳較慢。睡眠、運動習慣或藥物可能影響心率；若清醒休息時反覆偏慢，或伴隨頭暈、虛弱、快昏倒，請聯絡醫師評估。單次 bpm 不能判定心律種類。"
-        bpm <= 100f -> "若量測時正安靜休息，這個數值落在成人常見靜息心率 60–100 bpm 範圍；運動、情緒和藥物也會改變心率。單次 bpm 不能排除心律問題。"
-        else -> "這次心跳較快。活動、壓力或身體不適都可能使心率上升；請安靜休息後重新量測。若休息時仍持續偏快或反覆心悸，請聯絡醫師評估。單次 bpm 不能判定原因。"
+        bpm < 60f -> "偏低（成人靜息參考 60–100 bpm）。若清醒休息時反覆偏低或感到頭暈，請就醫評估。"
+        bpm <= 100f -> "在成人靜息參考範圍 60–100 bpm 內；活動時的範圍不同。"
+        else -> "偏高（成人靜息參考 60–100 bpm）。若剛活動，休息後再測；若持續偏高或心悸，請就醫評估。"
     }
 }
 

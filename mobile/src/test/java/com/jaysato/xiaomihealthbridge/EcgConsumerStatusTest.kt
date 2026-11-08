@@ -60,8 +60,8 @@ class EcgConsumerStatusTest {
         )
 
         assertEquals(EcgConsumerStatus.State.UNDETERMINED, result.state)
-        assertEquals("無法判定", result.label)
-        assertTrue(result.detail.contains("已完成並保存"))
+        assertEquals("已擷取 ECG 訊號", result.label)
+        assertTrue(result.detail.contains("沒有心律分析結果"))
     }
 
     @Test fun completedCaptureWithoutEvidenceRequestsRetest() {
@@ -73,6 +73,6 @@ class EcgConsumerStatusTest {
         )
 
         assertEquals(EcgConsumerStatus.State.UNDETERMINED, result.state)
-        assertTrue(result.detail.contains("沒有可用資料"))
+        assertTrue(result.detail.contains("沒有回傳 ECG 訊號"))
     }
 }

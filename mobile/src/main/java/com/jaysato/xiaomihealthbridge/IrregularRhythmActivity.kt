@@ -85,8 +85,8 @@ class IrregularRhythmActivity : ComponentActivity() {
             root.addView(card(displayedTitle, consumerStatus.detail, Color.rgb(142, 142, 147)))
         } else if (!estimateUsable || title.isNullOrBlank()) {
             root.addView(card(
-                "本次 ECG 檢測無效",
-                "這次不能判斷心律正常或異常。請把手錶戴妥，依手錶提示穩定接觸電極，保持不動後重新量測。",
+                "已擷取 ECG 訊號",
+                "手錶已送出訊號，目前沒有心律分析結果。請穩定接觸電極後再次量測。",
                 Color.rgb(90, 200, 250)
             ))
         } else {
@@ -101,7 +101,7 @@ class IrregularRhythmActivity : ComponentActivity() {
                 "摘要",
                 buildString {
                     displayedBpm?.let { append("%.0f bpm · ".format(it)) }
-                    append("RR $rr · 品質 ${ResearchScoreDisplay.format(quality)} · $samples 點")
+                    append("${if (title.contains("不整") || title.contains("房顫")) "心律跡象需留意" else "心律間距規則"}")
                     if (time > 0) {
                         append('\n')
                         append(SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date(time)))
@@ -131,7 +131,7 @@ class IrregularRhythmActivity : ComponentActivity() {
             setOnClickListener {
                 android.app.AlertDialog.Builder(this@IrregularRhythmActivity)
                     .setTitle("原廠 ECG 啟用")
-                    .setMessage("本次收到 $eventCount 筆感測事件，但解碼波形點數為 $decodedSampleCount。原廠程式只在事件標記為 1000 且配戴狀態符合時，才把 ECG 欄位送入心律演算法；本次最近事件的標記是 ${raw.getString("ecg_latest", "").orEmpty().split(',').getOrNull(10) ?: "未知"}。若手錶出現 Activation Guidance，請在 Mi Fitness 的裝置設定尋找 ECG 卡片。")
+                    .setMessage("手錶已擷取訊號，但沒有產生可供顯示的心律分析結果。原廠頁面顯示啟用提示時，需由 Mi Fitness 提供該手錶的 ECG 啟用卡片；目前 AILISA 無法替原廠完成這項啟用。")
                     .setPositiveButton("知道了", null).show()
             }
         })

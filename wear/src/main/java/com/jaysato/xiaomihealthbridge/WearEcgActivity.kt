@@ -306,12 +306,13 @@ class WearEcgActivity : ComponentActivity() {
             "原始 ECG 感測事件第 1 欄數值，按事件順序顯示；未通過封包條件，不代表已解碼心電波形"
         }
         chart.visibility = if (visiblePreview.size >= 2) View.VISIBLE else View.GONE
-        headline.text = if (active) "正在量測 ECG" else if (showQualifiedPreview) "ECG 訊號已取得" else "本次 ECG 檢測無效"
+        headline.text = if (active) "正在擷取 ECG 訊號" else if (snapshot.eventCount > 0) "已擷取 ECG 訊號" else "尚未取得 ECG 訊號"
         detail.text = if (active) "雙指穩定接觸錶冠與側鍵，保持不動" else if (showQualifiedPreview)
             "量測已完成，請在手機查看結果。" else "未取得可分析的心電波形，請重新量測。"
         rhythmStatus.text = when {
             active -> "量測中"
-            snapshot.eventCount <= 0 || !showQualifiedPreview -> "本次無效，請重新量測"
+            snapshot.eventCount <= 0 -> "手錶尚未收到訊號"
+            !showQualifiedPreview -> "已收到訊號；尚無心律分析結果"
             else -> "已取得波形；手機尚未顯示心律結果"
         }
     }

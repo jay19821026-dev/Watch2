@@ -44,11 +44,11 @@ class MeasureResultActivityTest {
 
     @Test
     fun typedHeartRateHasPlainLanguageContextWithoutClaimingRhythmDiagnosis() {
-        assertTrue(HeartRateMeaningPolicy.explain(55f).contains("較慢"))
-        assertTrue(HeartRateMeaningPolicy.explain(75f).contains("安靜休息"))
-        assertTrue(HeartRateMeaningPolicy.explain(115f).contains("較快"))
-        assertTrue(HeartRateMeaningPolicy.explain(115f).contains("重新量測"))
-        assertTrue(HeartRateMeaningPolicy.explain(75f).contains("不能排除心律問題"))
+        assertTrue(HeartRateMeaningPolicy.explain(55f).contains("偏低"))
+        assertTrue(HeartRateMeaningPolicy.explain(75f).contains("參考範圍"))
+        assertTrue(HeartRateMeaningPolicy.explain(115f).contains("偏高"))
+        assertTrue(HeartRateMeaningPolicy.explain(115f).contains("再測"))
+        assertTrue(HeartRateMeaningPolicy.explain(75f).contains("活動時的範圍不同"))
     }
 
     @Test

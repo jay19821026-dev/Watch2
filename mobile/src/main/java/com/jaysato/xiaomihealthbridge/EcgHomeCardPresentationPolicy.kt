@@ -5,8 +5,8 @@ internal object EcgHomeCardPresentationPolicy {
         resultValue: String?,
         availability: SensorResultAvailability? = null
     ): String = when (availability) {
-        SensorResultAvailability.RAW_CAPTURED -> "本次沒有可判讀心律，請重新量測"
-        SensorResultAvailability.QUALITY_INSUFFICIENT -> "這次訊號不完整，請重新量測"
+        SensorResultAvailability.RAW_CAPTURED -> "已擷取訊號，尚無心律分析結果"
+        SensorResultAvailability.QUALITY_INSUFFICIENT -> "已擷取訊號，尚無心律分析結果"
         SensorResultAvailability.SYNC_FAILED -> availability.detail
         SensorResultAvailability.RESULT_AVAILABLE -> "最近一次研究心律結果"
         null -> if (isCalculatedResearchResult(resultValue)) {

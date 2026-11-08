@@ -102,24 +102,24 @@ class WearMeasurePageActivity : ComponentActivity() {
         val tip: String
     ) {
         PPG(
-            "PPG RESEARCH", "光學脈搏波形", "#FF6478",
+            "PPG", "脈搏量測", "#FF6478",
             RawVitalsProbe.Kind.PPG, WearControlService.ACTION_MEASURE_PPG, 1024,
-            "請貼合錶帶並保持手腕靜止。目標 1,024 個原始值；品質合格才提早結束，每通道最長 60 秒。原始值不等於已解碼脈搏樣本。"
+            "戴好手錶，保持手腕靜止。量測完成後查看結果。"
         ),
         BIOZ(
-            "BIOZ RESEARCH", "體成分／BioZ 原始", "#8B7CFF",
+            "BIOZ", "體成分量測", "#8B7CFF",
             RawVitalsProbe.Kind.BIOZ, WearControlService.ACTION_MEASURE_BIOZ, 40,
-            "原廠體成分頁要求按鍵接觸與雙手分開；本頁只記錄公開 BioZ 原始事件。需確認佩戴才標示擷取完成，離腕感測器不能證明電極接觸。"
+            "戴好手錶並依畫面指示接觸按鍵。"
         ),
         TEMPERATURE(
-            "TEMPERATURE RAW", "溫度感測器原始值", "#FFB347",
+            "TEMPERATURE", "腕部溫度", "#FFB347",
             RawVitalsProbe.Kind.BODY_TEMPERATURE, WearControlService.ACTION_MEASURE_TEMPERATURE, 1,
-            "原廠說明建議佩戴至少 10 分鐘、保持手腕與手錶乾燥，避免充電或高耗電操作後立即量測。本頁另需確認佩戴才標示原始擷取完成；原始值單位未驗證，不顯示攝氏或判定體溫。"
+            "佩戴至少 10 分鐘，保持手腕乾燥後量測。"
         ),
         SPO2(
-            "SpO₂ RAW", "血氧原始通道", "#56AEFF",
+            "SpO₂", "血氧量測", "#56AEFF",
             RawVitalsProbe.Kind.SPO2, null, 8,
-            "請讓手錶貼合皮膚、收緊錶帶並保持手腕靜止。原廠血氧頁也會監看離腕狀態；本頁需確認佩戴才標示原始擷取完成。HAL 單位未驗證，不寫入百分比歷史。"
+            "戴好手錶並保持靜止，完成後查看血氧結果。"
         ),
         SUITE(
             "SENSOR SUITE", "全感測器掃描", "#56AEFF",
@@ -129,12 +129,12 @@ class WearMeasurePageActivity : ComponentActivity() {
         HEART_RATE(
             "HEART RATE", "心率量測", "#FF5F73",
             RawVitalsProbe.Kind.HEART_RATE, null, 3,
-            "使用公開心率通道（LifeQ／Health Services）；有 bpm 後結束並同步手機。"
+            "戴好手錶並保持靜止，完成後查看心率結果。"
         ),
         RESPIRATION(
-            "RESPIRATION RAW", "呼吸研究（BioZ）", "#7EC8E3",
+            "RESPIRATION", "呼吸量測", "#7EC8E3",
             RawVitalsProbe.Kind.BIOZ_RESPIRATION, WearControlService.ACTION_MEASURE_BIOZ, 40,
-            "BioZ 原始呼吸研究，與原廠引導式呼吸練習不同。本頁需確認佩戴才標示原始擷取完成，仍不代表電極接觸或獨立呼吸率。"
+            "戴好手錶並保持靜止，完成後查看結果。"
         ),
         OFF_BODY(
             "OFF-BODY", "離腕／佩戴偵測", "#C4A35A",
@@ -522,7 +522,7 @@ class WearMeasurePageActivity : ComponentActivity() {
                 runOnUiThread {
                     if (!active) return@runOnUiThread
                     chart.setSamples(snapshot.waveform.takeLast(280).toList())
-                    headline.text = "${mode.subtitle} · ${snapshot.samples} 點"
+                    headline.text = "正在量測${mode.subtitle}"
                     val raw = snapshot.average ?: snapshot.latest.firstOrNull()
                     val calibrated = raw?.takeIf {
                         kind in setOf(
@@ -531,10 +531,7 @@ class WearMeasurePageActivity : ComponentActivity() {
                             RawVitalsProbe.Kind.LIGHT
                         )
                     }?.let { WearCalibrationStore.apply(this@WearMeasurePageActivity, kind, it) }
-                    detail.text = buildString {
-                        append("等待有效數值（${kind.label}）…\n${snapshot.summary()}")
-                        calibrated?.let { append("\nApp 校正值 ${"%.4f".format(it)}") }
-                    }
+                    detail.text = "請保持手錶貼合、手腕靜止。"
                     if (hasUsableData(snapshot)) {
                         stopMeasure(publish = true)
                     }
@@ -771,12 +768,6 @@ class WearMeasurePageActivity : ComponentActivity() {
             Mode.LIFE_Q_OTT ->
                 (optical?.pulseRateBpm ?: hrv?.bpm)?.takeIf { it in 30.0..220.0 }
                     ?.let { "%.0f".format(it) to "光學研究估算 bpm" }
-            Mode.TEMPERATURE ->
-                (snapshot.average ?: snapshot.latest.firstOrNull())?.takeIf { snapshot.worn == true && it.isFinite() }
-                    ?.let { "%.1f".format(it) to "原始值 · 單位未驗證" }
-            Mode.BOARD_TEMP ->
-                (snapshot.average ?: snapshot.latest.firstOrNull())?.takeIf { it.isFinite() }
-                    ?.let { "%.1f".format(it) to "原始值 · 單位未驗證" }
             Mode.PRESSURE ->
                 (snapshot.average ?: snapshot.latest.firstOrNull())?.takeIf { it.isFinite() }
                     ?.let { "%.0f".format(it) to "hPa" }
@@ -785,27 +776,27 @@ class WearMeasurePageActivity : ComponentActivity() {
                 false -> "已離腕" to ""
                 null -> null
             }
-            else -> snapshot.samples.takeIf { it > 0 }?.let { "$it" to "點" }
+            else -> null
         }
         headline.text = when {
             mode == Mode.PPG && supplementalHeartRate != null -> "已取得心率（Health Services）· PPG 原始資料另列"
-            snapshot.samples <= 0 -> "量測結束 · 沒有收到事件"
+            snapshot.samples <= 0 -> "這次沒有量到讀值"
             mode == Mode.HEART_RATE && primary != null -> "心率已取得 · 已同步手機"
-            mode == Mode.HEART_RATE -> "未取得可信心率 · 原始資料已保留"
+            mode == Mode.HEART_RATE -> "這次沒有量到心率"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && primary != null -> "光學研究估算完成 · 已同步手機"
-            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && opticalCaptureUsable -> "原始光學訊號已取得 · 未輸出 bpm"
-            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && snapshot.samples > 0 -> "收到光學封包，但填充值／品質未通過"
+            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && opticalCaptureUsable -> "這次沒有可用的脈搏讀值"
+            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && snapshot.samples > 0 -> "這次脈搏量測無效"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) -> "沒有收到可用光學訊號"
             mode == Mode.TEMPERATURE && snapshot.worn == false -> "請戴好手錶後重測"
             mode == Mode.TEMPERATURE && snapshot.worn == null -> "請確認手錶貼合手腕後重測"
-            mode == Mode.TEMPERATURE -> "已佩戴 · 原始溫度值已取得 · 單位未驗證"
+            mode == Mode.TEMPERATURE -> "目前無法顯示腕部溫度"
             mode == Mode.SPO2 && snapshot.worn == false -> "請戴好手錶後重測"
             mode == Mode.SPO2 && snapshot.worn == null -> "請確認手錶貼合手腕後重測"
-            mode == Mode.SPO2 -> "已佩戴 · 原始血氧封包已取得 · 未校準百分比"
+            mode == Mode.SPO2 -> "目前無法顯示血氧百分比"
             mode in setOf(Mode.BIOZ, Mode.RESPIRATION) && snapshot.worn == false -> "請戴好手錶後重測"
             mode in setOf(Mode.BIOZ, Mode.RESPIRATION) && snapshot.worn == null -> "請確認手錶貼合手腕後重測"
-            mode in setOf(Mode.BIOZ, Mode.RESPIRATION) -> "已佩戴 · BioZ 原始事件已取得 · 電極接觸未驗證"
-            else -> "原始感測資料已取得 · 已同步手機"
+            mode in setOf(Mode.BIOZ, Mode.RESPIRATION) -> "目前無法顯示體成分結果"
+            else -> "這次沒有可用的結果"
         }
         if (primary != null) {
             resultValue.visibility = View.VISIBLE
@@ -821,11 +812,12 @@ class WearMeasurePageActivity : ComponentActivity() {
             "candidate_timeout" -> "候選通道逾時：已保留目前原始資料"
             else -> null
         }
-        detail.text = listOfNotNull(
-            "資料狀態：${snapshot.evidenceFlags().joinToString(" · ")}",
-            snapshot.summary(), stopDetail, "公式：$formulaLine", conclusion, manufacturer,
-            supplementalHeartRate?.let { "獨立心率來源：Wear Health Services · ${"%.0f".format(it)} bpm（非 PPG 推算）" }
-        ).joinToString("\n")
+        detail.text = when {
+            primary != null && mode == Mode.HEART_RATE -> "成人靜息心率常見參考 60–100 bpm；活動時可能不同。"
+            primary != null && mode == Mode.PPG -> "已取得心率讀值；可在手機查看趨勢。"
+            snapshot.worn == false -> "請戴好手錶後重新量測。"
+            else -> "請保持手錶貼合、手腕靜止後重新量測。"
+        }
         startButton.text = "再次量測"
         doneButton.visibility = View.VISIBLE
         if (publish && mode == Mode.PPG && supplementalHeartRate != null) {
