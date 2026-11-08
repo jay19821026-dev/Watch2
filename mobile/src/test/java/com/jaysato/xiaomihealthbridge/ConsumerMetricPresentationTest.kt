@@ -62,6 +62,16 @@ class ConsumerMetricPresentationTest {
         assertEquals("尚無袖帶血壓紀錄；可輸入外部血壓計的讀值。", ConsumerMetricPresentation.explanation(pressure))
     }
 
+    @Test fun oldAndUncertainSignalsAreNotPresentedAsCurrent() {
+        val old = HealthConclusionEngine.Item("hrv", "HRV／壓力", "較早的心率變化訊號", "", "",
+            HealthConclusionEngine.Level.RESEARCH, null, true)
+        val uncertain = HealthConclusionEngine.Item("spo2", "血氧", "已收到血氧訊號，時間未確認", "", "",
+            HealthConclusionEngine.Level.RESEARCH, null, true)
+        assertEquals("歷史紀錄", ConsumerMetricPresentation.from(old).state)
+        assertEquals("時間未確認", ConsumerMetricPresentation.from(uncertain).state)
+        assertEquals("這是較早的紀錄，不能代表現在；可重新量測。", ConsumerMetricPresentation.explanation(old))
+    }
+
     @Test fun physiologicalLookingNumberRemainsResearchOnlyWhenEvidenceIsUncalibrated() {
         val item = HealthConclusionEngine.Item(
             "hr", "心率", "72 bpm · 研究估算", "", "",

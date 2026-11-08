@@ -41,6 +41,10 @@ object ConsumerMetricPresentation {
             "ecg" -> "這是研究估算心率；這次仍沒有可確認的心律分類。"
             else -> "這是參考資料，可查看近期變化。"
         }
+        if (item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL && item.available) {
+            if (item.valueText.startsWith("較早")) return "這是較早的紀錄，不能代表現在；可重新量測。"
+            if (item.valueText.contains("時間未確認")) return "量測時間未確認，不能當成目前讀值；可重新量測。"
+        }
         if (item.level == HealthConclusionEngine.Level.RESEARCH || item.level == HealthConclusionEngine.Level.UNAVAILABLE) {
             return when (item.id) {
                 "ecg" -> if (item.available) "心電訊號已收到，但尚無可解讀的心律結果。" else "這次沒有心電訊號；請在手錶重新量測。"
@@ -83,10 +87,14 @@ object ConsumerMetricPresentation {
                     listOf("事件", "樣本", "原始", "解碼", "點").none(value::contains)
             }
         val researchValue = researchValue(item)
+        val signalTimeState = item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL &&
+            item.available && researchValue == null &&
+            (item.valueText.startsWith("較早") || item.valueText.contains("時間未確認"))
         val value = when {
             item.valueText in setOf("資料讀取暫時不可用", "分析暫時不可用") -> "讀取失敗"
             physiologicalValue != null -> physiologicalValue
             researchValue != null -> researchValue
+            signalTimeState -> item.valueText
             item.id == "glucose" -> "未支援"
             item.id == "bp" && !item.available -> "尚無紀錄"
             item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL && item.available -> when (item.id) {
@@ -110,6 +118,7 @@ object ConsumerMetricPresentation {
                 "pressure" -> if (item.valueText.contains("歷史")) "歷史紀錄" else "已記錄"
                 else -> "研究估算"
             }
+            signalTimeState -> if (item.valueText.startsWith("較早")) "歷史紀錄" else "時間未確認"
             item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL ->
                 if (item.available) when (item.id) {
                     "ecg" -> "尚無心律結果"
