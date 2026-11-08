@@ -28,8 +28,9 @@ class DailyHealthReportTest {
             latestObservedHrvOrigin = "watch.source"
         ), now, ZoneOffset.UTC)
 
-        assertTrue(report.observations.any { it.contains("4500 步") && it.contains("watch.source") && it.contains("較昨日同來源 -7500 步") })
-        assertTrue(report.observations.any { it.contains("HRV 44.0 ms") })
+        assertTrue(report.observations.any { it.contains("4500 步") && it.contains("較昨天 -7500 步") })
+        assertTrue(report.observations.any { it.contains("HRV）44.0 ms") })
+        assertFalse(report.observations.any { it.contains("watch.source") || it.contains("aggregate") })
         assertFalse(report.observations.any { it.contains("12000") || it.contains("靜息心率 62") })
         assertTrue(report.missing.any { it.contains("靜息心率") })
         assertTrue(report.missing.any { it.contains("血氧") })
@@ -38,7 +39,7 @@ class DailyHealthReportTest {
     @Test fun incompleteDailyAggregateDoesNotBecomeZeroOrAdvice() {
         val report = DailyHealthReport.from(base(), now, ZoneOffset.UTC)
         assertTrue(report.observations.isEmpty())
-        assertTrue(report.explanation.contains("尚無可確認"))
+        assertTrue(report.explanation.contains("尚無可用"))
         assertFalse(report.explanation.contains("正常"))
     }
 
@@ -54,8 +55,8 @@ class DailyHealthReportTest {
             ),
             dailyOxygenOrigin = "oxygen.source"
         ), now, ZoneOffset.UTC)
-        assertTrue(report.observations.any { it.contains("睡眠 7.2 小時") && it.contains("sleep.source") })
-        assertTrue(report.observations.any { it.contains("血氧 94–97%") && it.contains("oxygen.source") })
+        assertTrue(report.observations.any { it.contains("睡眠 7.2 小時") && !it.contains("sleep.source") })
+        assertTrue(report.observations.any { it.contains("血氧 94–97%") && it.contains("有偏低紀錄") && !it.contains("oxygen.source") })
         assertFalse(report.missing.any { it.startsWith("睡眠：") || it.startsWith("血氧：") })
 
         val stale = DailyHealthReport.from(base().copy(
