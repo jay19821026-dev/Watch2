@@ -521,11 +521,11 @@ class HealthConclusionEngineTest {
         ))
         val item = HealthConclusionEngine.hrvConclusion(raw)
 
-        assertEquals("128 筆歷史原始樣本", item.valueText)
+        assertEquals("已收到心率變化訊號，時間未確認", item.valueText)
         assertRetainedResearchExcludedFromHealthSummary(item)
         assertFalse(item.valueText.contains("ms"))
         assertFalse(item.valueText.contains("壓力"))
-        assertTrue(item.conclusion.contains("不以未校準 ECG 推算 HRV"))
+        assertTrue(item.clinicalCompare.contains("不以未校準 ECG 推算 HRV"))
     }
 
     @Test
@@ -556,11 +556,11 @@ class HealthConclusionEngineTest {
         val item = HealthConclusionEngine.hrvConclusion(raw)
 
         assertRetainedResearchExcludedFromHealthSummary(item)
-        assertEquals("500 筆歷史原始樣本", item.valueText)
+        assertEquals("較早的心率變化訊號", item.valueText)
         assertFalse(item.valueText.contains("ms"))
         assertFalse(item.valueText.contains("壓力"))
-        assertTrue(item.conclusion.contains("已收到 500 筆"))
-        assertTrue(item.conclusion.contains("不在目前 10 分鐘分析窗"))
+        assertTrue(item.clinicalCompare.contains("已收到 500 筆"))
+        assertTrue(item.clinicalCompare.contains("不在目前 10 分鐘分析窗"))
     }
 
     private fun preferences(values: Map<String, Any>): SharedPreferences = Proxy.newProxyInstance(

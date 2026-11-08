@@ -555,13 +555,24 @@ object HealthConclusionEngine {
             val diagnosticSamples = if (diagnosticFromHrv) raw.getInt("hrv_research_samples", 0)
                 else raw.getInt("${diagnosticSource}_raw_value_count", 0)
             if (diagnosticSamples > 0) {
+                val diagnosticTime = if (diagnosticFromHrv) hrvTime else raw.getLong("${diagnosticSource}_time", 0L)
+                val diagnosticTimeSource = raw.getString(
+                    if (diagnosticFromHrv) "hrv_research_timestamp_source" else "${diagnosticSource}_timestamp_source", null
+                )
+                val readableState = when {
+                    diagnosticTime <= 0L || !HealthAnalysisFreshnessPolicy.hasTrustedSensorTimestamp(diagnosticTimeSource) || diagnosticTime > now ->
+                        "已收到心率變化訊號，時間未確認"
+                    now - diagnosticTime > TEN_MINUTES -> "較早的心率變化訊號"
+                    else -> "已收到心率變化訊號，尚無 HRV 讀值"
+                }
                 return Item(
-                    "hrv", "HRV／壓力", "$diagnosticSamples 筆歷史原始樣本",
-                    ClinicalReferenceTables.HRV_RMSSD_MS.compare(null), reason,
+                    "hrv", "HRV／壓力", readableState,
+                    "原始樣本 $diagnosticSamples · ${ClinicalReferenceTables.HRV_RMSSD_MS.compare(null)} · $reason",
+                    "這次尚無可信的 HRV 讀值；可在靜止時佩戴手錶重新量測。",
                     Level.RESEARCH, null, true
                 )
             }
-            return Item("hrv", "HRV／壓力", "$diagnosticSamples 筆原始樣本 · 無法判定", ClinicalReferenceTables.HRV_RMSSD_MS.compare(null),
+            return Item("hrv", "HRV／壓力", "尚無 HRV 讀值", ClinicalReferenceTables.HRV_RMSSD_MS.compare(null),
                 reason, Level.UNAVAILABLE, null, false)
         }
         val compare = buildList {
@@ -874,19 +885,11 @@ object HealthConclusionEngine {
                 else -> "PPG 原始訊號已超出健康結論 10 分鐘分析輸入窗；請重新量測後查看。"
             }
             if (samples > 0 || eventCount > 0) {
-                val value = buildString {
-                    if (samples > 0) append(when {
-                        measuredAt <= 0L -> "$samples 點原始值 · 時間未確認"
-                        !timestampTrusted -> "$samples 點原始值 · 時間來源未驗證"
-                        age < 0L -> "$samples 點原始值 · 時間戳異常"
-                        else -> "$samples 筆歷史原始值"
-                    })
-                    if (eventCount > 0) { if (isNotEmpty()) append(" · "); append("$eventCount 事件") }
-                    indexPeriodSamples?.takeIf { it > 0 }?.let { append(" · 索引週期 $it 點／週期") }
-                }
                 val timeAndIndex = buildList {
                     add("時間軸：NORMALIZED_INDEX（非秒）")
                     add("來源：$source · 時間來源：$timestampSource · 校準：未驗證")
+                    add("原始樣本 $samples · 原始事件 $eventCount")
+                    indexPeriodSamples?.takeIf { it > 0 }?.let { add("索引週期 $it 點／週期") }
                     periodCorrelation?.takeIf { it.isFinite() && it in -1.0..1.0 }
                         ?.let { add("最大自相關 %.2f".format(it)) }
                     add("品質 ${ResearchScoreDisplay.format(qualityScore)} · 資料完整度 ${ResearchScoreDisplay.format(confidenceScore)}")
