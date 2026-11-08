@@ -10,7 +10,7 @@ This independent project is not affiliated with, endorsed by, or sponsored by Xi
 
 > The hero is a privacy-safe illustrative mockup. Actual features and support depend on the source, device capabilities, and `SUPPORT_MATRIX.md`.
 
-Current test version: `4.0.0` test 23 (matching Debug versionCode `187`). The source tree contains:
+Current test version: `4.0.0` test 24 (matching Debug versionCode `190`). The source tree contains:
 
 - `mobile/` — Android phone app
 - `wear/` — Wear OS watch app
@@ -37,6 +37,7 @@ All screenshots are demo screens containing no personal data. More examples: [su
 - Test 17 uses Mi Fitness's manual blood-pressure/glucose record paths to correct misleading optical-BP labels and blocks legacy estimates from appearing as mmHg. The phone records external cuff readings only.
 - Test 22 compares the Health Connect workout paths in Mi Fitness 3.53.0i and the paired phone's 3.59.2i. The workout page separates GPS-estimated speed from authorized speed and cadence samples by source package. See the [static comparison](docs/MI_FITNESS_3_53_0I_XAPK_COMPARISON.md).
 - Test 23 compares the OEM source-grouping rule for daily step exports and corrects the raw-record fallback when the platform aggregate is unavailable. It avoids adding overlapping sources and labels a highest-source observation separately from the deduplicated step total.
+- Test 24 compares the OEM source-grouping rule for active-calorie exports. When the platform aggregate is unavailable, a dated, labelled fallback reports only the highest subtotal among readable, nonoverlapping source intervals; it is neither a deduplicated nor a complete daily energy total.
 
 ## Medical disclaimer
 
@@ -46,13 +47,13 @@ ECG remains research-only unless device-specific lead mapping, ADC timing, and r
 
 ## APKs
 
-Matching 4.0.0 test 23 APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) or [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.23):
+Matching 4.0.0 test 24 APKs are available from the [ailisa.net download page](https://ailisa.net/portfolio/ailisa-health-bridge#downloads) or [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.24):
 
-- `AILISAHealthBridge-Mobile-4.0.0-vc187-test23-debug.apk` — Android phone
-- `AILISAHealthBridge-Wear-4.0.0-vc187-test23-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
+- `AILISAHealthBridge-Mobile-4.0.0-vc190-test24-debug.apk` — Android phone
+- `AILISAHealthBridge-Wear-4.0.0-vc190-test24-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
 - [test 18 legacy migration bridge](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.18) — update the old phone app first if migrating encrypted records
 
-Debug APKs use an Android development signature and are not Play Store releases. The new `net.ailisa.healthbridge` package coexists with the old app. Read the [migration guide](docs/PACKAGE_MIGRATION_4_0.en.md) and keep the old installations. Verify the [test 23 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.23/SHA256SUMS-4.0.0-test.23.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
+Debug APKs use an Android development signature and are not Play Store releases. The new `net.ailisa.healthbridge` package coexists with the old app. Read the [migration guide](docs/PACKAGE_MIGRATION_4_0.en.md) and keep the old installations. Verify the [test 24 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.24/SHA256SUMS-4.0.0-test.24.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
 
 The ready-to-paste bilingual Play Store listing, console selections, release notes, and graphic-asset inventory are in [`docs/PLAY_STORE_LISTING_COPY.md`](docs/PLAY_STORE_LISTING_COPY.md). Release flow, privacy, Data safety, and Health apps declaration materials are in [`docs/PLAY_STORE_RELEASE_GUIDE.en.md`](docs/PLAY_STORE_RELEASE_GUIDE.en.md), [`docs/PRIVACY_POLICY.en.md`](docs/PRIVACY_POLICY.en.md), and [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md).
 

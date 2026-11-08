@@ -726,6 +726,13 @@ class MainActivity : ComponentActivity() {
                     java.time.ZoneId.systemDefault(),
                     java.time.LocalDate.now()
                 )
+                val latestDailyCalories = RecentDailyEnergyFallback.latestDailyTotal(
+                    calorieRecords.map { RecentDailyEnergyFallback.Record(
+                        it.metadata.dataOrigin.packageName, it.startTime, it.endTime, it.energy.inKilocalories
+                    ) },
+                    java.time.ZoneId.systemDefault(),
+                    java.time.LocalDate.now()
+                )
                 val distance = aggregateDistance?.inMeters?.takeIf { distanceAggregateAccepted }
                 val calories = aggregateCalories?.inKilocalories?.takeIf { caloriesAggregateAccepted }
                 val exercises = readSafely("運動工作階段", HealthPermission.getReadPermission(ExerciseSessionRecord::class)) {
@@ -1025,7 +1032,12 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 stepsCard.text = metricText("步數", steps?.let { "%,d".format(it) } ?: "— —", "步 · ${aggregateUnavailableReason("步數", aggregateSteps?.toDouble(), aggregateStepOrigins)}；7 日原始紀錄趨勢${trendStatusSuffix(stepTrendAssessment)}", sparkline(stepTrendValues))
-                caloriesCard.text = metricText("消耗的熱量", calories?.let { "%,.0f".format(it) } ?: "— —", "大卡 · ${aggregateUnavailableReason("活動卡路里", aggregateCalories?.inKilocalories, aggregateCalorieOrigins)}；7 日原始紀錄趨勢${trendStatusSuffix(calorieTrendAssessment)}", sparkline(calorieTrendValues))
+                val calorieDetail = when {
+                    calories != null -> "大卡 · Health Connect 去重彙總；7 日原始紀錄趨勢${trendStatusSuffix(calorieTrendAssessment)}"
+                    latestDailyCalories != null -> "大卡 · ${latestDailyCalories.date} 可讀紀錄 · ${if (latestDailyCalories.isSourceMaximum) "來源最高值，非去重總熱量" else "單一來源紀錄，非彙總"}；7 日原始紀錄趨勢${trendStatusSuffix(calorieTrendAssessment)}"
+                    else -> "大卡 · ${aggregateUnavailableReason("活動卡路里", aggregateCalories?.inKilocalories, aggregateCalorieOrigins)}；7 日原始紀錄趨勢${trendStatusSuffix(calorieTrendAssessment)}"
+                }
+                caloriesCard.text = metricText("消耗的熱量", (calories ?: latestDailyCalories?.kilocalories)?.let { "%,.0f".format(it) } ?: "— —", calorieDetail, sparkline(calorieTrendValues))
                 sleepCard.text = metricText(
                     "睡眠時段", sleepHours?.let { "%.1f".format(it) } ?: "— —", "小時 · Health Connect session 時長（未依睡眠階段核算實睡時數）· $sleepValueSource；7 日完整 session 趨勢${trendStatusSuffix(sleepTrendAssessment)}",
                     sparkline(sleepTrendValues)
