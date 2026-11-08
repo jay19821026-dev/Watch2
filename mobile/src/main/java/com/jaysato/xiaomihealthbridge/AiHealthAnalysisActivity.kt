@@ -105,6 +105,15 @@ class AiHealthAnalysisActivity : ComponentActivity() {
         content.addView(text("健康趨勢分析", 31f, Color.WHITE, true))
         content.addView(text("看懂數據，照顧今天的自己", 15f, HealthVisuals.secondary), lp(bottom = 12))
         content.addView(text("本機規則與統計分析 · 健康參考，非疾病診斷", 12f, HealthVisuals.secondary), lp(top = 6, bottom = 20))
+        val daily = DailyHealthReport.from(insights, java.time.Instant.now(), java.time.ZoneId.systemDefault())
+        content.addView(panel().apply {
+            addView(text("每日資料報告 · ${daily.date}", 20f, Color.WHITE, true))
+            addView(text(daily.explanation, 14f, HealthVisuals.secondary), lp(top = 8))
+            daily.observations.forEach { addView(text("• $it", 14f, Color.WHITE), lp(top = 8)) }
+            addView(text("資料缺口", 14f, HealthVisuals.secondary, true), lp(top = 14))
+            daily.missing.forEach { addView(text("• $it", 12f, HealthVisuals.secondary), lp(top = 5)) }
+            addView(text("產生時間：${daily.generatedAt.atZone(java.time.ZoneId.systemDefault()).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))} · 本機規則產生，未呼叫雲端生成式 AI", 11f, HealthVisuals.secondary), lp(top = 12))
+        }, lp(bottom = 14))
         if (pipelineWarnings.isNotEmpty()) {
             content.addView(panel().apply {
                 addView(text("部分分析暫不可用", 16f, Color.rgb(255, 190, 77), true))

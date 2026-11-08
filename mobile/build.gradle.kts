@@ -35,7 +35,7 @@ android {
         applicationId = if (legacyMigrationBridge) "com.jaysato.xiaomihealthbridge" else "net.ailisa.healthbridge"
         minSdk = 28
         targetSdk = 36
-        versionCode = playMobileVersionCode ?: 206
+        versionCode = playMobileVersionCode ?: 209
         versionName = "4.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
