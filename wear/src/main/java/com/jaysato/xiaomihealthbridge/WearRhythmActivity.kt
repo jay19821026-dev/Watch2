@@ -34,7 +34,8 @@ class WearRhythmActivity : ComponentActivity() {
         val consumerTitle = when {
             abnormal -> "異常"
             normal -> "正常"
-            else -> "測量中"
+            fresh && samples > 0 -> "尚無心律結果"
+            else -> "尚無近期量測"
         }
         val accent = when {
             abnormal -> Color(0xFFFF3B30)
@@ -56,8 +57,8 @@ class WearRhythmActivity : ComponentActivity() {
                 item {
                     Text(
                         buildString {
-                            if (normal || abnormal) append("%.0f bpm · RR $rr".format(bpm))
-                            else append(if (samples > 0) "已收到訊號，等待足夠資料完成判定" else "請在 ECG 頁量測")
+                            if (normal || abnormal) append("%.0f bpm".format(bpm))
+                            else append(if (fresh && samples > 0) "心電訊號已收到；這次沒有可確認的節律分類。" else "請在 ECG 頁重新量測")
                             if (time > 0) {
                                 append('\n')
                                 append(SimpleDateFormat("MM/dd HH:mm", Locale.getDefault()).format(Date(time)))
@@ -90,7 +91,7 @@ class WearRhythmActivity : ComponentActivity() {
                     )
                 }
                 item {
-                    WearComposeUi.HealthButton("開始 ECG", "等到有波形／RR 才結束", Color(0xFF34C759), "〽") {
+                    WearComposeUi.HealthButton("開始 ECG", "保持手指穩定接觸電極", Color(0xFF34C759), "〽") {
                         startActivity(
                             Intent(this@WearRhythmActivity, WearEcgActivity::class.java)
                                 .putExtra(WearEcgActivity.EXTRA_AUTO_START, true)

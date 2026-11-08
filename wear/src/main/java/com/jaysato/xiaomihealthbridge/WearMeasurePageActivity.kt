@@ -768,6 +768,9 @@ class WearMeasurePageActivity : ComponentActivity() {
             Mode.PRESSURE ->
                 (snapshot.average ?: snapshot.latest.firstOrNull())?.takeIf { it.isFinite() }
                     ?.let { "%.0f".format(it) to "hPa" }
+            Mode.LIGHT ->
+                (snapshot.average ?: snapshot.latest.firstOrNull())?.takeIf { it.isFinite() && it >= 0.0 }
+                    ?.let { "%.0f".format(it) to "lx" }
             Mode.OFF_BODY -> when (snapshot.worn) {
                 true -> "已佩戴" to ""
                 false -> "已離腕" to ""
@@ -789,7 +792,14 @@ class WearMeasurePageActivity : ComponentActivity() {
             mode == Mode.SPO2 && snapshot.worn == false -> "請戴好手錶後重測"
             mode == Mode.SPO2 -> "已收到血氧訊號"
             mode in setOf(Mode.BIOZ, Mode.RESPIRATION) && snapshot.worn == false -> "請戴好手錶後重測"
-            mode in setOf(Mode.BIOZ, Mode.RESPIRATION) -> "已收到體成分訊號"
+            mode == Mode.BIOZ -> "已收到體成分訊號"
+            mode == Mode.RESPIRATION -> "已收到呼吸相關訊號"
+            mode == Mode.PRESSURE && primary != null -> "周圍氣壓已取得"
+            mode == Mode.LIGHT && primary != null -> "環境亮度已取得"
+            mode == Mode.OFF_BODY && primary != null -> primary.first
+            mode == Mode.STEPS && hasCapturedSignal -> "計步器已有回應"
+            mode in setOf(Mode.ACCEL, Mode.GYRO, Mode.MAGNET) && hasCapturedSignal -> "感測器已有回應"
+            mode == Mode.BOARD_TEMP && hasCapturedSignal -> "已收到手錶內部溫度訊號"
             else -> "這次沒有可用的結果"
         }
         if (primary != null) {
@@ -814,8 +824,15 @@ class WearMeasurePageActivity : ComponentActivity() {
             snapshot.worn == false -> "請戴好手錶後重新量測。"
             hasCapturedSignal && mode == Mode.TEMPERATURE -> "尚無可用的體溫讀值；可在手機查看訊號。"
             hasCapturedSignal && mode == Mode.SPO2 -> "尚無可用的血氧百分比；可在手機查看訊號。"
-            hasCapturedSignal && mode in setOf(Mode.BIOZ, Mode.RESPIRATION) -> "尚無可用的體成分讀值；可在手機查看訊號。"
+            hasCapturedSignal && mode == Mode.BIOZ -> "尚無可用的體成分讀值；可在手機查看訊號。"
+            hasCapturedSignal && mode == Mode.RESPIRATION -> "尚無可用的呼吸速率；可在手機查看訊號。"
             hasCapturedSignal && mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) -> "尚無可用的脈率讀值；可在手機查看訊號。"
+            primary != null && mode == Mode.PRESSURE -> "這是周圍空氣壓力，不是血壓或實際海拔。"
+            primary != null && mode == Mode.LIGHT -> "這是目前環境亮度。"
+            primary != null && mode == Mode.OFF_BODY -> "這是手錶回報的佩戴狀態。"
+            hasCapturedSignal && mode == Mode.STEPS -> "計步器正在記錄；累積計數不等於今天走的步數。"
+            hasCapturedSignal && mode in setOf(Mode.ACCEL, Mode.GYRO, Mode.MAGNET) -> "感測器有回應；可返回使用手錶功能。"
+            hasCapturedSignal && mode == Mode.BOARD_TEMP -> "這是手錶內部溫度訊號，不是體溫。"
             else -> "請保持手錶貼合、手腕靜止後重新量測。"
         }
         startButton.text = "再次量測"
