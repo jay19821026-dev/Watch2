@@ -427,7 +427,7 @@ class HealthCenterActivity : ComponentActivity() {
                         SensorDisplayState.QUALITY_REJECTED -> "這次讀值不穩定 · 建議重新量測"
                         SensorDisplayState.CALIBRATION_MISSING -> "已取得訊號 · 尚無可用讀值"
                         SensorDisplayState.CONDITION_NOT_MET -> "量測尚未完成 · 請確認佩戴與接觸"
-                        SensorDisplayState.RAW_ONLY, SensorDisplayState.SIGNAL_VALID_RESEARCH -> "已取得訊號 · 尚無可用結果"
+                        SensorDisplayState.RAW_ONLY, SensorDisplayState.SIGNAL_VALID_RESEARCH -> "這次沒有可顯示的讀值 · 可重新量測"
                         SensorDisplayState.DERIVED_ESTIMATE -> "已取得估算結果 · $ageText"
                         SensorDisplayState.AVAILABLE -> "已取得紀錄 · $ageText"
                     }
@@ -452,30 +452,22 @@ class HealthCenterActivity : ComponentActivity() {
             }
             val syncDiagnostics = getSharedPreferences(HeartRateDataListenerService.PREFS, MODE_PRIVATE)
             val rejectionCount = syncDiagnostics.getInt(WearDataProcessor.KEY_RAW_SNAPSHOT_REJECTION_COUNT, 0)
-            val orderingRejectionCount = syncDiagnostics.getInt(WearDataProcessor.KEY_RAW_SNAPSHOT_ORDERING_REJECTION_COUNT, 0)
-            val payloadRejectionCount = syncDiagnostics.getInt(WearDataProcessor.KEY_RAW_SNAPSHOT_PAYLOAD_REJECTION_COUNT, 0)
-            val duplicateRejectionCount = syncDiagnostics.getInt(WearDataProcessor.KEY_RAW_SNAPSHOT_DUPLICATE_REJECTION_COUNT, 0)
-            val lastRejectedKind = syncDiagnostics.getString(WearDataProcessor.KEY_RAW_SNAPSHOT_LAST_REJECTED_KIND, "").orEmpty()
             val lastRejectionReason = syncDiagnostics.getString(WearDataProcessor.KEY_RAW_SNAPSHOT_LAST_REJECTION_REASON, "").orEmpty()
             val lastRejectionTime = syncDiagnostics.getLong(WearDataProcessor.KEY_RAW_SNAPSHOT_LAST_REJECTION_TIME, 0L)
             val rejectionReasonLabel = when (lastRejectionReason) {
                 "older_than_active_session" -> "舊掃描工作階段資料"
                 "older_session" -> "較舊量測工作階段"
-                "older_timestamp" -> "較舊封包時間戳"
-                "preview_after_final" -> "完成後才到達的預覽封包"
-                "duplicate_or_older_heart_rate_sample" -> "重複或較舊的心率封包"
-                "oversized_waveform" -> "波形封包超出安全大小"
-                "oversized_latest" -> "摘要封包超出安全大小"
-                "oversized_event_timestamps" -> "事件時間戳超出安全數量"
-                "oversized_event_sample_counts" -> "事件樣本計數超出安全數量"
-                "mismatched_event_metadata" -> "事件中繼資料數量不一致"
-                "oversized_event_metadata" -> "事件中繼資料超出安全大小"
-                "oversized_serialized_data_map" -> "感測封包總大小超出傳輸上限；原始量測未截斷並已記錄拒收"
-                "unsupported_payload_rejection_marker" -> "封包含有無法辨識的拒收標記，已拒絕保存"
+                "older_timestamp" -> "資料時間較舊"
+                "preview_after_final" -> "量測完成後又收到舊資料"
+                "duplicate_or_older_heart_rate_sample" -> "重複或較舊的心率資料"
+                "oversized_waveform", "oversized_latest", "oversized_event_timestamps",
+                "oversized_event_sample_counts", "oversized_event_metadata", "oversized_serialized_data_map" -> "資料量超過安全上限"
+                "mismatched_event_metadata" -> "資料格式不一致"
+                "unsupported_payload_rejection_marker" -> "資料格式無法辨識"
                 else -> "無"
             }
             val lastRejectionLabel = if (lastRejectionTime > 0L) {
-                "最近一次：$lastRejectedKind · $rejectionReasonLabel · ${DateFormat.getDateTimeInstance().format(Date(lastRejectionTime))}"
+                "最近一次：$rejectionReasonLabel · ${DateFormat.getDateTimeInstance().format(Date(lastRejectionTime))}"
             } else {
                 "最近一次：尚無記錄"
             }
@@ -486,13 +478,13 @@ class HealthCenterActivity : ComponentActivity() {
             ) {
                 android.app.AlertDialog.Builder(this@HealthCenterActivity)
                     .setTitle("同步詳情")
-                    .setMessage("排序 $orderingRejectionCount 次、格式 $payloadRejectionCount 次、重複心率 $duplicateRejectionCount 次。\n$lastRejectionLabel")
+                    .setMessage("有 $rejectionCount 筆資料未同步成功。請重新整理或重測。\n$lastRejectionLabel")
                     .setNeutralButton("匯出診斷") { _, _ -> exportRawSensorData() }
                     .setPositiveButton("完成", null)
                     .show()
             }, margin(top = 10, bottom = 10))
             body.addView(text("手錶功能入口", 20f, Color.WHITE, true), margin(top = 18, bottom = 10))
-            body.addView(card("體表溫度趨勢", "使用手錶前景量測與 Health Connect 紀錄；有資料時可查看趨勢，沒有事件時不會補造數值。", Color.rgb(255, 112, 145)) {
+            body.addView(card("體表溫度趨勢", "有手錶量測紀錄時可查看變化；尚未量測時會顯示空白。", Color.rgb(255, 112, 145)) {
                 startActivity(Intent(this@HealthCenterActivity, MetricDetailActivity::class.java).putExtra("metric", "temperature"))
             }, margin(bottom = 10))
             body.addView(card("氣壓與高度估算", "氣壓可顯示原始 hPa；目前高度值以標準大氣公式估算，不能代表實際海拔、樓層或運動爬升。", Color.rgb(86, 174, 255)) {

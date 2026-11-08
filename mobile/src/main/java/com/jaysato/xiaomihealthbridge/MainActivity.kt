@@ -211,8 +211,8 @@ class MainActivity : ComponentActivity() {
             addView(featureRow("℃", "體表溫度", "顯示手錶前景量測與 Health Connect 同步趨勢", "#FF6F91") {
                 startActivity(Intent(this@MainActivity, MetricDetailActivity::class.java).putExtra("metric", "temperature"))
             }, margins(bottom = 10))
-            addView(featureRow("↗", "海拔／爬升／樓層", "運動期間由氣壓計與 Health Connect 有效事件計算", "#56AEFF") {
-                AlertDialog.Builder(this@MainActivity).setTitle("海拔與樓層").setMessage("請先在手錶啟動運動工作階段；手機只顯示已同步事件，不會把 GPS 高度誤當成樓層。").setPositiveButton("知道了", null).show()
+            addView(featureRow("↗", "海拔／爬升／樓層", "運動時查看手錶記錄的高度與爬升", "#56AEFF") {
+                AlertDialog.Builder(this@MainActivity).setTitle("海拔與樓層").setMessage("請先在手錶啟動運動量測。完成後，手機會顯示已同步的高度與爬升紀錄。").setPositiveButton("知道了", null).show()
             }, margins(bottom = 10))
             addView(featureRow("◎", "指南針／返航導航", "旋轉向量、陀螺儀與磁力計由手錶低功耗前景功能處理", "#7082FF") {
                 AlertDialog.Builder(this@MainActivity).setTitle("指南針與返航").setMessage("請從手錶端開啟指南針或返航導航；手機不會在背景持續讀取磁力計與 GPS。").setPositiveButton("知道了", null).show()
@@ -265,8 +265,8 @@ class MainActivity : ComponentActivity() {
             addView(actionButton("啟動手錶體表溫度量測") { sendWatchCommand("/control/temperature-now") }, margins(top = 10))
             addView(actionButton("啟動手錶 SpO₂ 感測") { sendWatchCommand("/control/oxygen-now") }, margins(top = 10))
             addView(actionButton("啟動 PPG 原始波形擷取") { sendWatchCommand("/control/ppg-now") }, margins(top = 10))
-            addView(actionButton("擷取原廠心率光學通道原始值（65597）") { sendWatchCommand("/control/ppg-hr-raw-now") }, margins(top = 10))
-            addView(actionButton("擷取原廠血氧光學通道原始值（65596）") { sendWatchCommand("/control/ppg-spo2-raw-now") }, margins(top = 10))
+            addView(actionButton("檢查手錶心率光學訊號") { sendWatchCommand("/control/ppg-hr-raw-now") }, margins(top = 10))
+            addView(actionButton("檢查手錶血氧光學訊號") { sendWatchCommand("/control/ppg-spo2-raw-now") }, margins(top = 10))
             addView(actionButton("查看手錶血壓限制說明") { sendWatchCommand("/control/optical-bp-now") }, margins(top = 10))
             addView(actionButton("啟動 ECG 研究量測") { sendWatchCommand("/control/ecg-now") }, margins(top = 10))
             addView(actionButton("啟動 BioZ 原始波形擷取") { sendWatchCommand("/control/bioz-now") }, margins(top = 10))

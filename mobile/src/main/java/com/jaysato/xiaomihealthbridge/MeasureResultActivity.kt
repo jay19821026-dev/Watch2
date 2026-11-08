@@ -110,7 +110,7 @@ class MeasureResultActivity : ComponentActivity() {
         )
         val displayValue = resultPresentation.value
         val detail = detailLine(kind, raw) + (supplementalHeartRate?.let {
-            "\n獨立心率：Wear Health Services ${"%.0f".format(it.bpm)} bpm；不是由 PPG 原始封包推算。"
+            "\n手錶心率：${"%.0f".format(it.bpm)} bpm；來源為手錶系統量測。"
         } ?: "")
         val hasReadableValue = resultPresentation.unit != "原始資料點／事件" && displayValue != "—"
         val resultConclusion = when {
@@ -368,7 +368,7 @@ class MeasureResultActivity : ComponentActivity() {
                             ?: raw.getInt("${kind}_event_count", 0).takeIf {
                                 raw.getInt("${kind}_event_count_known", 0) == 1 && it > 0
                             }
-                        if (supplementalHeartRate != null) "%.0f".format(supplementalHeartRate.bpm) to "Health Services bpm"
+                        if (supplementalHeartRate != null) "%.0f".format(supplementalHeartRate.bpm) to "bpm"
                         else if (opticalEstimate != null) "%.0f".format(opticalEstimate) to "研究估算 bpm"
                         else (count?.toString() ?: "—") to "原始資料點／事件"
                     } else {
@@ -378,7 +378,7 @@ class MeasureResultActivity : ComponentActivity() {
                 }
                 "whs_heart_rate" -> {
                     val bpm = feature.getFloat("whs_heart_rate", Float.NaN).takeIf { it.isFinite() }
-                    (bpm?.let { "%.0f".format(it) } ?: "—") to "Health Services bpm"
+                    (bpm?.let { "%.0f".format(it) } ?: "—") to "bpm"
                 }
                 "ecg" -> {
                     val bpm = f("ecg_rhythm_bpm") ?: f("ecg_formula_pulse_bpm")
