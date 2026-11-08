@@ -102,17 +102,17 @@ class WearMeasurePageActivity : ComponentActivity() {
         val tip: String
     ) {
         PPG(
-            "PPG", "脈搏量測", "#FF6478",
+            "脈搏", "脈搏量測", "#FF6478",
             RawVitalsProbe.Kind.PPG, WearControlService.ACTION_MEASURE_PPG, 1024,
             "戴好手錶，保持手腕靜止。量測完成後查看結果。"
         ),
         BIOZ(
-            "BIOZ", "體成分量測", "#8B7CFF",
+            "體成分", "體成分量測", "#8B7CFF",
             RawVitalsProbe.Kind.BIOZ, WearControlService.ACTION_MEASURE_BIOZ, 40,
             "戴好手錶並依畫面指示接觸按鍵。"
         ),
         TEMPERATURE(
-            "TEMPERATURE", "腕部溫度", "#FFB347",
+            "腕部溫度", "腕部溫度", "#FFB347",
             RawVitalsProbe.Kind.BODY_TEMPERATURE, WearControlService.ACTION_MEASURE_TEMPERATURE, 1,
             "佩戴至少 10 分鐘，保持手腕乾燥後量測。"
         ),
@@ -122,64 +122,64 @@ class WearMeasurePageActivity : ComponentActivity() {
             "戴好手錶並保持靜止，完成後查看血氧結果。"
         ),
         SUITE(
-            "SENSOR SUITE", "全感測器掃描", "#56AEFF",
+            "感測器檢查", "全感測器掃描", "#56AEFF",
             null, WearControlService.ACTION_SENSOR_SUITE, 0,
             "會依序掃描公開通道並同步手機。掃描期間請佩戴並適度活動手腕。"
         ),
         HEART_RATE(
-            "HEART RATE", "心率量測", "#FF5F73",
+            "心率", "心率量測", "#FF5F73",
             RawVitalsProbe.Kind.HEART_RATE, null, 3,
             "戴好手錶並保持靜止，完成後查看心率結果。"
         ),
         RESPIRATION(
-            "RESPIRATION", "呼吸量測", "#7EC8E3",
+            "呼吸", "呼吸量測", "#7EC8E3",
             RawVitalsProbe.Kind.BIOZ_RESPIRATION, WearControlService.ACTION_MEASURE_BIOZ, 40,
             "戴好手錶並保持靜止，完成後查看結果。"
         ),
         OFF_BODY(
-            "OFF-BODY", "離腕／佩戴偵測", "#C4A35A",
+            "佩戴狀態", "離腕／佩戴偵測", "#C4A35A",
             RawVitalsProbe.Kind.OFF_BODY, null, 1,
-            "對照 Galaxy／光學錶自動暫停量測。有佩戴狀態即結束。"
+            "確認手錶是否貼合手腕。"
         ),
         PRESSURE(
-            "BAROMETER", "氣壓／標準高度估算", "#6EB5FF",
+            "氣壓", "氣壓／標準高度估算", "#6EB5FF",
             RawVitalsProbe.Kind.PRESSURE, null, 3,
-            "氣壓計候選端點（SKU 未核實）；有 hPa 讀值即結束，公式高度不是實際海拔或活動爬升。"
+            "量測周圍氣壓；高度是依氣壓估算，並非實際海拔。"
         ),
         LIGHT(
-            "AMBIENT LIGHT", "環境光", "#E8D48A",
+            "環境光", "環境光", "#E8D48A",
             RawVitalsProbe.Kind.LIGHT, null, 2,
-            "環境光候選端點（SKU 未核實）；依 Android 感測器單位顯示 lux。"
+            "量測周圍光線亮度。"
         ),
         ACCEL(
-            "ACCELEROMETER", "加速度／活動", "#9ADBC5",
+            "活動感測", "加速度／活動", "#9ADBC5",
             RawVitalsProbe.Kind.ACCELEROMETER, null, 20,
-            "BOSCH bmi26x 家族候選（SKU 未核實）；有足夠活動樣本即結束。"
+            "移動手腕以檢查活動感測器。"
         ),
         GYRO(
-            "GYROSCOPE", "陀螺儀", "#9ADBC5",
+            "轉動感測", "陀螺儀", "#9ADBC5",
             RawVitalsProbe.Kind.GYROSCOPE, null, 20,
-            "BOSCH bmi26x 家族候選（SKU 未核實）；有足夠角速度樣本即結束。"
+            "輕輕轉動手腕以檢查轉動感測器。"
         ),
         MAGNET(
-            "MAGNETOMETER", "磁力計校準", "#64D2FF",
+            "方向感測", "磁力計校準", "#64D2FF",
             RawVitalsProbe.Kind.MAGNETOMETER, null, 20,
-            "AKM ak0991x 家族候選（SKU 未核實）；請先靜置，再以八字動作檢查磁場校正。"
+            "先讓手錶靜止，再用手腕緩慢畫八字。"
         ),
         STEPS(
-            "STEP COUNTER", "計步通道", "#56AEFF",
+            "步數", "計步通道", "#56AEFF",
             RawVitalsProbe.Kind.STEP_COUNTER, null, 1,
-            "OEM 計步邏輯端點；實際來源依 runtime sensor metadata 判定，有事件即結束。"
+            "走動幾步，檢查手錶是否記錄步數。"
         ),
         BOARD_TEMP(
-            "BOARD TEMP", "主板溫度", "#FF9F6B",
+            "手錶內部溫度", "主板溫度", "#FF9F6B",
             RawVitalsProbe.Kind.BOARD_TEMPERATURE, null, 1,
-            "主板溫度感測器原始值；單位未驗證。有有限讀值即結束。"
+            "檢查手錶內部溫度感測器；這不是體溫。"
         ),
         LIFE_Q_OTT(
-            "LIFEQ OTT", "LifeQ OTT 原始", "#B48BFF",
+            "光學訊號", "光學訊號", "#B48BFF",
             RawVitalsProbe.Kind.LIFE_Q_OTT, null, 32,
-            "LifeQ 光學組織通道；有足夠原始事件即結束。"
+            "戴好手錶並保持靜止，檢查光學訊號。"
         )
     }
 
@@ -320,7 +320,7 @@ class WearMeasurePageActivity : ComponentActivity() {
                 startButton.text = "掃描進行中"
             }.onFailure {
                 headline.text = "掃描啟動失敗"
-                detail.text = it.localizedMessage ?: "請確認權限、電量與手錶狀態後重試。"
+                detail.text = "請確認權限、電量與手錶狀態後重試。"
                 startButton.text = "重試掃描"
                 startButton.isEnabled = true
             }
@@ -363,14 +363,14 @@ class WearMeasurePageActivity : ComponentActivity() {
             headline.text = WearMeasurementPolicy.sensorSuiteStatusHeadline(runState)
             val summary = WearMeasurementPolicy.compactSensorSuiteStatus(message)
             val reportedAt = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(timestamp))
-            detail.text = "$summary\n$reportedAt · 原始資料非醫療判讀"
+            detail.text = "$summary\n更新時間 $reportedAt"
         val running = WearMeasurementPolicy.hasLiveSuiteWindow(
             runState, prefs.getLong("suite_session_started_at_ms", 0L),
             System.currentTimeMillis(), WearSensorSuiteTiming.WAKELOCK_TIMEOUT_MILLIS
         )
         if (runState == "running" && !running) {
             headline.text = "掃描狀態待確認"
-            detail.text = "上次掃描狀態已超出期限或開始時間無效；可重新請求，服務仍會阻擋重複工作。\n$summary"
+            detail.text = "上次掃描沒有確認完成；可重新開始。"
         }
         startButton.isEnabled = !running
         startButton.text = if (running) "收集資料中…" else "再次掃描"
@@ -429,7 +429,7 @@ class WearMeasurePageActivity : ComponentActivity() {
                     if (active && whsBpm == null) {
                         whsBpm = bpm
                         whsBpmTimestamp = pointTime
-                        detail.text = "已取得獨立 Health Services 心率 ${"%.0f".format(bpm)} bpm；PPG 原始波形仍獨立判定。\n${detail.text}"
+                        detail.text = "已取得心率 ${"%.0f".format(bpm)} bpm，請等待量測完成。"
                     }
                 }
             }
@@ -447,8 +447,8 @@ class WearMeasurePageActivity : ComponentActivity() {
         startButton.text = "量測中…"
         resultValue.visibility = View.GONE
         doneButton.visibility = View.GONE
-        headline.text = "量測中（Health Services）"
-        detail.text = "等待可靠 bpm…；失敗才改光學通道"
+        headline.text = "正在量測心率"
+        detail.text = "請保持手錶貼合、手腕靜止。"
         val callback = object : MeasureCallback {
             override fun onAvailabilityChanged(dataType: DeltaDataType<*, *>, availability: Availability) {
                 if (availability is DataTypeAvailability &&
@@ -456,7 +456,7 @@ class WearMeasurePageActivity : ComponentActivity() {
                 ) {
                     runOnUiThread {
                         if (!active || whsBpm != null) return@runOnUiThread
-                        detail.text = "Health Services 暫不可用，改試光學通道…"
+                        detail.text = "正在改用手錶感測器量測…"
                     }
                 }
             }
@@ -486,7 +486,7 @@ class WearMeasurePageActivity : ComponentActivity() {
         handler.postDelayed({
             if (active && whsBpm == null && probe == null) {
                 unregisterWhs()
-                detail.text = "改試光學／心率 HAL…"
+                detail.text = "正在改用手錶感測器量測…"
                 startProbeCascade(probeKindsFor(Mode.HEART_RATE))
             }
         }, 12_000L)
@@ -505,14 +505,13 @@ class WearMeasurePageActivity : ComponentActivity() {
 
     private fun startProbeCascade(kinds: List<RawVitalsProbe.Kind>) {
         var candidateTimeout: Runnable? = null
-        val failures = mutableListOf<String>()
         fun tryKind(index: Int) {
             candidateTimeout?.let(handler::removeCallbacks)
             candidateTimeout = null
             if (index >= kinds.size) {
                 stopMeasure(publish = false)
                 headline.text = "通道無法啟動"
-                detail.text = "${mode.subtitle}未取得可用結果。\n${failures.joinToString("\n")}\n可重新量測；其他功能仍可使用。"
+                detail.text = "這次沒有取得${mode.subtitle}結果；請確認佩戴後重新量測。"
                 startButton.text = "重新量測"
                 doneButton.visibility = View.VISIBLE
                 return
@@ -538,7 +537,6 @@ class WearMeasurePageActivity : ComponentActivity() {
                 }
             } }, onFailure = { error ->
                 val reason = if (error is SecurityException) "permission_denied" else "probe_creation_exception"
-                failures += "${kind.label}：$reason"
                 publishFailedCandidate(RawVitalsProbe.derived(
                     kind, emptyList(), "probe-creation", "HealthBridge", reason
                 ).copy(status = reason, registrationResult = reason, acquisitionStopReason = reason, sampleRateHz = 0.0))
@@ -549,14 +547,13 @@ class WearMeasurePageActivity : ComponentActivity() {
             }
             if (!session.start()) {
                 val failed = session.stop()
-                failures += "${kind.label}：${failed.acquisitionStopReason}"
                 publishFailedCandidate(failed)
                 tryKind(index + 1)
                 return
             }
             probe = session
             active = true
-            headline.text = "量測中（${kind.label}）"
+            headline.text = "正在量測${mode.subtitle}"
             resultValue.visibility = View.GONE
             startButton.text = "量測中…"
             doneButton.visibility = View.GONE
@@ -647,11 +644,11 @@ class WearMeasurePageActivity : ComponentActivity() {
         whsBpmTimestamp = 0L
         if (whs != null && probe == null) {
             active = false
-            headline.text = if (whsTimestamp > 0L) "量測完成 · 已同步手機" else "量測完成 · 時間戳未確認"
+            headline.text = if (whsTimestamp > 0L) "心率量測完成" else "心率已取得，請重測確認時間"
             resultValue.visibility = View.VISIBLE
             resultValue.text = "%.0f\nbpm".format(whs)
             resultValue.textSize = 36f
-            detail.text = "Health Services 心率 · ${"%.0f".format(whs)} bpm\n結論：已取得可靠 bpm"
+            detail.text = "本次心率 ${"%.0f".format(whs)} bpm"
             startButton.text = "再次量測"
             doneButton.visibility = View.VISIBLE
             if (publish && whsTimestamp > 0L) {
@@ -679,7 +676,7 @@ class WearMeasurePageActivity : ComponentActivity() {
                 )
                 publishHeartRateBpm(whs, measuredAt)
             } else if (publish) {
-                detail.text = "Health Services 心率 · ${"%.0f".format(whs)} bpm\n時間戳缺失，未同步或寫入健康資料"
+                detail.text = "心率 ${"%.0f".format(whs)} bpm；這次未確認量測時間，請重測。"
             }
             return
         }
@@ -826,7 +823,7 @@ class WearMeasurePageActivity : ComponentActivity() {
                 WearHealthStore.recordHeartRate(this, supplementalHeartRate.toLong(), measuredAt)
                 publishHeartRateBpm(supplementalHeartRate, measuredAt)
             } else {
-                detail.append("\nHealth Services 心率有讀值但缺少事件時間戳，未同步")
+                detail.append("\n這次未確認量測時間，請重測。")
             }
             WearRawSensorPublisher.publish(
                 this,
