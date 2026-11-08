@@ -583,11 +583,16 @@ class MetricDetailActivity : ComponentActivity() {
         )
         hero.addView(caption); hero.addView(value); hero.addView(stamp)
         if (metric == "oxygen") {
-            hero.addView(text(VitalsCardPresentationPolicy.oxygenInterpretation(selected.last().value), 14, Color.WHITE))
+            hero.addView(text(
+                selected.last().value.takeIf { it.isFinite() && it in 70.0..100.0 }
+                    ?.let { ConsumerVitalsSummary.oxygen(it).detail }
+                    ?: "這筆血氧讀值不在可比較範圍內，請重新量測。",
+                14, Color.WHITE
+            ))
         } else if (metric == "resting_heart_rate") {
             hero.addView(text(VitalsCardPresentationPolicy.heartRateReference(selected.last().value), 14, Color.WHITE))
         } else if (metric == "heart_rate") {
-            hero.addView(text("成人靜息參考 60–100 bpm；這筆量測沒有靜息標記，活動、壓力與睡眠都可能改變心率。", 14, Color.WHITE))
+            hero.addView(text("${ConsumerVitalsSummary.heartRateLabel(selected.last().value)} · 成人靜息參考 60–100 bpm", 14, Color.WHITE))
         }
         if (metric == "temperature") {
             hero.addView(text(

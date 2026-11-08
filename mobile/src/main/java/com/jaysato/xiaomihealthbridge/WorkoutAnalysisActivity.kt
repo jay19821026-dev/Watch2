@@ -146,12 +146,12 @@ class WorkoutAnalysisActivity : ComponentActivity() {
             speed?.let { append("\n平均速度  ${"%.1f km/h".format(it)}") }
             averageHeartRate?.let { append("\n平均心率  ${"%.0f bpm".format(it)}") }
         }), lp(bottom = 14))
-        content.addView(panel("運動時的其他紀錄", buildString {
-            append(metricSummary("速度", "km/h", speedSamples))
-            append("\n")
-            append(metricSummary("步頻", "步／分鐘", cadenceSamples))
-            append("\n僅依此路線的時間範圍查找。來源套件與時間相符仍不能單獨證明由這隻手錶量測；樣本平均不等於 GPS 推算速度。")
-        }), lp(bottom = 14))
+        if (speedSamples.samples.isNotEmpty() || cadenceSamples.samples.isNotEmpty()) {
+            content.addView(panel("運動時的其他紀錄", listOfNotNull(
+                speedSamples.takeIf { it.samples.isNotEmpty() }?.let { metricSummary("速度", "km/h", it) },
+                cadenceSamples.takeIf { it.samples.isNotEmpty() }?.let { metricSummary("步頻", "步／分鐘", it) }
+            ).joinToString("\n")), lp(bottom = 14))
+        }
         content.addView(panel("訓練與爬升", buildString {
             append("累積爬升  ${"%.0f".format(elevationGain)} m")
             climbEfficiency?.let { append("\n爬升效率  ${"%.1f m/km".format(it)}") }
@@ -166,7 +166,7 @@ class WorkoutAnalysisActivity : ComponentActivity() {
         if (heartRateReadError != null) {
             content.addView(text(heartRateReadError, 13f, HealthVisuals.secondary), lp(bottom = 8))
         } else if (heartSamples.isEmpty()) {
-            content.addView(text("此運動時段沒有心率樣本", 13f, HealthVisuals.secondary), lp(bottom = 8))
+            content.addView(text("這次運動沒有心率紀錄", 13f, HealthVisuals.secondary), lp(bottom = 8))
         }
         content.addView(SeriesChartView(this, exerciseHeartSamples.map { it.beatsPerMinute.toDouble() }, Color.rgb(255, 96, 118)), LinearLayout.LayoutParams(-1, dp(150)))
         content.addView(text("VO₂max、訓練負荷與爬升效率為運動估算值，會隨 GPS 與心率資料完整度改變。", 12f, HealthVisuals.secondary), lp(top = 12))

@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
@@ -29,63 +28,22 @@ class HealthConclusionActivity : ComponentActivity() {
             text = "健康結論"; textSize = 34f; setTextColor(Color.BLACK); setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "研究原始訊號與可對照生理數值分開呈現；不代表醫療診斷。"
+            text = "先看結果，再點選項目了解原因與建議。"
             textSize = 14f; setTextColor(Color.rgb(90, 90, 100))
             setPadding(0, dp(6), 0, dp(14))
         })
-        val acknowledgement = CheckBox(this).apply {
-            text = "我了解以下內容僅供研究與健康參考，可能包含估算或不完整資料，不等同醫療診斷；異常或不適時仍須就醫。"
-            textSize = 13f
-            setTextColor(Color.rgb(45, 45, 55))
-            setPadding(0, 0, 0, dp(8))
+        val report = HealthConclusionEngine.build(this)
+        if (BuildConfig.DEBUG && intent.getBooleanExtra(EXTRA_DEBUG_EXPORT_MATRIX, false)) {
+            exportDebugMatrix(report)
         }
-        root.addView(acknowledgement)
-        val reveal = Button(this).apply {
-            text = "勾選後查看健康結論"
-            isAllCaps = false
-            isEnabled = false
-        }
-        root.addView(reveal)
-        val reportContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            visibility = android.view.View.GONE
-        }
-        root.addView(reportContainer)
-        acknowledgement.setOnCheckedChangeListener { _, checked ->
-            reveal.isEnabled = checked
-            if (!checked) reportContainer.visibility = android.view.View.GONE
-        }
-        reveal.setOnClickListener {
-            if (!acknowledgement.isChecked) return@setOnClickListener
-            if (reportContainer.visibility == android.view.View.VISIBLE) return@setOnClickListener
-            if (reportContainer.childCount > 0) {
-                reportContainer.visibility = android.view.View.VISIBLE
-                reveal.isEnabled = false
-                return@setOnClickListener
-            }
-            val report = HealthConclusionEngine.build(this)
-            if (BuildConfig.DEBUG && intent.getBooleanExtra(EXTRA_DEBUG_EXPORT_MATRIX, false)) {
-                exportDebugMatrix(report)
-            }
-            reportContainer.visibility = android.view.View.VISIBLE
-            val summaryCopy = ConsumerVitalsSummary.from(report)
-            reportContainer.addView(hero(summaryCopy.headline, summaryCopy.detail))
-            report.items.forEach { item -> reportContainer.addView(itemCard(item)) }
-            reportContainer.addView(TextView(this).apply {
-                text = report.disclaimer
-                textSize = 12f; setTextColor(Color.rgb(140, 80, 60))
-                setPadding(0, dp(16), 0, 0)
-            })
-            reveal.isEnabled = false
-        }
-        if (HealthConclusionDebugLaunchPolicy.shouldAutoReveal(
-                BuildConfig.DEBUG,
-                intent.getBooleanExtra(EXTRA_DEBUG_AUTO_REVEAL, false)
-            )
-        ) {
-            acknowledgement.isChecked = true
-            reveal.performClick()
-        }
+        val summaryCopy = ConsumerVitalsSummary.from(report)
+        root.addView(hero(summaryCopy.headline, summaryCopy.detail))
+        report.items.forEach { item -> root.addView(itemCard(item)) }
+        root.addView(TextView(this).apply {
+            text = report.disclaimer
+            textSize = 12f; setTextColor(Color.rgb(140, 80, 60))
+            setPadding(0, dp(16), 0, 0)
+        })
         setContentView(ScrollView(this).apply {
             setBackgroundColor(Color.rgb(242, 242, 247))
             addView(root)
