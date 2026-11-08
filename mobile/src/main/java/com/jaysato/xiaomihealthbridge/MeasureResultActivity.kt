@@ -112,17 +112,21 @@ class MeasureResultActivity : ComponentActivity() {
         val detail = detailLine(kind, raw) + (supplementalHeartRate?.let {
             "\n手錶心率：${"%.0f".format(it.bpm)} bpm；來源為手錶系統量測。"
         } ?: "")
-        val hasReadableValue = resultPresentation.unit != "原始資料點／事件" && displayValue != "—"
+        val hasReadableValue = displayValue != "—"
         val resultConclusion = when {
             !feedback.receivedData -> "$title 量測未完成 · 請確認佩戴與連線後重測"
             supplementalHeartRate != null && displayValue != "—" ->
                 "心率 $displayValue bpm · ${ConsumerVitalsSummary.heartRateLabel(displayValue.toDoubleOrNull() ?: supplementalHeartRate.bpm.toDouble())}"
-            kind == "ecg" && resultPresentation.unit == "原始資料點／事件" ->
+            kind == "ecg" && !hasReadableValue ->
                 "這次沒有心律結果 · 請穩定接觸電極後重測"
-            kind == "ppg" && resultPresentation.unit == "原始資料點／事件" ->
+            kind == "ppg" && !hasReadableValue ->
                 "這次沒有心率結果 · 請戴緊手錶後重測"
-            resultPresentation.unit == "原始資料點／事件" && displayValue != "—" ->
-                "這次沒有$title 讀值 · 請重新量測"
+            kind in setOf("spo2_raw", "spo2") && !hasReadableValue ->
+                "這次沒有血氧百分比 · 請戴好手錶後重測"
+            kind in setOf("body_temperature_raw", "body_temperature") && !hasReadableValue ->
+                "這次沒有可顯示的體溫 · 請重新量測"
+            kind == "bioz" && !hasReadableValue ->
+                "這次沒有體成分結果 · 請重新量測"
             !hasReadableValue -> "這次沒有$title 讀值 · 請重新量測"
             kind == "whs_heart_rate" ->
                 "心率 $displayValue bpm · ${ConsumerVitalsSummary.heartRateLabel(displayValue.toDoubleOrNull() ?: 0.0)}"
@@ -179,10 +183,10 @@ class MeasureResultActivity : ComponentActivity() {
                     .setPositiveButton("知道了", null).show()
             }
         })
-        val shouldOfferRetry = !resultPresentation.isCurrent || status in setOf(
+        val shouldOfferRetry = !hasReadableValue || !resultPresentation.isCurrent || status in setOf(
             "invalid_optical", "invalid_sensor_values", "rejected_quality", "no_events", "error",
             "needs_contact", "needs_oem_mode", "off_wrist"
-        ) || (kind in setOf("ecg", "ppg") && resultPresentation.unit == "原始資料點／事件")
+        )
         if (shouldOfferRetry) {
             root.addView(Button(this).apply {
                 text = "重新量測${if (kind == "ppg") " PPG" else ""}"
@@ -333,11 +337,11 @@ class MeasureResultActivity : ComponentActivity() {
 
         private fun titleFor(kind: String) = when (kind) {
             "ppg", "max_hr", "heart_rate_raw", "lifeq_ott", "whs_heart_rate" -> "心率"
-            "ecg" -> "ECG"
+            "ecg" -> "心電圖"
             "hrv_research" -> "HRV"
             "spo2_raw", "spo2" -> "血氧"
-            "body_temperature_raw", "body_temperature" -> "溫度原始值"
-            "bioz" -> "BioZ"
+            "body_temperature_raw", "body_temperature" -> "腕部溫度"
+            "bioz" -> "體成分"
             "pressure" -> "氣壓"
             "optical_bp" -> "血壓"
             else -> kind
@@ -364,13 +368,9 @@ class MeasureResultActivity : ComponentActivity() {
                 "optical_bp" -> "—" to ""
                 "ppg", "max_hr", "heart_rate_raw", "lifeq_ott" -> {
                     if (OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
-                        val count = rawValueCount(raw, kind)?.takeIf { it > 0 }
-                            ?: raw.getInt("${kind}_event_count", 0).takeIf {
-                                raw.getInt("${kind}_event_count_known", 0) == 1 && it > 0
-                            }
                         if (supplementalHeartRate != null) "%.0f".format(supplementalHeartRate.bpm) to "bpm"
                         else if (opticalEstimate != null) "%.0f".format(opticalEstimate) to "研究估算 bpm"
-                        else (count?.toString() ?: "—") to "原始資料點／事件"
+                        else "—" to ""
                     } else {
                         val bpm = f("${kind}_formula_pulse_bpm") ?: f("${kind}_average")
                         (bpm?.let { "%.0f".format(it) } ?: "—") to "bpm"
@@ -394,12 +394,8 @@ class MeasureResultActivity : ComponentActivity() {
                         timelineSource = raw.getString("ecg_research_timeline_source", "NORMALIZED_INDEX").orEmpty()
                     )
                     val displayedBpm = bpm.takeIf { estimateUsable }
-                    val count = rawValueCount(raw, "ecg")?.takeIf { it > 0 }
-                        ?: raw.getInt("ecg_event_count", 0).takeIf {
-                            raw.getInt("ecg_event_count_known", 0) == 1 && it > 0
-                        }
-                    (displayedBpm?.let { "%.0f".format(it) } ?: count?.toString() ?: "—") to
-                        if (displayedBpm != null) "bpm" else "原始資料點／事件"
+                    (displayedBpm?.let { "%.0f".format(it) } ?: "—") to
+                        if (displayedBpm != null) "bpm" else ""
                 }
                 "hrv_research" -> {
                     val sourceKind = raw.getString("hrv_research_source_kind", "").orEmpty()
@@ -419,26 +415,15 @@ class MeasureResultActivity : ComponentActivity() {
                     val rmssd = f("hrv_research_formula_rmssd_ms")?.takeIf { hrvValid }
                     (rmssd?.let { "%.0f".format(it) } ?: "—") to "RMSSD ms"
                 }
-                "spo2_raw" -> (rawValueCount(raw, "spo2_raw")?.takeIf { it > 0 }?.toString() ?: "—") to "有限原始點"
+                "spo2_raw", "spo2" -> "—" to ""
                 "body_temperature_raw" -> {
-                    val t = f("body_temperature_raw_average")?.takeIf {
-                        HealthAnalysisFreshnessPolicy.isFreshSensor(
-                            raw.getLong("body_temperature_raw_time", 0L),
-                            raw.getString("body_temperature_raw_timestamp_source", null),
-                            System.currentTimeMillis(), 24 * 60 * 60 * 1000L
-                        )
-                    } ?: feature.getFloat("temperature", Float.NaN).takeIf {
-                        it.isFinite() && HealthAnalysisFreshnessPolicy.isFreshSensor(
-                            feature.getLong("temperature_timestamp", 0L),
-                            feature.getString("temperature_timestamp_source", null),
-                            System.currentTimeMillis(), 24 * 60 * 60 * 1000L
-                        )
-                    }
-                    (t?.let { "%.1f".format(it) } ?: "—") to "單位未驗證"
+                    "—" to ""
                 }
+                "bioz", "body_temperature" -> "—" to ""
+                "pressure" -> (f("pressure_average")?.takeIf { it in 300f..1100f }
+                    ?.let { "%.0f".format(it) } ?: "—") to "hPa"
                 else -> {
-                    val avg = f("${kind}_average")
-                    (avg?.let { "%.1f".format(it) } ?: raw.getInt("${kind}_samples", 0).toString()) to "讀值"
+                    "—" to ""
                 }
             }
         }
