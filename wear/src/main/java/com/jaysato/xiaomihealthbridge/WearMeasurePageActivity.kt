@@ -810,7 +810,9 @@ class WearMeasurePageActivity : ComponentActivity() {
             else -> null
         }
         detail.text = when {
-            primary != null && mode == Mode.HEART_RATE -> "成人靜息心率常見參考 60–100 bpm；活動時可能不同。"
+            primary != null && mode == Mode.HEART_RATE -> WearHealthConclusion.forHeartRateBpm(
+                WearMeasurementPolicy.directHeartRateBpm(snapshot) ?: optical?.pulseRateBpm
+            )
             primary != null && mode == Mode.PPG -> "已取得心率讀值；可在手機查看趨勢。"
             snapshot.worn == false -> "請戴好手錶後重新量測。"
             else -> "請保持手錶貼合、手腕靜止後重新量測。"

@@ -503,7 +503,7 @@ class WearMainActivity : ComponentActivity() {
     private fun stopBackgroundMeasurement() {
         oxygenProbe?.stop()
         oxygenProbe = null
-        oxygenProbeAction.text = "◉  擷取 SpO₂ 原始資料"
+        oxygenProbeAction.text = "◉  檢查血氧感測器"
         if (measuring && !exerciseActive) {
             measureClient.unregisterMeasureCallbackAsync(DataType.HEART_RATE_BPM, callback)
             measuring = false
@@ -985,7 +985,7 @@ class WearMainActivity : ComponentActivity() {
 
     private fun toggleOxygenProbe() {
         if (oxygenProbe != null) {
-            oxygenProbe?.stop(); oxygenProbe = null; oxygenProbeAction.text = "擷取 SpO₂ 原始資料"
+            oxygenProbe?.stop(); oxygenProbe = null; oxygenProbeAction.text = "檢查血氧感測器"
             return
         }
         val probeHolder = arrayOfNulls<RawOxygenProbe>(1)
@@ -993,14 +993,14 @@ class WearMainActivity : ComponentActivity() {
             this,
             onReading = { reading ->
                 runOnUiThread {
-                    capabilities.text = "SpO₂ 原始事件（單位未驗證）\n$reading\n\n${capabilities.text}"
+                    capabilities.text = "血氧感測器詳細資料（供檢查）\n$reading\n\n${capabilities.text}"
                     val active = probeHolder[0]
                     if (active != null && oxygenProbe === active) {
                         active.stop()
                         oxygenProbe = null
                         probeHolder[0] = null
-                        oxygenProbeAction.text = "擷取 SpO₂ 原始資料"
-                        status.text = "已取得 SpO₂ 原始事件\n單位未驗證，未寫入百分比"
+                        oxygenProbeAction.text = "檢查血氧感測器"
+                        status.text = "感測器已回應；這次沒有可顯示的血氧百分比。請用手錶血氧量測頁重測。"
                     }
                 }
             }
@@ -1010,20 +1010,20 @@ class WearMainActivity : ComponentActivity() {
         if (count == 0) {
             probe.stop()
             probeHolder[0] = null
-            status.text = "SpO₂\n量測忙碌"
+            status.text = "血氧感測器正在使用中，請稍後重試。"
             return
         }
         oxygenProbe = probe
-        status.text = "正在擷取原始 SpO₂\n取得事件即停止，最長 60 秒"
-        oxygenProbeAction.text = "停止原始擷取（$count）"
+        status.text = "正在檢查血氧感測器，最多等待 60 秒。"
+        oxygenProbeAction.text = "停止檢查"
         mainHandler.postDelayed({
             val active = probeHolder[0]
             if (active != null && oxygenProbe === active) {
                 active.stop()
                 oxygenProbe = null
                 probeHolder[0] = null
-                oxygenProbeAction.text = "擷取 SpO₂ 原始資料"
-                status.text = "等待過久仍無 SpO₂ 事件"
+                oxygenProbeAction.text = "檢查血氧感測器"
+                status.text = "這次沒有取得血氧結果；請戴好手錶後重測。"
             }
         }, RawOxygenProbe.MAX_CAPTURE_MILLIS)
     }
