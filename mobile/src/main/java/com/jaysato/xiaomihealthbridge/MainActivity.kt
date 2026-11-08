@@ -1011,7 +1011,11 @@ class MainActivity : ComponentActivity() {
                 heartRateCard.text = metricText(
                     "心率",
                     heartRateCardSummary.value,
-                    heartRateCardSummary.detail,
+                    heartRateCardSummary.measuredAt?.let { measuredAt ->
+                        val bpm = heartRateCardSummary.value.substringBefore(" ").toDoubleOrNull()
+                        val state = bpm?.let(ConsumerVitalsSummary::heartRateLabel) ?: "最近紀錄"
+                        "$state · ${HeartRatePresentationPolicy.homeTimestampLabel(measuredAt.toEpochMilli(), nowMillis)}"
+                    } ?: "尚無近期心率紀錄",
                     TrendSampleEncoder.encode(heartRateCardSummary.trendValues.asSequence(), heartRateCardSummary.trendValues.size)
                 )
                 restingHeartRateCard.text = metricText(
@@ -1022,7 +1026,7 @@ class MainActivity : ComponentActivity() {
                             reading.beatsPerMinute.toDouble(),
                             UserProfileStore(this@MainActivity).read()?.age
                         )
-                        "${reference.label} · ${friendlySource(reading.metadata.dataOrigin.packageName)} · ${HeartRatePresentationPolicy.homeTimestampLabel(reading.time.toEpochMilli(), nowMillis)} · 不作疾病判斷"
+                        "${reference.label} · ${HeartRatePresentationPolicy.homeTimestampLabel(reading.time.toEpochMilli(), nowMillis)}"
                     } ?: "等待有效靜息心率紀錄",
                     latestRestingHeartRate?.let { sparkline(listOf(it.beatsPerMinute.toDouble())) } ?: EMPTY_TREND
                 )

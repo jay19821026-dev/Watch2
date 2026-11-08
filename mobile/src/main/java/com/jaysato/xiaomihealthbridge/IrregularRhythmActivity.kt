@@ -127,7 +127,7 @@ class IrregularRhythmActivity : ComponentActivity() {
             setOnClickListener {
                 isEnabled = false
                 text = "正在連接手錶…"
-                commandFeedback.text = "正在搜尋手錶並傳送 ECG 啟動命令…"
+                commandFeedback.text = "正在請手錶開始心電量測…"
                 WearCommandDispatcher.send(
                     this@IrregularRhythmActivity,
                     "/control/ecg-now"
