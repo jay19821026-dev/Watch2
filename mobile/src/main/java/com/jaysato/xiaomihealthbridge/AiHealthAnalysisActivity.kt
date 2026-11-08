@@ -230,21 +230,14 @@ class AiHealthAnalysisActivity : ComponentActivity() {
                         else -> Color.rgb(182, 190, 205)
                     }
                     row.addView(metricTile(display.title, display.value, display.state, accent) {
-                        val finding = engineAnalysis.measurements.findings.firstOrNull { it.id == item.id }
-                        val engineDetails = finding?.let { itemFinding ->
-                            val reasons = itemFinding.reasonCodes.joinToString("、") { code ->
-                                "${code.name}：${engineAnalysis.reasonExplanations[code].orEmpty()}"
-                            }
-                            "\n\n分析核心：${itemFinding.state} · ${reasons.ifBlank { "無額外原因碼" }}"
-                        }.orEmpty()
-                        showDetail(item.title, "${item.valueText}\n\n${item.clinicalCompare}\n\n${item.conclusion}$engineDetails")
+                        showDetail(display.title, "${display.value}\n\n${display.state}\n\n${item.conclusion}")
                     }, LinearLayout.LayoutParams(0, -1, 1f).apply { setMargins(dp(3), 0, dp(3), 0) })
                 }
                 if (group.size == 1) row.addView(LinearLayout(context), LinearLayout.LayoutParams(0, 1, 1f))
                 addView(row, lp(top = 8))
             }
             insights.oxygenSampleSummary?.let { oxygen ->
-                addView(text("近 7 日已記錄血氧 ${"%.1f–%.1f".format(oxygen.minimumPercent, oxygen.maximumPercent)}% · ${oxygen.validSampleCount} 個有效樣本；不是目前血氧", 15f, Color.WHITE), lp(top = 10))
+                addView(text("近 7 日血氧紀錄 ${"%.1f–%.1f".format(oxygen.minimumPercent, oxygen.maximumPercent)}%", 15f, Color.WHITE), lp(top = 10))
             }
         }, lp(bottom = 14))
         content.addView(panel().apply {

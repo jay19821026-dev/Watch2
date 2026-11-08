@@ -334,8 +334,8 @@ class HealthCenterActivity : ComponentActivity() {
                 "重新檢查狀態" to "/control/status"
             ), margin(bottom = 12))
             body.addView(card(
-                "已偵測到的手錶感測器",
-                "公開 Sensor HAL、Wear Health Services 與 Xiaomi 演算法通道。PPG／ECG／BIOZ 只顯示訊號品質，不是醫療診斷。",
+                "手錶量測狀態",
+                "查看手錶最近取得的資料；點選項目可看詳細紀錄。",
                 Color.rgb(177, 143, 255)
             ), margin(bottom = 10))
             val rawPrefs = RawSensorStore.open(this@HealthCenterActivity)
@@ -420,9 +420,17 @@ class HealthCenterActivity : ComponentActivity() {
                             "尚未量測；請到手機「裝置 → 手錶工具」啟動完整掃描"
                         )
                     }
-                    val subtitle = SensorRowPresentationPolicy.orderStatusLines(
-                        watchStatusText, detailLines, watchSkippedCharging
-                    ).joinToString("\n")
+                    val subtitle = when (rowDisplayState) {
+                        SensorDisplayState.NOT_MEASURED -> "尚無量測 · 點選查看量測方式"
+                        SensorDisplayState.STALE -> "較早的紀錄 · $ageText"
+                        SensorDisplayState.FUTURE_TIMESTAMP, SensorDisplayState.TIMESTAMP_UNKNOWN -> "量測時間未確認 · 建議重新量測"
+                        SensorDisplayState.QUALITY_REJECTED -> "這次讀值不穩定 · 建議重新量測"
+                        SensorDisplayState.CALIBRATION_MISSING -> "已取得訊號 · 尚無可用讀值"
+                        SensorDisplayState.CONDITION_NOT_MET -> "量測尚未完成 · 請確認佩戴與接觸"
+                        SensorDisplayState.RAW_ONLY, SensorDisplayState.SIGNAL_VALID_RESEARCH -> "已取得訊號 · 尚無可用結果"
+                        SensorDisplayState.DERIVED_ESTIMATE -> "已取得估算結果 · $ageText"
+                        SensorDisplayState.AVAILABLE -> "已取得紀錄 · $ageText"
+                    }
                     val color = when (rowDisplayState) {
                         SensorDisplayState.NOT_MEASURED, SensorDisplayState.STALE, SensorDisplayState.FUTURE_TIMESTAMP,
                         SensorDisplayState.TIMESTAMP_UNKNOWN -> Color.rgb(255, 190, 77)
@@ -472,14 +480,17 @@ class HealthCenterActivity : ComponentActivity() {
                 "最近一次：尚無記錄"
             }
             body.addView(card(
-                "同步封包拒收診斷",
-                "最終封包拒收總數：$rejectionCount 次\n分類計數（此版本更新後）：排序 $orderingRejectionCount、大小／格式 $payloadRejectionCount、重複心率 $duplicateRejectionCount 次\n$lastRejectionLabel\n${if (rejectionCount == 0) "目前沒有已記錄的最終封包拒收；這不代表感測器已成功回報。" else "封包已抵達手機但未存入健康資料；分類計數不含更新前的歷史細分。"}\n不包含手錶未產生事件、權限／OEM 模式限制或訊號品質不合格。",
+                "同步狀態",
+                if (rejectionCount == 0) "目前沒有偵測到資料同步錯誤" else "部分量測未成功同步 · 點選查看原因",
                 if (rejectionCount == 0) Color.rgb(99, 178, 255) else Color.rgb(255, 190, 77)
-            ) { exportRawSensorData() }, margin(top = 10, bottom = 10))
-            body.addView(Button(this@HealthCenterActivity).apply {
-                text = "匯出原始感測專業資料（JSON）"; isAllCaps = false; textSize = 15f; setTextColor(Color.WHITE); background = HealthVisuals.interactive(context, 20)
-                setOnClickListener { exportRawSensorData() }
-            }, LinearLayout.LayoutParams(-1, dp(58)).apply { bottomMargin = dp(10) })
+            ) {
+                android.app.AlertDialog.Builder(this@HealthCenterActivity)
+                    .setTitle("同步詳情")
+                    .setMessage("排序 $orderingRejectionCount 次、格式 $payloadRejectionCount 次、重複心率 $duplicateRejectionCount 次。\n$lastRejectionLabel")
+                    .setNeutralButton("匯出診斷") { _, _ -> exportRawSensorData() }
+                    .setPositiveButton("完成", null)
+                    .show()
+            }, margin(top = 10, bottom = 10))
             body.addView(text("手錶功能入口", 20f, Color.WHITE, true), margin(top = 18, bottom = 10))
             body.addView(card("體表溫度趨勢", "使用手錶前景量測與 Health Connect 紀錄；有資料時可查看趨勢，沒有事件時不會補造數值。", Color.rgb(255, 112, 145)) {
                 startActivity(Intent(this@HealthCenterActivity, MetricDetailActivity::class.java).putExtra("metric", "temperature"))
