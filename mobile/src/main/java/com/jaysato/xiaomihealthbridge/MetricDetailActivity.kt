@@ -742,7 +742,7 @@ class MetricDetailActivity : ComponentActivity() {
             ).apply { setPadding(0, dp(6), 0, 0) })
         }
         if (metric == "sleep" && !sleepStagesComplete) {
-            referenceDetails.addView(text("睡眠階段缺失、不連續、重疊、超出 session 範圍或含未知階段；圖表僅顯示 session 時段，不代表實際睡眠時數，也不計睡眠分數。", 12, muted))
+            referenceDetails.addView(text("部分睡眠階段紀錄不完整；圖表只顯示記錄的時段，可能包含清醒時間，因此不計睡眠分數。", 12, muted))
         }
         if (metric == "steps" && period != 0) {
             referenceDetails.addView(text(

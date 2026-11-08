@@ -513,7 +513,7 @@ class MainActivity : ComponentActivity() {
                         ?: "目前活動或樣本不足；請安靜配戴約 8 分鐘後再試")
                     loadSevenDaySummary(force = true)
                 }
-                .onFailure { toast("靜止心率估算失敗：${it.message}") }
+                .onFailure { toast("這次無法取得靜止心率，請稍後重試。") }
         }
     }
 
@@ -524,7 +524,7 @@ class MainActivity : ComponentActivity() {
                     toast(WearCommandTargetPolicy.failureMessage(nodes.size))
                 } else enqueueFileToWatch(uri)
             }
-            .addOnFailureListener { toast("無法確認手錶連線：${it.message}") }
+            .addOnFailureListener { toast("目前無法確認手錶連線，請檢查藍牙後重試。") }
     }
 
     private fun enqueueFileToWatch(uri: android.net.Uri) {
@@ -542,7 +542,7 @@ class MainActivity : ComponentActivity() {
         toast("正在提交 $displayName 傳送工作…")
         Wearable.getDataClient(this).putDataItem(request)
             .addOnSuccessListener { toast("已排入 Data Layer；這不代表手錶已收到。請等待手錶顯示檔案") }
-            .addOnFailureListener { toast("傳送失敗：${it.message}") }
+            .addOnFailureListener { toast("檔案尚未送出，請確認手錶連線後重試。") }
             .addOnCompleteListener { descriptor.close() }
     }
 
@@ -556,9 +556,9 @@ class MainActivity : ComponentActivity() {
                 }
                 Wearable.getMessageClient(this).sendMessage(node.id, path, byteArrayOf())
                     .addOnSuccessListener { toast("指令已送到 ${node.displayName}") }
-                    .addOnFailureListener { toast("控制失敗：${it.message}") }
+                    .addOnFailureListener { toast("手錶沒有收到要求，請重新連線後再試。") }
             }
-            .addOnFailureListener { toast("無法取得手錶：${it.message}") }
+            .addOnFailureListener { toast("目前找不到手錶，請確認連線後重試。") }
     }
 
     private fun loadSevenDaySummary(force: Boolean = false) {

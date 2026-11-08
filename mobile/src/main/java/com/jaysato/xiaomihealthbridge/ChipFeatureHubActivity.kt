@@ -189,10 +189,15 @@ class ChipFeatureHubActivity : ComponentActivity() {
                     return@addOnSuccessListener
                 }
                 Wearable.getMessageClient(this).sendMessage(node.id, path, ByteArray(0))
-                Toast.makeText(this, "已送出 $path", Toast.LENGTH_SHORT).show()
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "已送出量測要求；請查看手錶結果。", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "手錶沒有收到要求，請重新連線後再試。", Toast.LENGTH_SHORT).show()
+                    }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "送出失敗：${it.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "目前找不到手錶，請確認連線後重試。", Toast.LENGTH_SHORT).show()
             }
     }
 

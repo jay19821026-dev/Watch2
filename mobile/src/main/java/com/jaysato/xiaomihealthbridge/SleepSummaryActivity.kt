@@ -142,7 +142,9 @@ class SleepSummaryActivity : ComponentActivity() {
                 hoursView.text = if (sessions.isEmpty()) "—" else "%.1f".format(
                     (summary.sleepMinutes ?: summary.sessionMinutes) / 60.0
                 )
-                hoursMeaningView.text = if (summary.stagesComplete) {
+                hoursMeaningView.text = if (sessions.isEmpty()) {
+                    "過去 7 日沒有睡眠紀錄"
+                } else if (summary.stagesComplete) {
                     "小時 · 已扣除紀錄中的清醒時間"
                 } else {
                     "小時 · 記錄的睡眠時段，可能包含醒來時間"
@@ -167,9 +169,9 @@ class SleepSummaryActivity : ComponentActivity() {
                 }
             }.onFailure {
                 hoursView.text = "—"
-                hoursMeaningView.text = "讀取失敗，無可用時數"
-                sessionsView.text = "讀取失敗：${it.message}"
-                stagesView.text = "無法讀取分期資料。"
+                hoursMeaningView.text = "暫時無法讀取睡眠紀錄"
+                sessionsView.text = "請確認 Health Connect 權限後再試一次。"
+                stagesView.text = "睡眠階段暫時無法顯示。"
             }
         }
     }

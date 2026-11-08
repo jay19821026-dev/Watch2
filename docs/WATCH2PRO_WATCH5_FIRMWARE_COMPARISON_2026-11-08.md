@@ -8,6 +8,7 @@
 
 ## Watch 5 韌體來源查核
 
+- 使用者指定的型號是[台灣官方 Xiaomi Watch 5 產品頁](https://www.mi.com/tw/product/xiaomi-watch-5/)，不是 REDMI Watch 5。該頁說明 Watch 5 採 Snapdragon W5 Gen 1 + BES2800BP 雙晶片、4 LED／4 PD 光學模組，以及 EMG／PPG／IMU 手勢模組；台灣產品頁未列出 ECG 功能或直接韌體下載連結。產品頁也沒有提供 Watch 2 Pro 相同的感測器欄位映射或校準係數。
 - [小米 Watch 5 FAQ](https://www.mi.com/global/support/faq/details/KA-667495/) 說明透過手錶「設定 → 系統 → 系統更新」下載與安裝，未提供可直接取得的完整韌體包。
 - [小米 Watch 2 Pro FAQ](https://www.mi.com/global/support/faq/details/KA-42562/) 說明後續升級包透過 Mi Fitness 推送，也未提供完整韌體下載連結。
 - 查核公開韌體目錄時，`miwear.watch.o65` 是 **REDMI Watch 5**，不是 Xiaomi Watch 5；不能拿它當 `blenny`（國際版 Xiaomi Watch 5）韌體。第三方機型目錄將國際版 Watch 5 標為 `blenny`；這項機型對照僅供搜尋，不是韌體真實性證明。
