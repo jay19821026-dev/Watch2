@@ -765,7 +765,7 @@ class MetricDetailActivity : ComponentActivity() {
                 val methodLabel = if (metric == "oxygen") " · ${OxygenRecordingMethodPolicy.classify(point.recordingMethod).label}" else ""
                 list.addView(button("${time(point.time)}     ${number(point.value)} $unit$methodLabel   ›", "查看這筆紀錄") {
                     android.app.AlertDialog.Builder(this).setTitle(title)
-                        .setMessage("${number(point.value)} $unit\n${time(point.time)}\n來源：${name(point.source)}${if (metric == "oxygen") "\n量測方式：${OxygenRecordingMethodPolicy.classify(point.recordingMethod).label}" else ""}\n${if(cumulative) "區間總量按完整原始紀錄計入；跨圖表分段紀錄不做比例拆分。" else "Health Connect 紀錄；可能包含來源 App 的估算值。"}")
+                        .setMessage("${number(point.value)} $unit\n${time(point.time)}\n來源：${name(point.source)}${if (metric == "oxygen") "\n量測方式：${OxygenRecordingMethodPolicy.classify(point.recordingMethod).label}" else ""}")
                         .setPositiveButton("關閉", null).show()
                 }.apply { textSize = 13f; gravity = Gravity.CENTER_VERTICAL or Gravity.START; setTextColor(Color.rgb(218, 224, 236)) }, LinearLayout.LayoutParams(-1, dp(52)))
             }
@@ -775,14 +775,14 @@ class MetricDetailActivity : ComponentActivity() {
         val more = button("顯示更多紀錄", "載入更多歷史") { }
         more.setOnClickListener { appendRows(); if(shown == display.size) more.visibility = View.GONE }
         if(shown < display.size) history.addView(more)
-        val about = card("關於這些數據")
+        val about = card("資料說明")
         about.addView(text(if(metric == "sleep")
-            "睡眠時數完整歸屬於醒來日，不按午夜拆分；跨日睡眠會計入結束／醒來日期。期間日均僅計有紀錄的醒來日。"
+            "跨日睡眠計在醒來那天；平均值只包含有紀錄的日期。"
             else if (metric == "steps")
-            "步數使用 Health Connect 聚合 API，避免直接加總不同來源或重疊紀錄造成重複計數；分段依小時／日彙總。"
+            "步數由 Health Connect 彙總；不同 App 的紀錄可能重疊。"
             else if(cumulative)
-            "僅加總所選來源，避免跨 App 重複累加。跨圖表分段的完整區間不拆分；期間步數判讀按日合計後，僅對有紀錄日取平均。相同來源的重疊紀錄仍可能影響總數。"
-            else "只呈現所選日期和來源的紀錄。不以缺失值補線、不修改原始資料，也不根據單筆數值判斷健康狀態。", 14, muted))
+            "總量只計入所選資料來源；不同來源的紀錄可能重疊。"
+            else "這裡顯示所選日期與來源的紀錄；空白時段沒有補入數值。", 14, muted))
     }
     private fun column() = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
     private fun text(value: String, size: Int, color: Int, bold: Boolean = false) = TextView(this).apply {
