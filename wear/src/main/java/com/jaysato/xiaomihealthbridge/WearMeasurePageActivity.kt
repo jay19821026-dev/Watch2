@@ -745,10 +745,10 @@ class WearMeasurePageActivity : ComponentActivity() {
             Mode.BIOZ, Mode.RESPIRATION ->
                 WearHealthConclusion.forBioz(snapshot.samples, snapshot.worn)
             Mode.SPO2 -> when {
-                snapshot.samples <= 0 -> "結論：尚無 SpO₂ 原始事件"
-                snapshot.worn == false -> "結論：離腕時取得的原始封包不作為量測完成證據"
-                snapshot.worn == null -> "結論：佩戴狀態未確認；原始封包僅供研究"
-                else -> "結論：佩戴狀態已確認，SpO₂ 原始封包已取；無校準者不輸出 %"
+                snapshot.samples <= 0 -> "這次沒有量到血氧；請重新量測。"
+                snapshot.worn == false -> "手錶沒有戴好；戴好後重新量測血氧。"
+                snapshot.worn == null -> "請確認手錶貼合手腕，再量測血氧。"
+                else -> "這次沒有可顯示的血氧百分比；請使用原廠量測頁重測。"
             }
             Mode.OFF_BODY ->
                 if (snapshot.worn == true) "結論：已佩戴" else if (snapshot.worn == false) "結論：已離腕" else "結論：佩戴狀態未知"

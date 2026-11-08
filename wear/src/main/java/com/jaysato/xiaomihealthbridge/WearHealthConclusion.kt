@@ -20,10 +20,10 @@ object WearHealthConclusion {
         else "尚未收到有限的溫度原始值"
 
     fun forEcg(samples: Int, rrCount: Int, bpm: Double?): String {
-        if (samples <= 0) return "結論：尚無 ECG"
+        if (samples <= 0) return "這次沒有量到心電圖；請重新量測。"
         val hr = forHeartRateBpm(bpm)
-        return if (rrCount > 0) "結論：研究 RR $rrCount · $hr（非醫療 AF）"
-        else "結論：有波形·RR 不足·請重測"
+        return if (rrCount > 0) "心電圖已記錄；心率參考：$hr"
+        else "這次心電圖訊號不清楚；請保持手指接觸電極後重測。"
     }
 
     fun forHrv(rmssdMs: Double?): String {
@@ -41,18 +41,18 @@ object WearHealthConclusion {
     }
 
     fun forBioz(samples: Int, worn: Boolean?): String = when {
-        samples <= 0 -> "結論：尚無 BioZ"
-        worn == false -> "結論：離腕時的 BioZ 原始事件僅供研究；不輸出體脂％"
-        worn == null -> "結論：佩戴狀態未確認；BioZ 原始事件僅供研究，不輸出體脂％"
-        else -> "結論：已佩戴且有 BioZ 原始事件；電極接觸與單位未驗證，不輸出體脂％"
+        samples <= 0 -> "這次沒有量到體成分；請重新量測。"
+        worn == false -> "手錶沒有戴好；戴好後重新量測體成分。"
+        worn == null -> "請確認手錶貼合手腕，再量測體成分。"
+        else -> "這次沒有可顯示的體成分讀值；請使用原廠量測頁重測。"
     }
 
     fun forPpg(samples: Int, pulseBpm: Double?): String {
-        if (samples <= 0) return "結論：尚無 PPG"
+        if (samples <= 0) return "這次沒有量到脈搏；請重新量測。"
         if (pulseBpm == null || !pulseBpm.isFinite()) {
-            return "結論：已保留 PPG 原始波形；取樣時基／通道映射未驗證，不輸出脈率、HRV、PI 或 SpO₂。"
+            return "這次沒有取得可顯示的脈搏讀值；戴好手錶後重測。"
         }
-        return "結論：光學波形已取 · ${forHeartRateBpm(pulseBpm)}"
+        return "脈搏參考：${forHeartRateBpm(pulseBpm)}"
     }
 
 }

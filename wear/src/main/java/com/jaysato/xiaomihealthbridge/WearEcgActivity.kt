@@ -301,9 +301,9 @@ class WearEcgActivity : ComponentActivity() {
         val visiblePreview = if (showQualifiedPreview) eventPreview else rawFieldPreview
         chart.setSamples(visiblePreview)
         chart.contentDescription = if (showQualifiedPreview) {
-            "符合已觀察原廠封包條件的前 10 欄研究預覽；時間及單位未校準"
+            "心電圖訊號預覽；請在手機查看量測結果。"
         } else {
-            "原始 ECG 感測事件第 1 欄數值，按事件順序顯示；未通過封包條件，不代表已解碼心電波形"
+            "心電圖訊號預覽；這次訊號尚不能判讀，請重新量測。"
         }
         chart.visibility = if (visiblePreview.size >= 2) View.VISIBLE else View.GONE
         headline.text = if (active) "正在擷取 ECG 訊號" else if (snapshot.eventCount > 0) "已擷取 ECG 訊號" else "尚未取得 ECG 訊號"

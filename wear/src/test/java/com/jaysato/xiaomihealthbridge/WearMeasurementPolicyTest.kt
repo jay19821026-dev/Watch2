@@ -17,9 +17,9 @@ class WearMeasurementPolicyTest {
         assertFalse(WearMeasurementPolicy.hasWornBiozRawCapture(null, 40, 40))
         assertFalse(WearMeasurementPolicy.hasWornBiozRawCapture(true, 39, 40))
         assertFalse(WearMeasurementPolicy.hasWornBiozRawCapture(true, 40, 0))
-        assertTrue(WearHealthConclusion.forBioz(40, false).contains("離腕"))
-        assertTrue(WearHealthConclusion.forBioz(40, null).contains("未確認"))
-        assertTrue(WearHealthConclusion.forBioz(40, true).contains("電極接觸與單位未驗證"))
+        assertTrue(WearHealthConclusion.forBioz(40, false).contains("沒有戴好"))
+        assertTrue(WearHealthConclusion.forBioz(40, null).contains("貼合"))
+        assertTrue(WearHealthConclusion.forBioz(40, true).contains("沒有可顯示的體成分讀值"))
     }
 
     @Test
@@ -488,8 +488,8 @@ class WearMeasurementPolicyTest {
     @Test
     fun ppgConclusionLabelsUncalibratedRawDataWithoutInventingPulse() {
         val conclusion = WearHealthConclusion.forPpg(128, null)
-        assertTrue(conclusion.contains("原始波形"))
-        assertTrue(conclusion.contains("不輸出脈率"))
+        assertTrue(conclusion.contains("沒有取得可顯示的脈搏讀值"))
+        assertFalse(conclusion.contains("原始波形"))
     }
 
     @Test
