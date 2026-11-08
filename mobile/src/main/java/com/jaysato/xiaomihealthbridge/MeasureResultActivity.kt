@@ -112,19 +112,21 @@ class MeasureResultActivity : ComponentActivity() {
         val detail = detailLine(kind, raw) + (supplementalHeartRate?.let {
             "\n獨立心率：Wear Health Services ${"%.0f".format(it.bpm)} bpm；不是由 PPG 原始封包推算。"
         } ?: "")
+        val hasReadableValue = resultPresentation.unit != "原始資料點／事件" && displayValue != "—"
         val resultConclusion = when {
-            !feedback.receivedData -> "本次結果：$title 量測未完成。請確認佩戴與連線後重新量測。"
+            !feedback.receivedData -> "$title 量測未完成 · 請確認佩戴與連線後重測"
             supplementalHeartRate != null && displayValue != "—" ->
-                "心率 $displayValue bpm"
+                "心率 $displayValue bpm · ${ConsumerVitalsSummary.heartRateLabel(displayValue.toDoubleOrNull() ?: supplementalHeartRate.bpm.toDouble())}"
             kind == "ecg" && resultPresentation.unit == "原始資料點／事件" ->
-                "已擷取 ECG 訊號，目前尚無心律分析結果。"
+                "這次沒有心律結果 · 請穩定接觸電極後重測"
             kind == "ppg" && resultPresentation.unit == "原始資料點／事件" ->
-                "本次 PPG 檢測無效：沒有可顯示的心率結果。請戴緊手錶、保持靜止後重新量測。"
+                "這次沒有心率結果 · 請戴緊手錶後重測"
             resultPresentation.unit == "原始資料點／事件" && displayValue != "—" ->
-                "這次沒有可用的$title 讀值。"
-            displayValue == "—" ->
-                "本次結果：已收到 $title 資料，但這次沒有可核對的生理數值；請查看原因並重新量測。"
-            else -> "本次結果：$title $displayValue ${resultPresentation.unit}；量測來源與時間見下方。"
+                "這次沒有$title 讀值 · 請重新量測"
+            !hasReadableValue -> "這次沒有$title 讀值 · 請重新量測"
+            kind == "whs_heart_rate" ->
+                "心率 $displayValue bpm · ${ConsumerVitalsSummary.heartRateLabel(displayValue.toDoubleOrNull() ?: 0.0)}"
+            else -> "$title $displayValue ${resultPresentation.unit}"
         }
         val note = if (kind == "ecg" || OpticalPulseDisplayPolicy.isOpticalKind(kind)) null
         else raw.getString("${kind}_formula_note", null)
@@ -157,13 +159,13 @@ class MeasureResultActivity : ComponentActivity() {
             typedHeartRate?.let { root.addView(card(HeartRateMeaningPolicy.explain(it), Color.WHITE)) }
         }
         root.addView(TextView(this).apply {
-            text = if (resultPresentation.unit == "原始資料點／事件" || displayValue == "—") "本次無結果" else displayValue
-            textSize = if (text == "本次無結果") 36f else 56f; setTextColor(Color.BLACK)
+            text = if (hasReadableValue) displayValue else "—"
+            textSize = if (hasReadableValue) 56f else 36f; setTextColor(Color.BLACK)
             setTypeface(typeface, Typeface.BOLD)
             gravity = android.view.Gravity.CENTER
         })
         root.addView(TextView(this).apply {
-            text = if (resultPresentation.unit == "原始資料點／事件" || displayValue == "—") "" else resultPresentation.unit
+            text = if (hasReadableValue) resultPresentation.unit else ""
             textSize = 16f; setTextColor(Color.rgb(90, 90, 100))
             gravity = android.view.Gravity.CENTER
             setPadding(0, 0, 0, dp(12))
