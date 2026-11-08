@@ -213,7 +213,7 @@ class WearMainActivity : ComponentActivity() {
             setOnClickListener { installReceivedApk() }
         }
         oxygenProbeAction = Button(this).apply {
-            text = "◉  SpO₂ 原始"; textSize = 13f; isAllCaps = false; setTextColor(Color.WHITE)
+            text = "◉  血氧訊號"; textSize = 13f; isAllCaps = false; setTextColor(Color.WHITE)
             background = buttonBackground("#78496E", "#4D304A")
             setOnClickListener {
                 startActivity(WearMeasurePageActivity.intent(this@WearMainActivity, WearMeasurePageActivity.Mode.SPO2))
@@ -781,12 +781,11 @@ class WearMainActivity : ComponentActivity() {
                     onUpdate = { snapshot ->
                         runOnUiThread {
                             val altitude = snapshot.altitude.takeIf { it.isFinite() }?.let { "%.0f m".format(it) } ?: "—"
-                            val temperature = snapshot.rawTemperature?.let { "%.1f（單位未驗證）".format(it) } ?: "—"
-                            status.text = "${if (gps) "GPS 定位中" else "步行記錄中"}\n海拔 $altitude · 溫度原始值 $temperature"
+                            status.text = "${if (gps) "GPS 定位中" else "步行記錄中"}\n海拔 $altitude"
                         }
                     },
-                    onTemperatureReady = { rawValue, _, _ ->
-                        runOnUiThread { status.text = "運動記錄中\n已收到溫度原始值 ${"%.1f".format(rawValue)}（單位未驗證）" }
+                    onTemperatureReady = { _, _, _ ->
+                        runOnUiThread { status.text = "運動記錄中\n腕部感測器已更新" }
                     },
                     onFallRisk = { magnitude ->
                         runOnUiThread { status.text = "⚠ 可能跌倒\n請確認狀態（${"%.1f".format(magnitude)} m/s²）" } 

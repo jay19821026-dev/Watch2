@@ -280,7 +280,7 @@ class VitalsHomeActivity : ComponentActivity() {
         root.addView(tile("運動", "開始", "步行 · 暫停／結束同步", Color.rgb(52, 199, 89)) {
             startActivity(Intent(this, WorkoutAnalysisActivity::class.java))
         })
-        root.addView(tile("健康摘要", "查看", "個別觀測與訓練紀錄；無未驗證複合分數", Color.rgb(48, 209, 200)) {
+        root.addView(tile("健康摘要", "查看", "今天的讀值、變化與生活建議", Color.rgb(48, 209, 200)) {
             startActivity(Intent(this, AiHealthAnalysisActivity::class.java))
         })
         root.addView(tile("睡眠", "查看", "總時長 · 分期槽位", Color.rgb(94, 92, 230)) {
@@ -304,7 +304,7 @@ class VitalsHomeActivity : ComponentActivity() {
         root.addView(label("瀏覽與更多", 20f, Color.BLACK, true).also {
             it.setPadding(0, dp(22), 0, dp(10))
         })
-        root.addView(navButton("最近量測結果（大數字 Done）", Color.rgb(255, 59, 48)) {
+        root.addView(navButton("最近量測結果", Color.rgb(255, 59, 48)) {
             startActivity(Intent(this, MeasureResultActivity::class.java))
         })
         root.addView(navButton("聽力／噪音", Color.rgb(255, 204, 0)) {
@@ -432,7 +432,7 @@ class VitalsHomeActivity : ComponentActivity() {
                     conclusionDetail.text = refreshedCopy.detail + "\n查看健康讀值 →"
                 }
                 val summary = accumulator.result()
-                if (summary == null) "今日最低／最高：本日沒有有效 Health Connect 心率樣本"
+                if (summary == null) "今天還沒有可用的心率紀錄"
                 else "今日心率範圍：${"%.0f".format(summary.minimumBpm)}–${"%.0f".format(summary.maximumBpm)} bpm"
             } catch (cancelled: CancellationException) {
                 throw cancelled
