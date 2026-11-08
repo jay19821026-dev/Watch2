@@ -48,25 +48,11 @@ class HealthBrowseActivity : ComponentActivity() {
             Item("ECG／心律通知", "研究用節律參考 · 非醫療診斷", Color.rgb(52, 199, 89)) {
                 it.startActivity(Intent(it, IrregularRhythmActivity::class.java))
             },
-            Item("HRV／壓力", "RMSSD · nRMSSD 研究", Color.rgb(175, 82, 222)) {
-                it.startActivity(Intent(it, RawSensorDetailActivity::class.java).putExtra("kind", "hrv_research"))
+            Item("HRV／壓力", "最近紀錄與健康說明", Color.rgb(175, 82, 222)) {
+                it.startActivity(Intent(it, HealthConclusionActivity::class.java))
             },
-            Item("血氧", "SpO₂ 紀錄與原始通道", Color.rgb(10, 132, 255)) {
-                val prefs = RawSensorStore.open(it)
-                val counts = Spo2ChannelSelectionPolicy.KINDS.associateWith { kind ->
-                    RawSensorPayloadPolicy.displayPresenceCount(
-                        prefs.getInt("${kind}_count_contract_version", 0),
-                        prefs.getInt("${kind}_raw_value_count", -1).takeIf { count -> count >= 0 },
-                        prefs.getInt("${kind}_event_count", 0),
-                        prefs.getInt("${kind}_preview_point_count", 0),
-                        prefs.getInt("${kind}_samples", 0)
-                    )
-                }
-                val times = Spo2ChannelSelectionPolicy.KINDS.associateWith { kind ->
-                    prefs.getLong("${kind}_time", 0L)
-                }
-                val selected = Spo2ChannelSelectionPolicy.selectForStoredData(null, counts, times) ?: "spo2_raw"
-                it.startActivity(Intent(it, RawSensorDetailActivity::class.java).putExtra("kind", selected))
+            Item("血氧", "百分比、參考範圍與趨勢", Color.rgb(10, 132, 255)) {
+                it.startActivity(Intent(it, MetricDetailActivity::class.java).putExtra("metric", "oxygen"))
             },
             Item("睡眠", "總時長 · 分期誠實標示", Color.rgb(94, 92, 230)) {
                 it.startActivity(Intent(it, SleepSummaryActivity::class.java))
@@ -74,8 +60,8 @@ class HealthBrowseActivity : ComponentActivity() {
             Item("活動", "步數 · 運動 · 卡路里", Color.rgb(52, 199, 89)) {
                 it.startActivity(Intent(it, WorkoutAnalysisActivity::class.java))
             },
-            Item("身體", "溫度原始值 · BioZ · 體重", Color.rgb(255, 149, 0)) {
-                it.startActivity(Intent(it, ClinicalLabActivity::class.java))
+            Item("身體", "腕部溫度與體成分狀態", Color.rgb(255, 149, 0)) {
+                it.startActivity(Intent(it, HealthConclusionActivity::class.java))
             },
             Item("壓力／恢復", "準備度與健康結論", Color.rgb(48, 209, 88)) {
                 it.startActivity(Intent(it, HealthConclusionActivity::class.java))

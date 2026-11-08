@@ -37,7 +37,7 @@ class IrregularRhythmActivity : ComponentActivity() {
             setPadding(0, dp(6), 0, dp(18))
         })
         val commandFeedback = TextView(this).apply {
-            text = "按下方按鈕會傳送 ECG 量測命令；請在手錶上確認接觸電極。"
+            text = ""
             textSize = 13f
             setTextColor(Color.rgb(90, 90, 100))
             setPadding(0, 0, 0, dp(10))
@@ -85,8 +85,8 @@ class IrregularRhythmActivity : ComponentActivity() {
             root.addView(card(displayedTitle, consumerStatus.detail, Color.rgb(142, 142, 147)))
         } else if (!estimateUsable || title.isNullOrBlank()) {
             root.addView(card(
-                "已擷取 ECG 訊號",
-                "手錶已送出訊號，目前沒有心律分析結果。請穩定接觸電極後再次量測。",
+                "本次沒有心律結果",
+                "請讓手指貼緊電極、手臂保持不動，再量測一次。",
                 Color.rgb(90, 200, 250)
             ))
         } else {
@@ -109,24 +109,10 @@ class IrregularRhythmActivity : ComponentActivity() {
                 },
                 Color.rgb(28, 28, 30)
             ))
-            root.addView(card(
-                "詳細（研究）",
-                if (estimateUsable) {
-                    (if (!fresh) "此為歷史記錄，不代表目前心律。\n" else "") + (detail ?: "無詳細說明")
-                }
-                else "已收到原始 ECG 資料，但研究輸出未通過品質／取樣率／RR 門檻；不顯示舊有心率或節律標籤。原始資料仍可查看。",
-                Color.rgb(28, 28, 30)
-            ))
-            root.addView(card(
-                "臨床對照",
-                ClinicalReferenceTables.hrVsResting(displayedBpm?.toDouble()) +
-                    "\n篩檢公式：Tateno–Glass CV、短時 RMSSD／pNN50；非原廠 AF、非醫療診斷。",
-                Color.rgb(28, 28, 30)
-            ))
         }
 
         root.addView(Button(this).apply {
-            text = "查看資料與原廠啟用說明"
+            text = "ECG 啟用說明"
             isAllCaps = false
             setOnClickListener {
                 android.app.AlertDialog.Builder(this@IrregularRhythmActivity)
@@ -165,7 +151,7 @@ class IrregularRhythmActivity : ComponentActivity() {
             layoutParams = LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(8) }
         })
         root.addView(Button(this).apply {
-            text = "查看 ECG 原始波形"
+            text = "查看波形"
             isAllCaps = false
             setOnClickListener {
                 commandFeedback.text = "正在開啟 ECG 原始資料與波形…"

@@ -141,10 +141,10 @@ class WorkoutAnalysisActivity : ComponentActivity() {
         }, LinearLayout.LayoutParams(-1, dp(300)).apply { bottomMargin = dp(14) })
         content.addView(panel("運動摘要", buildString {
             append("距離  ${"%.2f".format(distanceMeters / 1000.0)} km\n")
-            append("時間  ${"%.0f".format(durationMinutes)} 分鐘\n")
-            append("平均配速  ${pace?.let(::formatPace) ?: "資料不足"}\n")
-            append("GPS 推算平均速度  ${speed?.let { "%.1f km/h".format(it) } ?: "資料不足"}\n")
-            append("平均心率  ${averageHeartRate?.let { "%.0f bpm".format(it) } ?: "資料不足"}")
+            append("時間  ${"%.0f".format(durationMinutes)} 分鐘")
+            pace?.let { append("\n平均配速  ${formatPace(it)}") }
+            speed?.let { append("\n平均速度  ${"%.1f km/h".format(it)}") }
+            averageHeartRate?.let { append("\n平均心率  ${"%.0f bpm".format(it)}") }
         }), lp(bottom = 14))
         content.addView(panel("Health Connect 運動樣本", buildString {
             append(metricSummary("速度", "km/h", speedSamples))
@@ -153,13 +153,12 @@ class WorkoutAnalysisActivity : ComponentActivity() {
             append("\n僅依此路線的時間範圍查找。來源套件與時間相符仍不能單獨證明由這隻手錶量測；樣本平均不等於 GPS 推算速度。")
         }), lp(bottom = 14))
         content.addView(panel("訓練與爬升", buildString {
-            append("累積爬升  ${"%.0f".format(elevationGain)} m\n")
-            append("爬升效率  ${climbEfficiency?.let { "%.1f m/km".format(it) } ?: "資料不足"}\n")
-            append("公里分段  ${ceil(distanceMeters / 1000.0).toInt()} 段\n")
-            append("訓練負荷  ${if (load > 0) load else "資料不足"}\n")
-            append("VO₂max 推估  ${vo2?.let { "%.1f ml/kg/min".format(it) } ?: "資料不足"}")
-            append("\n心率漂移  ${drift?.let { "%+.1f%%".format(it) } ?: "資料不足"}")
-            append("\n1 分鐘心率恢復  ${heartRateRecovery?.let { "%.0f bpm".format(it) } ?: "需要運動後持續量測"}")
+            append("累積爬升  ${"%.0f".format(elevationGain)} m")
+            climbEfficiency?.let { append("\n爬升效率  ${"%.1f m/km".format(it)}") }
+            if (load > 0) append("\n訓練負荷  $load")
+            vo2?.let { append("\nVO₂max 推估  ${"%.1f ml/kg/min".format(it)}") }
+            drift?.let { append("\n心率漂移  ${"%+.1f%%".format(it)}") }
+            heartRateRecovery?.let { append("\n1 分鐘心率恢復  ${"%.0f bpm".format(it)}") }
         }), lp(bottom = 14))
         content.addView(text("海拔曲線", 20f, Color.WHITE, true), lp(bottom = 10))
         content.addView(SeriesChartView(this, workout.points.mapNotNull { it.altitude }, Color.rgb(86, 174, 255)), LinearLayout.LayoutParams(-1, dp(150)).apply { bottomMargin = dp(14) })
@@ -177,7 +176,7 @@ class WorkoutAnalysisActivity : ComponentActivity() {
         result.status?.let { return "$label：$it" }
         if (result.samples.isEmpty()) return "$label：此路線時段沒有可讀樣本。"
         return result.samples.groupBy { it.origin.ifBlank { "來源未標示" } }.toSortedMap().entries.joinToString("\n") { (origin, samples) ->
-            "$label · $origin：${samples.size} 個樣本；樣本平均 ${"%.1f".format(samples.map { it.value }.average())} $unit"
+            "$label · $origin：平均 ${"%.1f".format(samples.map { it.value }.average())} $unit"
         }
     }
 
