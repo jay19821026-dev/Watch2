@@ -134,7 +134,7 @@ class ClinicalVerdictTest {
     fun ecgUnknownTimebaseCannotShowCachedQualityGradeOrRr() {
         val v = ClinicalVerdict.forEcg(95, 512, 0f, "has_data", 72.0, 12, true)
         assertEquals("—", v.grade)
-        assertTrue(v.headline.contains("尚無可判讀"))
+        assertTrue(v.headline.contains("沒有可解讀"))
         assertTrue(v.findings.any { it.contains("未評分") || it.contains("不適用") })
         assertTrue(v.findings.any { it.contains("忽略舊 RR") })
     }
@@ -151,7 +151,7 @@ class ClinicalVerdictTest {
     fun segmentalBiozHidesHydrationClaim() {
         val v = ClinicalVerdict.forBioz(70, 3740.0, 3739.0, 13.0, null, "calibrated_research")
         assertTrue(v.findings.any { it.contains("未輸出") || it.contains("腕段") })
-        assertTrue(v.headline.contains("尚未收到 BioZ 原始訊號"))
+        assertTrue(v.headline.contains("沒有取得身體感測訊號"))
     }
 
     @Test
@@ -159,7 +159,7 @@ class ClinicalVerdictTest {
         val verdict = ClinicalVerdict.forBioz(
             45, null, null, null, null, "research_signal_unscaled", rawSampleCount = 96, confidenceScore = 58
         )
-        assertTrue(verdict.headline.contains("BioZ 原始波形參考"))
+        assertTrue(verdict.headline.contains("尚無體脂或體水結果"))
         assertTrue(verdict.findings.any { it.contains("原始波形點數 96") })
         assertTrue(verdict.findings.any { it.contains("研究證據信心指數：58/100") })
         assertTrue(verdict.findings.any { it.contains("裝置級單位尚未驗證") || it.contains("單位尚未驗證") })
@@ -183,7 +183,7 @@ class ClinicalVerdictTest {
             rawChannelValues = listOf(0 to 123.0, 1 to 456.0)
         )
 
-        assertTrue(verdict.headline.contains("BioZ 原始波形參考"))
+        assertTrue(verdict.headline.contains("尚無體脂或體水結果"))
         assertTrue(verdict.findings.any { it.contains("欄位到時間樣本映射未驗證") })
         assertTrue(verdict.findings.any { it.contains("不跨欄位計算波形指標") })
         assertTrue(verdict.findings.any { it.contains("通道 0=123.00000") })
@@ -212,7 +212,7 @@ class ClinicalVerdictTest {
         assertTrue(verdict.findings.any { it.contains("相對差") })
         assertTrue(verdict.findings.any { it.contains("研究證據信心指數") })
         assertTrue(verdict.findings.any { it.contains("來源：watch_bioz_respiration") })
-        assertTrue(verdict.headline.contains("未輸出呼吸率"))
+        assertTrue(verdict.headline.contains("尚無呼吸率"))
         assertFalse(verdict.findings.any { it.matches(Regex(".*呼吸率\\s+\\d+.*")) })
     }
 
@@ -247,7 +247,7 @@ class ClinicalVerdictTest {
         )
 
         assertNull(verdict.score)
-        assertTrue(verdict.headline.contains("尚未收到 BioZ 原始訊號"))
+        assertTrue(verdict.headline.contains("沒有取得身體感測訊號"))
         assertTrue(verdict.findings.any { it.contains("覆蓋分數 未評分（未收到訊號）") })
     }
 
@@ -344,7 +344,7 @@ class ClinicalVerdictTest {
             timestampSource = "android_sensor_event_elapsed_realtime",
             calibrationStatus = "UNVERIFIED"
         )
-        assertTrue(verdict.headline.contains("SpO₂ 原始波形參考"))
+        assertTrue(verdict.headline.contains("尚無百分比結果"))
         assertTrue(verdict.findings.any { it.contains("原始波形點數 64") })
         assertTrue(verdict.findings.any { it.contains(ResearchSignalSummary.VERSION) })
         assertTrue(verdict.findings.any { it.contains("資料來源：watch_spo2_raw") })
@@ -428,7 +428,7 @@ class ClinicalVerdictTest {
     @Test
     fun absentSpo2SamplesAreDistinguishedFromCalibrationBlock() {
         val verdict = ClinicalVerdict.forRawSpO2(0, "no_events", null)
-        assertTrue(verdict.headline.contains("尚未收到 SpO₂ 原始通道資料"))
+        assertTrue(verdict.headline.contains("沒有取得血氧感測訊號"))
         assertTrue(verdict.recommendation.contains("確認手錶韌體"))
     }
 
@@ -445,7 +445,7 @@ class ClinicalVerdictTest {
             waveformEncoding = EcgPayloadInterpretationPolicy.VERIFIED_WAVEFORM_ENCODING,
             timelineSource = "SENSOR"
         )
-        assertTrue(v.headline.contains("已開放研究 RR") || v.headline.contains("研究用原始 ECG"))
+        assertTrue(v.headline.contains("估算心率 72 bpm") && v.headline.contains("研究參考"))
         assertTrue(v.findings.any { it.contains("SENSOR 事件時間軸") && it.contains("500.0 點/秒") })
         assertTrue(v.findings.any { it.contains("不可作 AF 判定") || it.contains("已開放") })
         assertTrue(v.findings.any { it.contains("缺少外部 raw→mV") })
@@ -459,7 +459,7 @@ class ClinicalVerdictTest {
             waveformEncoding = "ecg_external_reference_mv",
             externalCalibrationVerified = true
         )
-        assertTrue(v.headline.contains("外部線性參考") && v.headline.contains("非小米校準"))
+        assertTrue(v.headline.contains("已取得 ECG 波形") && v.headline.contains("尚無心律結果"))
         assertTrue(v.findings.any { it.contains("只轉換顯示尺度") && it.contains("不解鎖診斷") })
         assertTrue(v.findings.any { it.contains("顯示尺度來源：外部參考配對研究 profile") })
     }
@@ -560,7 +560,7 @@ class ClinicalVerdictTest {
             timestampSource = "android_sensor_event_elapsed_realtime"
         )
 
-        assertTrue(result.headline.contains("歷史／過期"))
+        assertTrue(result.headline.contains("不是已確認的最新量測"))
         assertTrue(result.findings.any { it == "裝置原始值 36.64（單位未驗證）" })
         assertTrue(result.findings.any { it == "時間狀態：歷史／過期" })
     }
@@ -571,7 +571,7 @@ class ClinicalVerdictTest {
             0, 2_170, 50f, "has_data", 165.03, 14, true,
             waveformEncoding = EcgPayloadInterpretationPolicy.VERIFIED_WAVEFORM_ENCODING
         )
-        assertTrue(verdict.headline.contains("品質未評分"))
+        assertTrue(verdict.headline.contains("尚無心律結果"))
         assertFalse(verdict.headline.contains("165"))
         assertTrue(verdict.findings.any { it.contains("不輸出心率") })
         assertFalse(ClinicalVerdict.isEcgEstimateUsable(0, 2_170, 50f, "has_data", 14, true))
@@ -653,7 +653,7 @@ class ClinicalVerdictTest {
             timelineSource = "SENSOR"
         )
 
-        assertTrue(verdict.headline.contains("估心率 75"))
+        assertTrue(verdict.headline.contains("估算心率 75"))
         assertTrue(verdict.findings.any { it.contains("研究 RR 2 段") })
         assertTrue(verdict.findings.any { it.contains("不可作 AF 判定") })
     }
@@ -671,7 +671,7 @@ class ClinicalVerdictTest {
             waveformEncoding = EcgPayloadInterpretationPolicy.UNMAPPED_EVENT_PREVIEW
         )
         assertFalse(verdict.headline.contains("165"))
-        assertTrue(verdict.headline.contains("尚無可判讀"))
+        assertTrue(verdict.headline.contains("沒有可解讀"))
         assertFalse(verdict.findings.any { it.contains("研究 RR 14 段") })
         assertFalse(ClinicalVerdict.isEcgPulseDisplayable(
             80, 2_170, 50f, "has_data", 14, true, 165.03,

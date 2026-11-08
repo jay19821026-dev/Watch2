@@ -29,7 +29,7 @@ class OpticalPulseDisplayPolicyTest {
             status = "has_data",
             wearQualified = true
         )
-        assertTrue(verdict.headline.contains("不是 bpm"))
+        assertTrue(verdict.headline.contains("尚無心率結果"))
         assertTrue(verdict.findings.any { it.contains("不可解讀為生理數值") })
         assertTrue(verdict.findings.none { it.contains("6,003,174 bpm") })
     }

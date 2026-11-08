@@ -412,7 +412,7 @@ class BiomedicalCalibrationTest {
             wearQualified = true,
             waveformEncoding = EcgPayloadInterpretationPolicy.VERIFIED_WAVEFORM_ENCODING
         )
-        assertTrue(verdict.headline.contains("研究用原始 ECG"))
+        assertTrue(verdict.headline.contains("已取得 ECG 波形") && verdict.headline.contains("尚無心律結果"))
         assertTrue(verdict.findings.any { it.contains("不代表診斷準確度") })
         assertTrue(verdict.recommendation.contains("不能診斷"))
     }
@@ -445,7 +445,7 @@ class BiomedicalCalibrationTest {
             waveformEncoding = "ecg_external_reference_mv",
             externalCalibrationVerified = true
         )
-        assertTrue(verdict.headline.contains("非小米校準／非臨床驗證"))
+        assertTrue(verdict.headline.contains("已取得 ECG 波形") && verdict.headline.contains("尚無心律結果"))
         assertTrue(verdict.findings.any { it.contains("只轉換顯示尺度") })
         assertTrue(verdict.recommendation.contains("不能診斷"))
     }

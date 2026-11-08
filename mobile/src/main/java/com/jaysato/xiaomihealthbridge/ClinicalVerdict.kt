@@ -67,8 +67,8 @@ object ClinicalVerdict {
         title = "光學原始通道",
         grade = "研究原始資料",
         score = null,
-        headline = if (estimateBpm != null) "研究估算脈率 ${"%.0f".format(estimateBpm)} bpm；非原始感測器直出、未經裝置臨床驗證"
-        else "已收到光學原始封包；原始碼值不是 bpm",
+        headline = if (estimateBpm != null) "估算脈率 ${"%.0f".format(estimateBpm)} bpm（研究參考）"
+        else "已取得光學訊號，尚無心率結果",
         findings = buildList {
             add("原始樣本 $sampleCount 點；通道單位／封包映射未公開")
             rawAverage?.takeIf { it.isFinite() }?.let { add("封包平均碼值 ${"%.1f".format(it)}（不可解讀為生理數值）") }
@@ -203,15 +203,15 @@ object ClinicalVerdict {
             grade = grade,
             score = scoreForDisplay.takeIf { researchUsable && scoreAvailable },
             headline = when {
-                estimateUsable && hasRr && heartRateBpm != null -> "已開放研究 RR · 估心率 ${"%.0f".format(heartRateBpm)} bpm"
-                !researchUsable -> "尚無可判讀的有效 ECG 訊號"
-                !scoreAvailable -> "已收到 ECG 波形；品質未評分，暫不輸出心率"
-                qualityScore < 50 -> "已收到 ECG 波形；品質偏低，隱藏心率估算"
-                researchUsable && hasRr -> "已開放研究 RR（$rrCount 段）"
-                externallyCalibrated -> "已套用外部線性參考的研究波形（非小米校準／非臨床驗證）"
-                researchUsable && scoreForDisplay >= 70 -> "已取得研究用原始 ECG 波形（尚未 mV／導聯校準）"
-                sampleCount >= 32 -> "研究波形可讀；RR 待更多峰值"
-                else -> "ECG 樣本尚少，請繼續接觸電極"
+                estimateUsable && hasRr && heartRateBpm != null -> "估算心率 ${"%.0f".format(heartRateBpm)} bpm（研究參考）"
+                !researchUsable -> "這次沒有可解讀的 ECG 結果"
+                !scoreAvailable -> "已取得 ECG 訊號，尚無心律結果"
+                qualityScore < 50 -> "ECG 訊號不清楚，請重新量測"
+                researchUsable && hasRr -> "已取得 ECG 訊號，尚無心律結果"
+                externallyCalibrated -> "已取得 ECG 波形，尚無心律結果"
+                researchUsable && scoreForDisplay >= 70 -> "已取得 ECG 波形，尚無心律結果"
+                sampleCount >= 32 -> "已取得 ECG 訊號，尚無心律結果"
+                else -> "請保持手指接觸電極並重新量測"
             },
             findings = buildList {
                 add("研究估算：ECG 原始波形／事件分析")
@@ -293,8 +293,8 @@ object ClinicalVerdict {
                     if (ok) "已取得接近全身量級之阻抗參考（仍缺 BIVA 正規化）" else "阻抗訊號不足"
                 ClinicalReferenceTables.BiozMode.UNKNOWN ->
                     if (ok) "已取得阻抗讀值（量級未歸類）"
-                    else if (rawSignalPresent) "BioZ 原始波形參考"
-                    else "尚未收到 BioZ 原始訊號"
+                    else if (rawSignalPresent) "已取得身體感測訊號，尚無體脂或體水結果"
+                    else "這次沒有取得身體感測訊號"
             },
             findings = buildList {
                 add(if (waveformMedianPositionIndex != null || relativeChangePercent != null || stabilityScore != null)
@@ -369,7 +369,7 @@ object ClinicalVerdict {
         return base.copy(
             modality = "bioz_respiration",
             title = "呼吸研究（BioZ）",
-            headline = if (hasReceivedSignal) "BioZ 呼吸研究波形；未輸出呼吸率" else "尚未收到 BioZ 呼吸研究波形",
+            headline = if (hasReceivedSignal) "已取得呼吸感測訊號，尚無呼吸率" else "這次沒有取得呼吸感測訊號",
             findings = listOf(
                 "有限原始值 $rawSampleCount；預覽點 ${research.displayWaveform.size}",
                 "波形橫軸：NORMALIZED_INDEX；相對振幅，不代表秒或 Ω",
@@ -405,8 +405,8 @@ object ClinicalVerdict {
             title = "SpO₂ 血氧參考",
             grade = if (rawPresent) "研究資料" else "無資料",
             score = researchEvidenceScore?.coerceIn(0, 100)?.takeIf { rawPresent && it in 1..100 },
-            headline = if (rawPresent) "SpO₂ 原始波形參考"
-            else "尚未收到 SpO₂ 原始通道資料",
+            headline = if (rawPresent) "已取得血氧感測訊號，尚無百分比結果"
+            else "這次沒有取得血氧感測訊號",
             findings = buildList {
                 add("研究描述統計：${ResearchSignalSummary.VERSION} · SpO₂ 原始光學編碼")
                 add("資料來源：$source · 時間來源：${timestampSource ?: "UNKNOWN"} · $timeLabel")
@@ -531,12 +531,11 @@ object ClinicalVerdict {
                 else -> "無效"
             },
             score = score,
-            headline = "掃描完成：$withData/$total 通道有資料" +
-                when (worn) {
-                    true -> " · 佩戴合格"
-                    false -> " · 未貼合"
-                    null -> ""
-                },
+            headline = when {
+                worn == false -> "手錶未貼合，請戴好後重測"
+                withData > 0 -> "已取得感測資料，請查看各項結果"
+                else -> "這次沒有取得感測資料，請重新量測"
+            },
             findings = buildList {
                 add(score?.let { "綜合參考分數 $it/100（可計分通道平均）" }
                     ?: "尚無可計分通道；保留各通道原始結果")
