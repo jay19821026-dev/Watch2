@@ -56,6 +56,17 @@ class EcgEventPreviewTest {
         assertEquals(listOf(1f, 3f), EcgEventPreview.firstField(listOf("1,2", "3,4")))
     }
 
+    @Test fun matchesOemWristOrientationSignWithoutChangingRawRows() {
+        val row = (listOf(1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 1000f, 42f) + List(4) { 0f }).joinToString(",")
+        val args = listOf(row)
+        val expected = (1..10).map(Int::toFloat)
+        assertEquals(expected, EcgEventPreview.oemPacketCandidates(args, intArrayOf(1), longArrayOf(1L), 21, 0))
+        assertEquals(expected.map { -it }, EcgEventPreview.oemPacketCandidates(args, intArrayOf(1), longArrayOf(1L), 21, 2))
+        assertEquals(expected.map { -it }, EcgEventPreview.oemPacketCandidates(args, intArrayOf(1), longArrayOf(1L), 21, 3))
+        assertEquals(expected, EcgEventPreview.oemPacketCandidates(args, intArrayOf(1), longArrayOf(1L), 21, 1))
+        assertEquals(row, args.single())
+    }
+
     @Test fun rejectsInvalidFieldsWithoutBridgingMissingEvents() {
         assertTrue(EcgEventPreview.firstField(listOf("1,2", "NaN,3")).isEmpty())
         assertTrue(EcgEventPreview.firstField(listOf("9".repeat(100))).isEmpty())

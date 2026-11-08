@@ -306,7 +306,8 @@ class WearEcgActivity : ComponentActivity() {
         val decoded = EcgRawEventDecoder.decode(rows)
         val structureConclusion = EcgEventStructureInterpreter.interpret(rows.size, decoded.layoutComparison)
         val eventPreview = EcgEventPreview.oemPacketCandidates(
-            snapshot.eventRawValueRows, snapshot.ecgEventContactStates, snapshot.eventTimestampsNs, snapshot.eventCount
+            snapshot.eventRawValueRows, snapshot.ecgEventContactStates, snapshot.eventTimestampsNs, snapshot.eventCount,
+            runCatching { android.provider.Settings.Global.getInt(contentResolver, "wear_wrist_orientation_mode", 0) }.getOrDefault(0)
         )
         // Always let the owner inspect received numeric events. A missing OEM marker or
         // on-body callback only disqualifies the qualified preview, not the raw data view.

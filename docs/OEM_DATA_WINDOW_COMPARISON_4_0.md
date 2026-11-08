@@ -38,6 +38,18 @@ AILISA's 10 minute *current* sensor freshness gate and 30 hour *recent sleep* vi
 
 AILISA 的「目前感測資料 10 分鐘」及「近期睡眠 30 小時」是本程式政策，**不是**已驗證的原廠門檻。歷史值仍可附量測時間顯示。ECG、BioZ、PPG 若缺可信樣本時基，不能用心率同步封裝的 30 分鐘區間補足。
 
+## Watch ECG event path / 手錶 ECG 事件路徑
+
+Decompiled `XiaomiHealth-watch-decompiled/sources/we/b.java` (`EcgSensorUtil`) registers sensor type `65573` and on-body sensor type `34`. Its callback skips the first 20 ECG events, then requires field 10 to equal `1000` and an on-body state before sending the first ten event fields to `EcgJni.algInputSignal`. It negates those ten fields when `Settings.Global.wear_wrist_orientation_mode` is `2` or `3`; other modes keep the sign. It starts from `event.timestamp` in milliseconds and increments two milliseconds for each of the ten fields. These are **observed OEM program decisions**, not an independently verified HAL sample clock, electrode mapping, ADC scale, or clinical calibration. The JNI implementation and its validation data are not established by this Java decompilation.
+
+AILISA mirrors the observed warmup, marker, on-body check, and wrist-orientation sign **only in its labeled OEM-conditioned preview**. The raw first-field event trend remains available even when those conditions fail; it is labeled as an unqualified raw value, not an ECG result. Original event rows remain unchanged. AILISA does not synthesize 2 ms sample timestamps for analysis from this observation, because the device's actual sampling clock has not been verified. Without that clock and a validated amplitude scale, the raw values do not support an ECG heart rate, RR interval, rhythm classification, or mV report.
+
+原廠解包的 `we/b.java` 可確認：感測器 `65573` 的前 20 個事件略過；第 11 欄為 `1000` 且離腕感測器 `34` 回報配戴時，將前 10 欄送進 `EcgJni.algInputSignal`。`wear_wrist_orientation_mode` 為 `2` 或 `3` 時先反轉數值符號；原廠程式由事件時間戳開始，每欄遞增 2 毫秒。這是原廠程式**怎麼使用數值**的證據，並不等於已驗證手錶 ADC 取樣時鐘、電極映射或 mV 校準。AILISA 對齊可確認的預覽條件，同時允許查看未通過條件的原始第 1 欄趨勢；兩者分開標示，原始資料保持不變。
+
+The OEM result screen in `XiaomiHealth-watch-decompiled/sources/com/xiaomi/wear/fitness/health/ecg/EcgResultActivity.java` maps native `getAnalysisResults()` codes `200` to sinus rhythm, `201` to atrial fibrillation, `202` to low heart rate, `203` to high heart rate, and `204` to uncertain. `EcgJni.java` loads the proprietary `fitness` native library; the Java decompilation exposes `algInputSignal`, `getAnalysisResults`, and `getAverageHr`, but not their algorithms or calibration/validation parameters. These result codes are **outputs of the OEM native pipeline**, not labels that can be assigned to AILISA's raw HAL values by comparing thresholds. AILISA must obtain a valid OEM result through a supported export or independently validate its own classifier against paired Watch 2 Pro recordings and clinical reference before reporting a diagnosis.
+
+原廠結果頁可見代碼 `200` 竇性心律、`201` 心房顫動、`202` 心率偏低、`203` 心率偏高、`204` 無法判定；代碼來自原廠 `fitness` 原生函式庫的判讀結果。解包 Java 只能看見介面及結果映射，不能證明 AILISA 已有相同演算法或準確率，也不能把原始數值直接套上這些診斷標籤。
+
 The phone home summary now applies the same overlap-and-clip rule to sleep-session fallback totals. Its label says *recorded interval*, because the OEM `SleepSyncBiz` uses bed/wake timestamps and stage records separately; the interval sum is not verified actual sleep. / 手機首頁的睡眠備援總時長也改為保留交集、按查詢界線裁切，並標明是紀錄區間，不能當作原廠實睡時長。
 
 Mi Fitness's `Spo2SyncBiz.java` writes each `Spo2Item.time` as the `OxygenSaturationRecord.time` and its typed `spo2` value as `percentage`; the metadata modification time is separate. AILISA's phone home now checks this measurement time against its local seven-date query before selecting the newest oxygen record. The typed percentage remains separate from raw optical `65596` events. / 原廠逐筆血氧使用 `Spo2Item.time` 作量測時間、`spo2` 作百分比；AILISA 首頁先按該量測時間篩選，再挑最新紀錄，不將光學原始事件轉成百分比。

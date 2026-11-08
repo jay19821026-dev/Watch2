@@ -8,7 +8,8 @@ internal object EcgEventPreview {
 
     /** Research-only packet preview from the first ten fields of each observed ECG event. */
     fun oemPacketCandidates(
-        rows: List<String>, contactStates: IntArray, eventTimestampsNs: LongArray, totalEventCount: Int
+        rows: List<String>, contactStates: IntArray, eventTimestampsNs: LongArray, totalEventCount: Int,
+        wristOrientationMode: Int = 0
     ): List<Float> {
         if (rows.size != contactStates.size || rows.size != eventTimestampsNs.size || totalEventCount < rows.size) return emptyList()
         var result = ArrayList<Float>()
@@ -31,7 +32,11 @@ internal object EcgEventPreview {
                 (timestampNs <= previousTimestampNs || timestampNs - previousTimestampNs > MAX_PREVIEW_EVENT_GAP_NS)
             ) result = ArrayList()
             // OEM checks both the packet marker and a separate on-body state.
-            if (timestampNs > 0L && values[10] == 1000f && contactStates[index] == 1) result.addAll(values.take(10))
+            if (timestampNs > 0L && values[10] == 1000f && contactStates[index] == 1) {
+                // Decompiled OEM EcgSensorUtil negates the first ten fields only for modes 2/3.
+                val sign = if (wristOrientationMode == 2 || wristOrientationMode == 3) -1f else 1f
+                result.addAll(values.take(10).map { it * sign })
+            }
             else result = ArrayList() // Do not draw continuity across missing/unknown contact.
             previousTimestampNs = timestampNs
         }
