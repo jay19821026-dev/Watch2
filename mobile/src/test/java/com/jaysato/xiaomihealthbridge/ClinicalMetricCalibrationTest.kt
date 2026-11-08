@@ -5,14 +5,15 @@ import org.junit.Test
 
 class ClinicalMetricCalibrationTest {
     @Test
-    fun oxygenUsesWhoBand() {
+    fun oxygenUsesReferenceBandWithoutInventedScore() {
         val good = ClinicalMetricCalibration.forOxygen(97.0)
-        assertEquals("優良", good.grade)
-        assertTrue(good.trusted)
+        assertEquals("未評分", good.grade)
+        assertNull(good.score)
+        assertFalse(good.trusted)
         assertTrue(good.comparisons.any { it.contains("95") })
 
         val low = ClinicalMetricCalibration.forOxygen(88.0)
-        assertTrue(low.score!! < 30)
+        assertNull(low.score)
         assertTrue(low.comparisons.any { it.contains("90") })
     }
 

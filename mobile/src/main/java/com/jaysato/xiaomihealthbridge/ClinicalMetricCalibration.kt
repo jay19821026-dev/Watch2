@@ -17,29 +17,20 @@ object ClinicalMetricCalibration {
     fun forOxygen(percent: Double?, qualityHint: Double? = null): Result {
         val p = percent?.takeIf { it.isFinite() && it in 70.0..100.0 }
         val comps = ClinicalReferenceTables.spo2Compare(p)
-        val score = when {
-            p == null || !p.isFinite() -> null
-            p in 95.0..100.0 -> 92
-            p in 92.0..94.9 -> 55
-            p in 90.0..91.9 -> 35
-            p in 70.0..89.9 -> 15
-            else -> null
-        }
-        val trusted = SensorHealthAlgorithms.isTrustedOxygenPercent(p ?: -1.0, qualityHint)
         return Result(
             metric = "oxygen",
             value = p,
-            grade = score?.let(::grade) ?: "未評分",
-            score = score,
+            grade = "未評分",
+            score = null,
             headline = when {
-                p == null -> "尚未取得可信的 SpO₂ 百分比"
+                p == null -> "尚未取得可用的 SpO₂ 百分比"
                 p >= 95.0 -> "血氧落在健康成人海平面常見帶（參考）"
                 p >= 92.0 -> "血氧略低於常見下限；請確認灌注／海拔後複測"
                 p >= 90.0 -> "血氧偏低；建議用指夾血氧或就醫確認"
                 else -> "血氧低於公開緊急對照門檻；請儘速就醫（腕式不可替代急診）"
             },
             comparisons = comps,
-            trusted = trusted
+            trusted = false
         )
     }
 
