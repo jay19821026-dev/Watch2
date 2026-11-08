@@ -26,6 +26,10 @@ internal object VitalsCardPresentationPolicy {
         }
     }
 
+    fun heartRateBrief(bpm: Double?): String = bpm?.takeIf(Double::isFinite)?.let {
+        "${ConsumerVitalsSummary.heartRateLabel(it)} · 成人靜息參考 60–100 bpm"
+    } ?: "尚無心率讀值"
+
     fun recordedSpO2Detail(source: String?, timestamp: String?): String {
         val label = when {
             source?.contains("xiaomi", ignoreCase = true) == true -> "Mi Fitness"

@@ -68,7 +68,8 @@ class HealthConclusionActivity : ComponentActivity() {
                 exportDebugMatrix(report)
             }
             reportContainer.visibility = android.view.View.VISIBLE
-            reportContainer.addView(hero("已記錄的健康數值", "請看各項讀值與參考範圍；無效量測可重新進行。"))
+            val summaryCopy = ConsumerVitalsSummary.from(report)
+            reportContainer.addView(hero(summaryCopy.headline, summaryCopy.detail))
             report.items.forEach { item -> reportContainer.addView(itemCard(item)) }
             reportContainer.addView(TextView(this).apply {
                 text = report.disclaimer

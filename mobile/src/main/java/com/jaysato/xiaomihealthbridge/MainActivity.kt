@@ -1120,7 +1120,10 @@ class MainActivity : ComponentActivity() {
                 }
                 val oxygenSummaryValue = latestOxygen?.let {
                     val periodLabel = if (it.time.atZone(java.time.ZoneId.systemDefault()).toLocalDate() == java.time.LocalDate.now()) "今日" else "${DateFormat.getDateInstance(DateFormat.SHORT).format(Date.from(it.time))}"
-                    "%.0f%% · %s".format(it.percentage.value, periodLabel)
+                    "%.0f%% · %s\n%s".format(
+                        it.percentage.value, periodLabel,
+                        if (it.percentage.value < 95.0) "低於常見參考 95–100%" else "在常見參考 95–100% 內"
+                    )
                 } ?: summaryUnavailable("血氧")
                 stepsSummary.text = summaryText("步數", stepSummaryValue)
                 oxygenSummary.text = summaryText("血氧", oxygenSummaryValue)
@@ -1128,14 +1131,14 @@ class MainActivity : ComponentActivity() {
                 val latestHeartRateLabel = when {
                         heartRateCardSummary.detail.startsWith("近 5 分鐘手錶讀值") && latestWatchHeartRate != null ->
                             "${heartRateCardSummary.value} · 手錶 ${HeartRatePresentationPolicy.homeTimestampLabel(latestWatchHeartRate.second, nowMillis)}"
-                        heartSummary.measuredAt != null -> "${heartSummary.value} bpm · ${HeartRatePresentationPolicy.homeTimestampLabel(heartSummary.measuredAt.toEpochMilli(), nowMillis)} · 24 小時"
+                        heartSummary.measuredAt != null -> "${heartSummary.value} bpm · ${HeartRatePresentationPolicy.homeTimestampLabel(heartSummary.measuredAt.toEpochMilli(), nowMillis)}"
                         latestWatchHeartRate != null -> "${"%.0f".format(latestWatchHeartRate.first)} bpm · 手錶 ${HeartRatePresentationPolicy.homeTimestampLabel(latestWatchHeartRate.second, nowMillis)}"
                         else -> summaryUnavailable("心率")
                     }
-                val todayHeartRateLabel = todayHeartRateRange?.let {
-                    "今日最低／最高 ${"%.0f".format(it.minimumBpm)}–${"%.0f".format(it.maximumBpm)} bpm · ${it.sampleCount} 筆${if (it.sourceCount > 1) " · ${it.sourceCount} 個來源" else ""}"
-                } ?: "今日最低／最高：本日無有效紀錄"
-                heartRateSummary.text = summaryText("心率", "$latestHeartRateLabel\n$todayHeartRateLabel")
+                val latestBpm = heartRateCardSummary.value.substringBefore(" ").toDoubleOrNull()
+                    ?: heartSummary.value.toDoubleOrNull()
+                val heartStatus = latestBpm?.let(ConsumerVitalsSummary::heartRateLabel) ?: "查看趨勢"
+                heartRateSummary.text = summaryText("心率", "$latestHeartRateLabel · $heartStatus")
                 metricsStatus.text = buildString {
                     append("今日 Health Connect 平台彙總 · 心率查詢近 24 小時\n")
                     append("規則 ${HealthConnectAggregatePolicy.RULE_VERSION} · 本次查詢來源：$aggregateSourceSummary\n")
@@ -1336,9 +1339,15 @@ class MainActivity : ComponentActivity() {
 
     private fun summaryText(title: String, value: String): CharSequence =
         android.text.SpannableString("$title\n$value").apply {
+            val valueStart = title.length + 1
+            val detailStart = value.indexOf('\n').takeIf { it >= 0 }?.let { valueStart + it + 1 }
             setSpan(android.text.style.RelativeSizeSpan(.72f), 0, title.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             setSpan(android.text.style.ForegroundColorSpan(HealthVisuals.secondary), 0, title.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(android.text.style.StyleSpan(Typeface.BOLD), title.length + 1, length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(android.text.style.StyleSpan(Typeface.BOLD), valueStart, detailStart?.minus(1) ?: length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if (detailStart != null) {
+                setSpan(android.text.style.RelativeSizeSpan(.76f), detailStart, length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                setSpan(android.text.style.ForegroundColorSpan(HealthVisuals.secondary), detailStart, length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
         }
 
     private fun darken(color: String): String {

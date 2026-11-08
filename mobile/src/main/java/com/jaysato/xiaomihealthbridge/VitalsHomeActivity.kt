@@ -50,10 +50,11 @@ class VitalsHomeActivity : ComponentActivity() {
         ).also { it.setPadding(0, dp(6), 0, dp(12)) })
 
         val report = HealthConclusionEngine.build(this)
-        val conclusionHeadline = label(report.overallHeadline, 17f, Color.WHITE, true).also {
+        val summaryCopy = ConsumerVitalsSummary.from(report)
+        val conclusionHeadline = label(summaryCopy.headline, 17f, Color.WHITE, true).also {
             it.setPadding(0, dp(4), 0, 0)
         }
-        val conclusionDetail = label(report.overallDetail + "\n點此查看全部計算與臨床對照 →", 12f, Color.rgb(220, 235, 255), false).also {
+        val conclusionDetail = label(summaryCopy.detail + "\n查看健康讀值 →", 12f, Color.rgb(220, 235, 255), false).also {
             it.setPadding(0, dp(6), 0, 0)
         }
         root.addView(LinearLayout(this).apply {
@@ -194,7 +195,7 @@ class VitalsHomeActivity : ComponentActivity() {
                 "bpm · 即時手錶讀值${if (wearContext.isBlank()) "" else " · $wearContext"}"
             }
             else -> "bpm · 最近 ${hrAgeMinutes} 分鐘 · 非即時"
-        }) + (hr?.let { "\n${VitalsCardPresentationPolicy.heartRateReference(it.toDouble())}" } ?: "") +
+        }) + (hr?.let { "\n${VitalsCardPresentationPolicy.heartRateBrief(it.toDouble())}" } ?: "") +
             (hrEvidence?.let { "\n$it" } ?: "")
         val heartRateTile = tile("心率", heartRateHeadline, heartRateDetail, Color.rgb(255, 59, 48), measurementPath = "/control/ppg-now") {
             startActivity(Intent(this, MetricDetailActivity::class.java).putExtra("metric", "heart_rate"))
@@ -415,7 +416,7 @@ class VitalsHomeActivity : ComponentActivity() {
                 val latest = accumulator.latestSample()
                 if (latest != null && (watchMeasurementTime == null || latest.timeMillis > watchMeasurementTime)) {
                     heartValue.text = "%.0f bpm".format(latest.bpm)
-                    heartDetail.text = "Health Connect · 最近紀錄 ${HeartRatePresentationPolicy.homeTimestampLabel(latest.timeMillis, System.currentTimeMillis())} · 非即時量測 · 來源：${latest.source} · 訊號品質：來源未提供"
+                    heartDetail.text = VitalsCardPresentationPolicy.heartRateBrief(latest.bpm) + " · ${HeartRatePresentationPolicy.homeTimestampLabel(latest.timeMillis, System.currentTimeMillis())}"
                 }
                 if (latest != null) {
                     withContext(Dispatchers.IO) {
@@ -426,12 +427,13 @@ class VitalsHomeActivity : ComponentActivity() {
                             .commit()
                     }
                     val refreshed = HealthConclusionEngine.build(this@VitalsHomeActivity)
-                    conclusionHeadline.text = refreshed.overallHeadline
-                    conclusionDetail.text = refreshed.overallDetail + "\n點此查看全部計算與臨床對照 →"
+                    val refreshedCopy = ConsumerVitalsSummary.from(refreshed)
+                    conclusionHeadline.text = refreshedCopy.headline
+                    conclusionDetail.text = refreshedCopy.detail + "\n查看健康讀值 →"
                 }
                 val summary = accumulator.result()
                 if (summary == null) "今日最低／最高：本日沒有有效 Health Connect 心率樣本"
-                else "今日最低／最高：${"%.0f".format(summary.minimumBpm)}–${"%.0f".format(summary.maximumBpm)} bpm · ${summary.sampleCount} 筆 · ${summary.sourceCount} 個來源"
+                else "今日心率範圍：${"%.0f".format(summary.minimumBpm)}–${"%.0f".format(summary.maximumBpm)} bpm"
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
