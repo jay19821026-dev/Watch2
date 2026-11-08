@@ -109,11 +109,13 @@ class MeasureResultActivity : ComponentActivity() {
                 HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE else timestampSource
         )
         val displayValue = resultPresentation.value
-        val detail = detailLine(kind, raw) + (supplementalHeartRate?.let {
+        val hasReadableValue = displayValue != "—"
+        val detail = (if (hasReadableValue) "這次已有可顯示的讀值；可查看詳細紀錄與量測時間。"
+            else detailLine(kind, raw)) + (supplementalHeartRate?.let {
             "\n手錶心率：${"%.0f".format(it.bpm)} bpm；來源為手錶系統量測。"
         } ?: "")
-        val hasReadableValue = displayValue != "—"
         val resultConclusion = when {
+            !resultPresentation.isCurrent && resultPresentation.headline != null -> resultPresentation.headline
             !feedback.receivedData && !hasReadableValue -> "$title 量測未完成 · 請確認佩戴與連線後重測"
             supplementalHeartRate != null && displayValue != "—" ->
                 "心率 $displayValue bpm · ${ConsumerVitalsSummary.heartRateLabel(displayValue.toDoubleOrNull() ?: supplementalHeartRate.bpm.toDouble())}"
@@ -160,18 +162,20 @@ class MeasureResultActivity : ComponentActivity() {
         if (resultPresentation.isCurrent) {
             typedHeartRate?.let { root.addView(card(HeartRateMeaningPolicy.explain(it), Color.WHITE)) }
         }
-        root.addView(TextView(this).apply {
-            text = if (hasReadableValue) displayValue else "—"
-            textSize = if (hasReadableValue) 56f else 36f; setTextColor(Color.BLACK)
-            setTypeface(typeface, Typeface.BOLD)
-            gravity = android.view.Gravity.CENTER
-        })
-        root.addView(TextView(this).apply {
-            text = if (hasReadableValue) resultPresentation.unit else ""
-            textSize = 16f; setTextColor(Color.rgb(90, 90, 100))
-            gravity = android.view.Gravity.CENTER
-            setPadding(0, 0, 0, dp(12))
-        })
+        if (hasReadableValue) {
+            root.addView(TextView(this).apply {
+                text = displayValue
+                textSize = 56f; setTextColor(Color.BLACK)
+                setTypeface(typeface, Typeface.BOLD)
+                gravity = android.view.Gravity.CENTER
+            })
+            root.addView(TextView(this).apply {
+                text = resultPresentation.unit
+                textSize = 16f; setTextColor(Color.rgb(90, 90, 100))
+                gravity = android.view.Gravity.CENTER
+                setPadding(0, 0, 0, dp(12))
+            })
+        }
         root.addView(Button(this).apply {
             text = "查看結果說明"; isAllCaps = false
             setOnClickListener {
