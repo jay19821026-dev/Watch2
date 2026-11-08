@@ -1040,7 +1040,7 @@ class MainActivity : ComponentActivity() {
                 }
                 caloriesCard.text = metricText("消耗的熱量", (calories ?: latestDailyCalories?.kilocalories)?.let { "%,.0f".format(it) } ?: "— —", calorieDetail, sparkline(calorieTrendValues))
                 sleepCard.text = metricText(
-                    "睡眠時段", sleepHours?.let { "%.1f".format(it) } ?: "— —", "小時 · Health Connect session 時長（未依睡眠階段核算實睡時數）· $sleepValueSource；7 日完整 session 趨勢${trendStatusSuffix(sleepTrendAssessment)}",
+                    "睡眠時段", sleepHours?.let { "%.1f".format(it) } ?: "— —", "小時 · Health Connect session 時長（未依睡眠階段核算實睡時數）· $sleepValueSource；7 日交集 session 趨勢${trendStatusSuffix(sleepTrendAssessment)}",
                     sparkline(sleepTrendValues)
                 )
                 distanceCard.text = metricText("距離", distance?.let { "%.2f".format(it / 1000) } ?: "— —", "km · ${aggregateUnavailableReason("距離", aggregateDistance?.inMeters, aggregateDistanceOrigins)}；7 日原始紀錄趨勢${trendStatusSuffix(distanceTrendAssessment)}", sparkline(distanceTrendValues))
