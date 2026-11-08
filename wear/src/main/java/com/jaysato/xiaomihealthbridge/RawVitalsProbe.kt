@@ -671,11 +671,30 @@ class RawVitalsProbe(
                 "HAL_SAMPLE_PERIOD_AVAILABLE" else "HAL_SAMPLE_PERIOD_UNKNOWN")
         }
 
-        fun summary(): String = when {
-            eventCount > 0 && kind == Kind.ECG -> "${kind.label}：$eventCount 個事件 · 原始欄位未解碼"
-            samples == 0 -> "${kind.label}：${reason}"
-            worn != null -> "${kind.label}：${if (worn) "已佩戴" else "已離腕"} · $samples 筆 · ${summaryRateDescription(kind, sampleRateHz, eventRatePerSessionSecond)}"
-            else -> "${kind.label}：$samples 筆 · ${summaryRateDescription(kind, sampleRateHz, eventRatePerSessionSecond)} · $channels 通道 · 範圍 ${minimum?.let { "%.2f".format(it) }}–${maximum?.let { "%.2f".format(it) }} · 最新 ${latest.take(6).joinToString { "%.2f".format(it) }}"
+        fun summary(): String {
+            val name = when (kind) {
+                Kind.ECG -> "心電圖"
+                Kind.PPG, Kind.MAX_HEART_RATE, Kind.LIFE_Q_OTT -> "脈搏"
+                Kind.SPO2, Kind.MI_SPO2 -> "血氧"
+                Kind.BIOZ, Kind.BIOZ_RESPIRATION -> "體成分"
+                Kind.BODY_TEMPERATURE, Kind.THERMOMETER, Kind.BOARD_TEMPERATURE -> "溫度"
+                Kind.HEART_RATE -> "心率"
+                else -> kind.label.substringBefore(" 655")
+            }
+            if (worn == false && kind.biomedical) return "$name：請戴緊手錶後重測"
+            if (samples <= 0 && eventCount <= 0) return "$name：這次沒有取得讀值，可重新量測"
+            if (kind == Kind.HEART_RATE) {
+                val bpm = (average ?: latest.firstOrNull())?.takeIf { it.isFinite() && it in 30.0..220.0 }
+                if (bpm != null) return "$name：${"%.0f".format(bpm)} 次／分鐘"
+            }
+            return when (kind) {
+                Kind.ECG -> "$name：已收到訊號，尚無可解讀的心律結果"
+                Kind.PPG, Kind.MAX_HEART_RATE, Kind.LIFE_Q_OTT -> "$name：已收到訊號，尚無可用的脈率讀值"
+                Kind.SPO2, Kind.MI_SPO2 -> "$name：已收到訊號，尚無可用的血氧百分比"
+                Kind.BIOZ, Kind.BIOZ_RESPIRATION -> "$name：已收到訊號，尚無可用的體成分讀值"
+                Kind.BODY_TEMPERATURE, Kind.THERMOMETER -> "$name：已收到訊號，尚無可用的體溫讀值"
+                else -> "$name：已收到手錶資料，請到手機查看結果"
+            }
         }
     }
 

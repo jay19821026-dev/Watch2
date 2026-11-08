@@ -511,6 +511,21 @@ class WearMeasurementPolicyTest {
         assertFalse(conclusion.contains("相對高度趨勢可用"))
     }
 
+    @Test
+    fun watchSnapshotSummaryExplainsTheResultInsteadOfEventCounts() {
+        val ecg = snapshot(RawVitalsProbe.Kind.ECG, samples = 216).summary()
+        assertEquals("心電圖：已收到訊號，尚無可解讀的心律結果", ecg)
+        assertFalse(ecg.contains("216"))
+        assertEquals(
+            "血氧：已收到訊號，尚無可用的血氧百分比",
+            snapshot(RawVitalsProbe.Kind.SPO2).summary()
+        )
+        assertEquals(
+            "心率：72 次／分鐘",
+            snapshot(RawVitalsProbe.Kind.HEART_RATE, average = 72.0).summary()
+        )
+    }
+
     private fun snapshot(
         kind: RawVitalsProbe.Kind,
         samples: Int = 64,
