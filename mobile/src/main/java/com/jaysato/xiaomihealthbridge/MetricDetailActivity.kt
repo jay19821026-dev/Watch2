@@ -472,21 +472,30 @@ class MetricDetailActivity : ComponentActivity() {
             )
         ) {
             body.addView(sourceButton)
-            val overlap = card("睡眠 session 時段（未合計）")
-            overlap.addView(text("同一資料來源含有重疊紀錄。以下只列原始起訖時段，不代表實際睡眠時數，也不計算累計、日均或睡眠分數。", 15, muted))
+            val overlap = card("睡眠紀錄重複")
+            overlap.addView(text("這段期間的睡眠紀錄有重疊，無法可靠合計時數。請檢查資料來源。", 15, muted))
+            val intervalDetails = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                visibility = android.view.View.GONE
+            }
+            overlap.addView(button("查看紀錄時間", "展開原始紀錄") {
+                intervalDetails.visibility = if (intervalDetails.visibility == android.view.View.VISIBLE)
+                    android.view.View.GONE else android.view.View.VISIBLE
+            })
+            overlap.addView(intervalDetails)
             val preview = selected.sortedByDescending { it.intervalStart ?: it.time }.take(RAW_INTERVAL_PREVIEW_LIMIT)
             preview.forEach { point ->
                 val intervalStart = point.intervalStart ?: return@forEach
                 val intervalEnd = point.intervalEnd ?: return@forEach
                 val sessionHours = Duration.between(intervalStart, intervalEnd).toMillis() / 3_600_000.0
-                overlap.addView(text(
+                intervalDetails.addView(text(
                     "${time(intervalStart)}–${time(intervalEnd)}  ${"%.1f".format(sessionHours)} 小時",
                     14,
                     Color.WHITE
                 ).apply { setPadding(0, dp(10), 0, 0) })
             }
             if (preview.size < selected.size) {
-                overlap.addView(text("顯示最新 ${preview.size} 筆，共 ${selected.size} 筆。", 12, muted)
+                intervalDetails.addView(text("顯示最新 ${preview.size} 筆，共 ${selected.size} 筆。", 12, muted)
                     .apply { setPadding(0, dp(8), 0, 0) })
             }
             body.addView(overlap, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(12) })
@@ -501,7 +510,7 @@ class MetricDetailActivity : ComponentActivity() {
             val assessment = SourceIntervalAggregation.assess(intervalMeasurements)
             if (!assessment.eligible) {
                 body.addView(sourceButton)
-                val card = card("原始區間紀錄（未合計）")
+                val card = card("這段期間無法可靠合計")
                 val reason = when (assessment.rejection) {
                     SourceIntervalAggregation.Rejection.MULTIPLE_DATA_ORIGINS -> "紀錄來自多個資料來源。"
                     SourceIntervalAggregation.Rejection.OVERLAPPING_INTERVALS -> "同一來源的紀錄時段重疊或重複，可能重複計數。"
@@ -509,17 +518,26 @@ class MetricDetailActivity : ComponentActivity() {
                     SourceIntervalAggregation.Rejection.INVALID_VALUE -> "紀錄數值無效。"
                     else -> "此期間沒有可安全合計的區間紀錄。"
                 }
-                card.addView(text("$reason 來源：${source?.let(::name) ?: "未標示"}。以下保留單筆原始紀錄；不計算期間總量、平均或訓練洞察。", 15, muted))
+                card.addView(text("$reason 請檢查資料來源；目前不顯示合計結果。", 15, muted))
+                val intervalDetails = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    visibility = android.view.View.GONE
+                }
+                card.addView(button("查看紀錄時間", "展開原始紀錄") {
+                    intervalDetails.visibility = if (intervalDetails.visibility == android.view.View.VISIBLE)
+                        android.view.View.GONE else android.view.View.VISIBLE
+                })
+                card.addView(intervalDetails)
                 val preview = MetricDetailAggregation.rawIntervalPreview(intervalMeasurements)
                 preview.forEach { interval ->
-                    card.addView(text(
+                    intervalDetails.addView(text(
                         "${time(interval.startTime)}–${time(interval.endTime)}  ${number(interval.value)} $unit",
                         14,
                         Color.WHITE
                     ).apply { setPadding(0, dp(10), 0, 0) })
                 }
                 if (preview.size < intervalMeasurements.size) {
-                    card.addView(text("顯示最新 ${preview.size} 筆，共 ${intervalMeasurements.size} 筆。", 12, muted)
+                    intervalDetails.addView(text("顯示最新 ${preview.size} 筆，共 ${intervalMeasurements.size} 筆。", 12, muted)
                         .apply { setPadding(0, dp(8), 0, 0) })
                 }
                 body.addView(card, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(12) })
