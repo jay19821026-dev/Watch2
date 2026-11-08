@@ -595,7 +595,8 @@ class MainActivity : ComponentActivity() {
                 clearCard(elevationCard, "elevation")
                 clearCard(floorsCard, "floors")
                 clearCard(hydrationCard, "hydration")
-                metricsStatus.text = "Health Connect 權限清單查詢失敗；摘要卡已清除前次資料。本次未判定各類權限是否已授予。原因：${it.message ?: "未知錯誤"}"
+                android.util.Log.w("MainActivity", "Health permission query failed", it)
+                metricsStatus.text = "健康資料權限暫時查不到。請確認 Health Connect 可用並重新整理。"
                 return@launch
             }
             val endTime = Instant.now()
@@ -1171,7 +1172,8 @@ class MainActivity : ComponentActivity() {
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                metricsStatus.text = "健康資料摘要讀取失敗：${error::class.simpleName ?: "未知錯誤"}"
+                android.util.Log.w("MainActivity", "Health summary query failed", error)
+                metricsStatus.text = "健康資料暫時讀不到。請確認權限後重新整理。"
                 stepsSummary.text = summaryText("步數", "查詢失敗")
                 oxygenSummary.text = summaryText("血氧", "查詢失敗")
                 sleepSummary.text = summaryText("睡眠時段", "查詢失敗")
@@ -1602,12 +1604,12 @@ class MainActivity : ComponentActivity() {
                         runCatching { LegacyMigrationImporter.importFromInstalledLegacyApp(this@MainActivity) }
                             .onSuccess { summary ->
                                 AlertDialog.Builder(this@MainActivity).setTitle("匯入完成")
-                                    .setMessage("紀錄 ${summary.sessions} 筆，原始樣本 ${summary.rawSamples} 筆，推導結果 ${summary.derivedResults} 筆。個人設定：${if (summary.profileImported) "已匯入" else "未變更"}。舊版資料仍保留。")
+                                    .setMessage("舊版健康紀錄已匯入。個人設定：${if (summary.profileImported) "已匯入" else "未變更"}。可開啟健康頁查看結果；舊版資料仍保留。")
                                     .setPositiveButton("確定", null).show()
                             }
                             .onFailure { error ->
                                 AlertDialog.Builder(this@MainActivity).setTitle("匯入未完成")
-                                    .setMessage("${error.message ?: error.javaClass.simpleName}\n舊版資料仍保留，可檢查橋接更新後重試。")
+                                    .setMessage("舊版資料仍保留。請確認舊版 App 與搬遷橋接更新已安裝，再重試匯入。")
                                     .setPositiveButton("確定", null).show()
                             }
                     }

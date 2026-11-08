@@ -277,7 +277,9 @@ class MetricDetailActivity : ComponentActivity() {
                 })
                 card.addView(button("重試", "重新讀取資料") { refresh() })
                 card.addView(button("查看原因", "展開錯誤原因") {
-                    android.app.AlertDialog.Builder(this@MetricDetailActivity).setTitle("讀取失敗").setMessage(error.message).setPositiveButton("關閉", null).show()
+                    android.app.AlertDialog.Builder(this@MetricDetailActivity).setTitle("讀取失敗")
+                        .setMessage(if (denied) "這項健康資料尚未授權。請開啟健康資料權限後重試。" else "健康資料服務暫時無法提供這項紀錄，請稍後重試。")
+                        .setPositiveButton("關閉", null).show()
                 })
             }
         }
@@ -312,7 +314,7 @@ class MetricDetailActivity : ComponentActivity() {
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (error: Exception) {
-                    Toast.makeText(this@MetricDetailActivity, "無法檢查歷史讀取功能：${error.message ?: "請稍後重試"}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@MetricDetailActivity, "暫時無法檢查歷史資料權限，請稍後重試。", Toast.LENGTH_LONG).show()
                 }
             }
         })

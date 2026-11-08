@@ -564,18 +564,20 @@ class HealthCenterActivity : ComponentActivity() {
                 Wearable.getMessageClient(this).sendMessage(node.id, path, byteArrayOf())
                     .addOnSuccessListener {
                         val message = if (path == "/control/sensor-suite") {
-                            "掃描命令已送至 Data Layer；不代表手錶已啟動，請查看手錶回報"
+                            "已請手錶開始掃描，請在手錶上查看進度。"
                         } else {
-                            "命令已送至 Data Layer：$path"
+                            "已請手錶開始量測，請在手錶上查看進度。"
                         }
                         android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_LONG).show()
                     }
                     .addOnFailureListener { error ->
-                        android.widget.Toast.makeText(this, "控制失敗：${error.message}", android.widget.Toast.LENGTH_LONG).show()
+                        android.util.Log.w("HealthCenter", "Watch command failed: $path", error)
+                        android.widget.Toast.makeText(this, "手錶尚未收到量測要求，請確認連線後重試。", android.widget.Toast.LENGTH_LONG).show()
                     }
             }
             .addOnFailureListener { error ->
-                android.widget.Toast.makeText(this, "無法取得手錶：${error.message}", android.widget.Toast.LENGTH_LONG).show()
+                android.util.Log.w("HealthCenter", "Watch lookup failed", error)
+                android.widget.Toast.makeText(this, "目前找不到手錶，請確認連線後重試。", android.widget.Toast.LENGTH_LONG).show()
             }
     }
 
