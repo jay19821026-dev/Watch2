@@ -133,7 +133,13 @@ class HealthConclusionActivity : ComponentActivity() {
             setPadding(0, dp(4), 0, 0)
         })
         addView(TextView(context).apply {
-            text = if (item.level == HealthConclusionEngine.Level.RESEARCH || item.level == HealthConclusionEngine.Level.UNAVAILABLE) {
+            val recordedValue = item.valueText.substringBefore('%').trim().toDoubleOrNull()
+            text = if (item.id == "spo2" && item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL) {
+                VitalsCardPresentationPolicy.oxygenInterpretation(recordedValue)
+            } else if (item.id == "hr" && item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL) {
+                val bpm = item.valueText.substringBefore("bpm").trim().toDoubleOrNull()
+                if (bpm == null) "尚無心率讀值" else VitalsCardPresentationPolicy.heartRateReference(bpm)
+            } else if (item.level == HealthConclusionEngine.Level.RESEARCH || item.level == HealthConclusionEngine.Level.UNAVAILABLE) {
                 "這次沒有可用的健康判讀；請重新量測。"
             } else when (item.id) {
                 "hr" -> "成人靜息心率參考 60–100 bpm；活動時不使用此範圍判斷。"

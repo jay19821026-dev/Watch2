@@ -32,6 +32,16 @@ internal object VitalsCardPresentationPolicy {
             source.isNullOrBlank() -> "來源未提供"
             else -> source
         }
-        return "多數健康成人常見參考 95–100%；這筆是歷史紀錄。來源 $label · ${timestamp ?: "時間未提供"}。"
+        return "這筆是歷史紀錄。來源 $label · ${timestamp ?: "時間未提供"}。"
+    }
+
+    fun oxygenInterpretation(percent: Double?): String {
+        val value = percent?.takeIf { it.isFinite() && it in 70.0..100.0 }
+            ?: return "沒有可比較的血氧百分比"
+        return if (value >= 95.0) {
+            "在常見參考範圍內（95–100%）。這筆數值表示量測當時的血氧比例。"
+        } else {
+            "低於常見參考範圍（95–100%）。先保持靜止、戴緊手錶重測；若持續偏低或身體不適，請尋求醫療評估。"
+        }
     }
 }

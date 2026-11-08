@@ -218,7 +218,9 @@ class VitalsHomeActivity : ComponentActivity() {
         val spo2RecordedAt = raw.getLong("spo2_trusted_time", 0L)
         val spo2Detail = when {
             spo2 == null -> unavailableSensorReason(raw, spo2Kind, now)
-            spo2Recorded -> VitalsCardPresentationPolicy.recordedSpO2Detail(
+            spo2Recorded -> VitalsCardPresentationPolicy.oxygenInterpretation(
+                raw.getFloat("spo2_trusted_percent", Float.NaN).toDouble()
+            ) + "\n" + VitalsCardPresentationPolicy.recordedSpO2Detail(
                 raw.getString("spo2_trusted_origin", raw.getString("spo2_trusted_source", null)),
                 spo2RecordedAt.takeIf { it > 0L }?.let {
                     java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.SHORT)

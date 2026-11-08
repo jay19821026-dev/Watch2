@@ -39,8 +39,15 @@ class VitalsCardPresentationPolicyTest {
         val detail = VitalsCardPresentationPolicy.recordedSpO2Detail("health_connect", "10/08 21:00")
         assertTrue(detail.contains("health_connect"))
         assertTrue(detail.contains("10/08 21:00"))
-        assertTrue(detail.contains("95–100%"))
         assertTrue(detail.contains("歷史紀錄"))
         assertFalse(detail.contains("未提供"))
+    }
+
+    @Test
+    fun recordedOxygenGetsPlainRangeInterpretation() {
+        assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(95.0).contains("在常見參考範圍內"))
+        assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(94.0).contains("低於常見參考範圍"))
+        assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(94.0).contains("重測"))
+        assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(null).contains("沒有可比較"))
     }
 }

@@ -582,14 +582,16 @@ class MetricDetailActivity : ComponentActivity() {
             13, muted
         )
         hero.addView(caption); hero.addView(value); hero.addView(stamp)
+        if (metric == "oxygen") {
+            hero.addView(text(VitalsCardPresentationPolicy.oxygenInterpretation(selected.last().value), 14, Color.WHITE))
+        } else if (metric == "resting_heart_rate") {
+            hero.addView(text(VitalsCardPresentationPolicy.heartRateReference(selected.last().value), 14, Color.WHITE))
+        } else if (metric == "heart_rate") {
+            hero.addView(text("成人靜息參考 60–100 bpm；這筆量測沒有靜息標記，活動、壓力與睡眠都可能改變心率。", 14, Color.WHITE))
+        }
         if (metric == "temperature") {
             hero.addView(text(
                 "圖表按${TemperatureChartWindowPolicy.bucketLabel(period)}彙整同來源腕部紀錄的算術平均；上方最新值與下方原始紀錄仍為單筆量測。這不是原廠 skinTemp 圖表。",
-                12, muted
-            ))
-        } else if (metric == "heart_rate" || metric == "oxygen") {
-            hero.addView(text(
-                "圖表按${TemperatureChartWindowPolicy.bucketLabel(period)}分桶，顯示同來源原始紀錄的最低與最高值；時間粒度參照兩版 Mi Fitness 型別化圖表，數值與原廠彙總不保證一致。",
                 12, muted
             ))
         }
