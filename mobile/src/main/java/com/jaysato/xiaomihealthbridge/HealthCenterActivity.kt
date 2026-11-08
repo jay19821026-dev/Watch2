@@ -84,7 +84,7 @@ class HealthCenterActivity : ComponentActivity() {
         body.addView(text("‹  返回", 16f, HealthVisuals.blue).apply { setOnClickListener { finish() } }, margin(bottom = 16))
         body.addView(text("手錶健康中心", 31f, Color.WHITE, true))
         body.addView(text("WATCH HEALTH CENTER", 11f, Color.rgb(126, 174, 255), true).apply { letterSpacing = .12f }, margin(top = 5, bottom = 20))
-        body.addView(card("今天的健康脈動", "把手錶感測、Health Connect 與同步狀態放在同一個可互動入口。點擊任一指標即可進入日／週／月趨勢。", Color.rgb(115, 105, 255)) {
+        body.addView(card("今天的健康脈動", "查看今天的讀值與近期變化。點選項目可看日、週、月趨勢。", Color.rgb(115, 105, 255)) {
             startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
         }, margin(bottom = 12))
         body.addView(card("同步總覽", "檢查手錶連線、Health Connect 與最近一筆資料", Color.rgb(99, 178, 255)) {
@@ -303,7 +303,7 @@ class HealthCenterActivity : ComponentActivity() {
             body.addView(text("立即量測", 20f, Color.WHITE, true), margin(top = 18, bottom = 10))
             body.addView(card(
                 "手錶量測",
-                "點選項目開始量測。心電、脈搏與體成分訊號的結果會依可用資料顯示。",
+                "點選項目開始量測；完成後可查看這次的結果。",
                 Color.rgb(0, 180, 150)
             ), margin(bottom = 10))
             body.addView(watchActionRow(
@@ -311,12 +311,12 @@ class HealthCenterActivity : ComponentActivity() {
                 "佩戴狀態" to "/control/off-body-now"
             ), margin(bottom = 8))
             body.addView(watchActionRow(
-                "PPG 波形" to "/control/ppg-now",
-                "ECG 波形" to "/control/ecg-now",
-                "BIOZ 波形" to "/control/bioz-now"
+                "脈搏訊號" to "/control/ppg-now",
+                "心電訊號" to "/control/ecg-now",
+                "體成分訊號" to "/control/bioz-now"
             ), margin(bottom = 8))
             body.addView(watchActionRow(
-                "感測器全掃描" to "/control/sensor-suite",
+                "檢查各項量測" to "/control/sensor-suite",
                 "重新檢查狀態" to "/control/status"
             ), margin(bottom = 12))
             body.addView(card(
