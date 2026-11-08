@@ -16,6 +16,18 @@ import org.junit.Test
 
 class MetricDetailAggregationTest {
     @Test
+    fun temperatureChartUsesHalfHourDayAndMonthBucketsInLocalTime() {
+        val zone = ZoneId.of("Asia/Taipei")
+        val morning = Instant.parse("2026-10-09T00:29:59Z")
+        val nextHalfHour = Instant.parse("2026-10-09T00:30:00Z")
+        assertEquals(Instant.parse("2026-10-09T00:00:00Z"), TemperatureChartWindowPolicy.bucketStart(morning, 0, zone))
+        assertEquals(nextHalfHour, TemperatureChartWindowPolicy.bucketStart(nextHalfHour, 0, zone))
+        assertEquals(Instant.parse("2026-10-08T16:00:00Z"), TemperatureChartWindowPolicy.bucketStart(morning, 1, zone))
+        assertEquals(Instant.parse("2026-10-08T16:00:00Z"), TemperatureChartWindowPolicy.bucketStart(morning, 2, zone))
+        assertEquals(Instant.parse("2026-09-30T16:00:00Z"), TemperatureChartWindowPolicy.bucketStart(morning, 3, zone))
+    }
+
+    @Test
     fun ambiguousIntervalPreviewPreservesOriginalRowsWithoutSummingAndIsBounded() {
         val intervals = (0 until 30).map { index ->
             val start = Instant.parse("2026-09-28T00:00:00Z").plusSeconds(index * 60L)

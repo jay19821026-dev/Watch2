@@ -542,7 +542,11 @@ class MetricDetailActivity : ComponentActivity() {
                 }
             }
         }
-        val display: List<Point> = if (!cumulative) selected else if (metric == "sleep") {
+        val display: List<Point> = if (metric == "temperature") {
+            selected.groupBy { TemperatureChartWindowPolicy.bucketStart(it.time, period, zone) }
+                .map { (stamp, values) -> Point(stamp, values.map { it.value }.average(), source.orEmpty()) }
+                .sortedBy { it.time }
+        } else if (!cumulative) selected else if (metric == "sleep") {
             selected.groupBy { bucketBounds(it.time).first }.map { (stamp, values) ->
                 Point(stamp, values.sumOf { it.value }, source.orEmpty())
             }.sortedBy { it.time }
@@ -577,6 +581,12 @@ class MetricDetailActivity : ComponentActivity() {
             13, muted
         )
         hero.addView(caption); hero.addView(value); hero.addView(stamp)
+        if (metric == "temperature") {
+            hero.addView(text(
+                "圖表按${TemperatureChartWindowPolicy.bucketLabel(period)}彙整同來源腕部紀錄的算術平均；上方最新值與下方原始紀錄仍為單筆量測。這不是原廠 skinTemp 圖表。",
+                12, muted
+            ))
+        }
         if (display.isNotEmpty()) {
             val chart = DetailChart(display) { point ->
                 caption.text = "已選取"; showValue(point.value)
@@ -905,6 +915,23 @@ internal data class SleepSessionValue(
     val stageTypesKnown: Boolean = true
 )
 internal data class SleepAwakeInterval(val start: Instant, val end: Instant)
+
+internal object TemperatureChartWindowPolicy {
+    fun bucketLabel(period: Int): String = when (period) {
+        0 -> "半小時"
+        1, 2 -> "天"
+        else -> "月"
+    }
+
+    fun bucketStart(time: Instant, period: Int, zone: ZoneId): Instant {
+        val local = time.atZone(zone)
+        return when (period) {
+            0 -> local.withMinute((local.minute / 30) * 30).withSecond(0).withNano(0).toInstant()
+            1, 2 -> local.toLocalDate().atStartOfDay(zone).toInstant()
+            else -> local.toLocalDate().withDayOfMonth(1).atStartOfDay(zone).toInstant()
+        }
+    }
+}
 
 internal object MetricDetailAggregation {
     fun rawIntervalPreview(
