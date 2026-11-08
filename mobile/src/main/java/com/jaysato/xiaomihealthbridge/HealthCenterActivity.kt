@@ -127,14 +127,9 @@ class HealthCenterActivity : ComponentActivity() {
             sessionStarted,
             now
         )
-        val sessionText = if (sessionStarted > 0L && sessionStarted <= now) {
-            "最近全掃描啟動：${DateFormat.getDateTimeInstance().format(Date(sessionStarted))}"
-        } else {
-            "尚未收到有效的全掃描工作階段"
-        }
         body.addView(card(
-            "感測器量測新鮮度",
-            "$sessionText · 掃描狀態：${SensorSuiteSessionPolicy.runStateLabel(runState)}\n本輪有讀值 ${measured.size} 個通道；App 顯示窗內（≤${SensorDisplayState.APP_DISPLAY_FRESHNESS_MILLIS / 60_000L} 分鐘）${freshCount}、過期 ${staleCount}、時間戳在未來 ${futureTimestampCount}、時間戳未知 ${timestampUnknownCount}。未列入本輪的既有讀值仍保留於下方並標為歷史。顯示窗只描述資料時間，不代表分析輸入合格、品質通過、已校準或醫療有效。PPG／ECG／SpO₂／BioZ 不會背景常駐讀取；充電時貼腕通道會略過。點擊僅在需要時手動重掃。",
+            "最近手錶掃描",
+            SensorFreshnessSummaryPolicy.displaySummary(runState, sessionStarted, freshCount, measured.size),
             if (SensorFreshnessSummaryPolicy.requiresAttention(
                     freshCount, staleCount, sessionStarted, timestampUnknownCount, futureTimestampCount
                 )) {
@@ -416,7 +411,7 @@ class HealthCenterActivity : ComponentActivity() {
                         SensorDisplayState.QUALITY_REJECTED -> "這次讀值不穩定 · 建議重新量測"
                         SensorDisplayState.CALIBRATION_MISSING -> "已取得訊號 · 尚無可用讀值"
                         SensorDisplayState.CONDITION_NOT_MET -> "量測尚未完成 · 請確認佩戴與接觸"
-                        SensorDisplayState.RAW_ONLY, SensorDisplayState.SIGNAL_VALID_RESEARCH -> "這次沒有可顯示的讀值 · 可重新量測"
+                        SensorDisplayState.RAW_ONLY, SensorDisplayState.SIGNAL_VALID_RESEARCH -> "已收到訊號 · 尚無可用讀值"
                         SensorDisplayState.DERIVED_ESTIMATE -> "已取得估算結果 · $ageText"
                         SensorDisplayState.AVAILABLE -> "已取得紀錄 · $ageText"
                     }
@@ -491,7 +486,7 @@ class HealthCenterActivity : ComponentActivity() {
             body.addView(card("環境光／夜間省電", "環境光感測器會在手錶前景頁面切換 App 內亮度；夜間模式降低亮度與感測頻率，手機不會強制改系統亮度。", Color.rgb(67, 211, 166)) {
                 showFeatureInfo("環境光與夜間省電", "目前採用手錶 App 內亮度控制，符合 Wear OS 權限限制。環境光與手勢不做背景常駐，因此可降低耗電。")
             }, margin(bottom = 10))
-            body.addView(card("晶片功能與資料", "依 MAX86178／CT7117／BMI26x／AK0991x／ICP101xx／LTR311／LifeQ 對照他錶功能；查看已同步原始資料並可遠端啟動手錶量測。", Color.rgb(31, 111, 235)) {
+            body.addView(card("晶片功能與資料", "查看手錶有哪些感測功能，以及哪些資料已同步。", Color.rgb(31, 111, 235)) {
                 startActivity(Intent(this@HealthCenterActivity, ChipFeatureHubActivity::class.java))
             }, margin(bottom = 10))
             body.addView(card("他錶功能對照", "Apple Watch／Galaxy Watch／Pixel Watch 健康功能 vs 本 App；並顯示已同步文獻公式欄位。", Color.rgb(255, 151, 94)) {
@@ -500,23 +495,29 @@ class HealthCenterActivity : ComponentActivity() {
             body.addView(card("手錶功能對照表", "對照常見智慧手錶／Apple Watch 功能體驗：可用／研究／部分／不可用。醫療 ECG／AF 明確標示不可宣稱等同。", Color.rgb(90, 160, 255)) {
                 startActivity(Intent(this@HealthCenterActivity, WatchFeatureMapActivity::class.java))
             }, margin(bottom = 10))
-            body.addView(card("臨床參考實驗室", "PPG／ECG／BIOZ／體溫／全掃描：醫療風格圖表、高品質偵測與最終判定（本程式提供參考，非醫療用途）。", Color.rgb(0, 180, 150)) {
+            body.addView(card("訊號量測與研究", "查看心電、脈搏、體成分與溫度訊號的量測結果。", Color.rgb(0, 180, 150)) {
                 startActivity(Intent(this@HealthCenterActivity, ClinicalLabActivity::class.java))
             }, margin(bottom = 10))
-            body.addView(card("感測器校準中心", "用外部參考設備建立體溫、氣壓、環境光、磁力計、加速度與陀螺儀的研究 profile；保存 slope、offset、fit RMSE 與留一驗證 RMSE。", Color.rgb(92, 148, 255)) {
+            body.addView(card("感測器校準中心", "使用外部參考設備檢查手錶感測讀值。", Color.rgb(92, 148, 255)) {
                 startActivity(Intent(this@HealthCenterActivity, SensorCalibrationCenterActivity::class.java))
             }, margin(bottom = 10))
-            body.addView(card("健康運算中心", "本機計算：活動熱量（BMR + MET）、睡眠紀錄可用性、個人 HRV 描述性趨勢、合格運動心率資料的 TRIMP、心率區間、步數／距離去重。\n\n個別研究／訓練估算會依公式輸入條件計算；壓力、身體能量、恢復與準備度的整合總分尚未實作。活動卡路里不作訓練負荷代理。本機規則分析不是醫療診斷，也不會把缺少的 HRV、ECG 或血壓推算成真實量測。", Color.rgb(255, 151, 94)) {
+            body.addView(card("健康趨勢分析", "查看近期活動、睡眠與身體狀態的整理和建議。", Color.rgb(255, 151, 94)) {
                 startActivity(Intent(this@HealthCenterActivity, AiHealthAnalysisActivity::class.java))
             }, margin(bottom = 10))
-            body.addView(card("目前未提供的醫療級資料", "1. ECG 缺少導聯與臨床校準，不能診斷房顫、缺血或心律疾病。\n2. BIOZ 私有通道沒有原廠阻抗換算公式，不能輸出體脂或水分。\n3. PPG 只做波形與品質分析，不能直接診斷疾病。\n4. 房顫等判定仍需足夠 RR 間期與臨床驗證；本 App 只顯示研究用節律指標。\n5. 血壓、連續血糖、PSG 睡眠分期與小米私有 PAI 沒有第三方 API。\n\n這些限制會保留在整合中心，不會偽造醫療單位。", Color.rgb(120, 130, 155)))
-            body.addView(card("ECG 型號相容性稽核", "目前裝置為 Xiaomi Watch 2 Pro。網路找到的 Xiaomi ECG-V1 文件標示相容裝置為 Xiaomi Watch 5 或更新型號，並非 Watch 2 Pro；其中的 24-bit、500 SPS 與臨床房顫數據不可套用本手錶。\n\n本 App 可保留公開 Sensor HAL 原始資料與研究級品質分析，但不會把 ECG-V1 的係數或臨床結果冒充 Watch 2 Pro 校準。", Color.rgb(255, 170, 90)))
+            body.addView(card("哪些結果尚未支援？", "查看心電、體成分、血糖等功能目前能顯示的範圍。", Color.rgb(120, 130, 155)) {
+                showFeatureInfo("目前未提供的結果", "心電訊號目前沒有可確認的心律分類；體成分訊號尚無體脂或水分讀值；此手錶沒有血糖量測。血壓請使用外部袖帶血壓計。")
+            })
+            body.addView(card("原廠 ECG 啟用狀態", "手錶可開啟原廠頁面；實際量測仍由原廠啟用流程決定。", Color.rgb(255, 170, 90)) {
+                showFeatureInfo("原廠 ECG 啟用狀態", "若原廠頁面顯示 Activation Guidance，表示仍需依配對手機 Mi Fitness 提供的流程啟用。是否已開通，以原廠畫面為準；本 App 不會將另一機型的心律結果套用到這支手錶。")
+            })
             body.addView(text("資料診斷", 20f, Color.WHITE, true), margin(top = 18, bottom = 10))
             body.addView(card(
-                "為什麼有些項目是空白？（對齊 DATA_GAPS／SUPPORT_MATRIX）",
-                "心率：WHS／本 App 可寫入 HeartRateRecord；原生 Xiaomi 心率頁讀值不會自動進 HC。\n\nHRV：無公開逐拍 R-R；ECG／PPG 僅估研究用 RR，不由單一 BPM 偽算。\n\nECG／BIOZ／PPG：公開原始通道有波形與品質，但無導聯校準／阻抗公式／疾病診斷。\n\n血壓／血糖／PAI：無公開 API，不破解原廠 HAL。\n\n睡眠階段：只有總時長，無驗證 REM／深睡。\n\nSpO₂／體溫／氣壓／樓層／GPS：需前景量測或運動事件；MAX86178 採依序獨占；無事件顯示空白，不造 0。",
+                "為什麼有些項目是空白？",
+                "可能尚未同步、沒有授權，或手錶沒有提供可顯示的讀值。點此查看各項原因。",
                 Color.rgb(99, 178, 255)
-            ))
+            ) {
+                showFeatureInfo("空白項目的原因", "心率與血氧需有有效紀錄和同步；HRV 需要可用的心跳間隔資料。心電與體成分雖可收到訊號，目前仍缺少可顯示的心律或體成分讀值。睡眠階段、血糖等項目可能未由此手錶提供。")
+            })
             body.addView(text("分析工具", 20f, Color.WHITE, true), margin(top = 18, bottom = 10))
             body.addView(Button(this@HealthCenterActivity).apply {
                 text = "重新檢查同步與權限"; isAllCaps = false; textSize = 15f; setTextColor(Color.WHITE); background = HealthVisuals.interactive(context, 20)
