@@ -148,7 +148,11 @@ class WearMeasurementPolicyTest {
         val message = "全感測器盤點完成：24/34 階段收到樣本（不代表品質或校準通過）；感測器目錄 26/36 通道有原始事件。佩戴合格。 光學候選通道（晶片／設定未核實）：raw details"
         assertEquals("部分完成", WearMeasurementPolicy.sensorSuiteStatusHeadline("partial"))
         assertEquals("掃描完成", WearMeasurementPolicy.sensorSuiteStatusHeadline("completed"))
-        assertEquals("24/34 階段有樣本 · 26/36 通道有原始事件", WearMeasurementPolicy.compactSensorSuiteStatus(message))
+        assertEquals("掃描完成，部分項目有資料；到手機查看各項結果", WearMeasurementPolicy.compactSensorSuiteStatus(message))
+        assertEquals(
+            "這次沒有取得量測資料，請確認佩戴後重測",
+            WearMeasurementPolicy.compactSensorSuiteStatus(message.replace("26/36", "0/36"))
+        )
         assertTrue(WearMeasurementPolicy.compactSensorSuiteStatus("掃描啟動失敗：權限不足").length <= 96)
         assertTrue(WearMeasurementPolicy.hasRecentSensorSuiteStatus(100L, 200L, 100L))
         assertFalse(WearMeasurementPolicy.hasRecentSensorSuiteStatus(0L, 200L, 100L))

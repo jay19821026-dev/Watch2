@@ -124,7 +124,11 @@ internal object WearMeasurementPolicy {
         val stageCount = Regex("(\\d+/\\d+) 階段收到樣本").find(message)?.groupValues?.get(1)
         val channelCount = Regex("感測器目錄 (\\d+/\\d+) 通道有原始事件").find(message)?.groupValues?.get(1)
         return if (stageCount != null && channelCount != null) {
-            "$stageCount 階段有樣本 · $channelCount 通道有原始事件"
+            if (channelCount.substringBefore('/').toIntOrNull() == 0) {
+                "這次沒有取得量測資料，請確認佩戴後重測"
+            } else {
+                "掃描完成，部分項目有資料；到手機查看各項結果"
+            }
         } else {
             message.substringBefore(" 光學候選通道").substringBefore(" 呼吸率未獨立量測").take(96)
         }
