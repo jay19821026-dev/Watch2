@@ -86,11 +86,11 @@ https://github.com/jay19821026-dev/Watch2
 
 ### zh-TW
 
-`4.0.0 測試版：新增血氧 Health Connect 紀錄的量測方式篩選，並在手錶提供由使用者點擊的原廠功能入口。保留健康資料來源、同步狀態與研究限制；原廠 ECG 是否啟用仍由 Mi Fitness 與手錶服務決定。`
+`4.0.0 測試版：Health Connect 來源核對擴充至十類資料，並區分心率紀錄與樣本數。來源套件、時間及授權狀態清楚標示；手錶首頁文字配置已修正。原廠 ECG 是否啟用仍由 Mi Fitness 與手錶服務決定。`
 
 ### en-US
 
-`4.0.0 test release: Adds Health Connect SpO₂ recording-method filters and user-tapped OEM feature links on the watch. Health-data provenance, sync status, and research limits remain visible. Mi Fitness and the OEM watch service determine whether ECG is activated.`
+`4.0.0 test release: Expands the Health Connect source audit to ten record types and distinguishes heart-rate records from samples. Source packages, time and permission states are labeled; the watch home layout is corrected. Mi Fitness and the OEM watch service determine whether ECG is activated.`
 
 ## Console selections / 管理中心選項
 

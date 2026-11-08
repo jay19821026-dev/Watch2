@@ -28,7 +28,7 @@ class PermissionsRationaleActivity : ComponentActivity() {
             addView(text("HEALTH CONNECT · 隱私與權限", 11f, HealthVisuals.secondary))
             addView(text(
                 "本 App 只在你的 Xiaomi Watch 2 Pro、手機與 Health Connect 之間處理健康資料。\n\n" +
-                    "讀取權限用於顯示最近七天的同步結果；寫入權限用於保存手錶量測及你主動輸入的可信外部量測。\n\n" +
+                    "讀取權限用於顯示最近七天的同步結果與資料來源；運動速度只在你開啟來源核對頁且授權後讀取。寫入權限用於保存手錶量測及你主動輸入的可信外部量測。\n\n" +
                     "資料不會上傳到本 App 自有伺服器、不會出售或用於廣告。你可以隨時在 Health Connect 撤銷權限。\n\n" +
                     "本 App 不破解 Mi Fitness、不推算血壓、ECG、睡眠階段或其他缺少來源的資料。",
                 15f,

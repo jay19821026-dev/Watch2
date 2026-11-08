@@ -12,10 +12,14 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.lifecycle.lifecycleScope
@@ -49,7 +53,7 @@ class HealthConnectOriginAuditActivity : ComponentActivity() {
             setTextColor(Color.WHITE)
         })
         column.addView(TextView(this).apply {
-            text = "只讀取近七天已授權紀錄的數量、來源 App 與最新時間；心率另列樣本數及最新樣本時間。不顯示健康數值，也不送到伺服器。來源 App 不等於感測器型號或臨床校準證明。"
+            text = "只讀取近七天已授權紀錄的數量、來源套件與最新時間；序列資料另列樣本數及最新樣本時間。不顯示健康數值，也不送到伺服器。來源套件不等於手錶型號或臨床校準證明。"
             textSize = 14f
             setTextColor(Color.LTGRAY)
             setPadding(0, dp(12), 0, dp(16))
@@ -115,7 +119,7 @@ class HealthConnectOriginAuditActivity : ComponentActivity() {
                     }
                     val totalSamples = sampleCount?.let { count -> records.sumOf { count(it).toLong() } }
                     val sampleSummary = totalSamples?.let { "；內含 $it 個樣本" }.orEmpty()
-                    lines += "$label：${records.size} 筆紀錄$sampleSummary；來源 App ${records.map { it.metadata.dataOrigin.packageName }.distinct().size} 個。"
+                    lines += "$label：${records.size} 筆紀錄$sampleSummary；來源套件 ${records.map { it.metadata.dataOrigin.packageName }.distinct().size} 個。"
                     records.groupBy { it.metadata.dataOrigin.packageName }.toSortedMap().forEach { (origin, items) ->
                         val latest = items.mapNotNull(time).maxOrNull()
                         val latestSummary = if (latest == null) "無樣本時間" else dateFormat.format(latest)
@@ -144,8 +148,22 @@ class HealthConnectOriginAuditActivity : ComponentActivity() {
             inspect("睡眠", SleepSessionRecord::class, time = { it.endTime })
             inspect("距離", DistanceRecord::class, time = { it.endTime })
             inspect("活動熱量", ActiveCaloriesBurnedRecord::class, time = { it.endTime })
+            inspect("運動時段", ExerciseSessionRecord::class, time = { it.endTime })
+            inspect("爬升", ElevationGainedRecord::class, time = { it.endTime })
+            inspect(
+                "速度",
+                SpeedRecord::class,
+                time = { record -> record.samples.asSequence().map { it.time }.filter { !it.isBefore(start) && !it.isAfter(end) }.maxOrNull() },
+                sampleCount = { record -> record.samples.count { !it.time.isBefore(start) && !it.time.isAfter(end) } },
+            )
+            inspect(
+                "步頻",
+                StepsCadenceRecord::class,
+                time = { record -> record.samples.asSequence().map { it.time }.filter { !it.isBefore(start) && !it.isAfter(end) }.maxOrNull() },
+                sampleCount = { record -> record.samples.count { !it.time.isBefore(start) && !it.time.isAfter(end) } },
+            )
             lines += ""
-            lines += "Mi Fitness 3.53.0i 的反組譯顯示多個心率樣本可能合併為一筆 Health Connect 紀錄；紀錄筆數不等於量測次數。只有上方實際來源列能證實本手機有可讀紀錄。"
+            lines += "Mi Fitness 3.53.0i 的反組譯顯示多個心率樣本可能合併為一筆 Health Connect 紀錄；紀錄筆數不等於量測次數。步數來源也可能是 Android 裝置的合成套件名稱；來源套件不能單獨證明 Watch 2 Pro 量測。"
             result.text = lines.joinToString("\n")
         }
     }

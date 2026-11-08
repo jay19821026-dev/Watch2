@@ -1,13 +1,15 @@
 # Play Store release status / Play 商店發行狀態
 
 Last verified / 最後驗證：2026-11-08
-Last built bundle / 上次已建置 AAB：4.0.0 test 20 source，新套件手機 `versionCode 179`、手錶 `180`；候選 upload key 簽章，尚未上傳 Play。
-Current source / 目前原始碼：4.0.0 test 20，新公開名稱 `AILISA Health Bridge`、雙端 Debug `versionCode 178`、新套件 `net.ailisa.healthbridge`。手機及手錶 Debug 單元測試、建置和覆蓋安裝已通過；正式候選 AAB 已建置、bundletool 驗證及簽章檢查，**尚未上傳 Play**。手錶首頁修正文字重疊，已取得 466 × 466 實機截圖。舊手機資料橋接已完成一次實機匯入；手錶本機資料尚未搬遷。
+Last built bundle / 上次已建置 AAB：4.0.0 test 21 source，新套件手機 `versionCode 182`、手錶 `183`；候選 upload key 簽章，尚未上傳 Play。
+Current source / 目前原始碼：4.0.0 test 21，新公開名稱 `AILISA Health Bridge`、雙端 Debug `versionCode 181`、新套件 `net.ailisa.healthbridge`。手機及手錶 Debug 單元測試、建置和覆蓋安裝已通過；正式候選 AAB 已建置、bundletool 驗證及簽章檢查，**尚未上傳 Play**。手錶首頁修正文字重疊，已取得 466 × 466 實機截圖；手機來源核對頁新增心率樣本數、運動、爬升、速度與步頻。舊手機資料橋接已完成一次實機匯入；手錶本機資料尚未搬遷。
 Package / 套件：`net.ailisa.healthbridge`
 
-The test 17 signed AABs have the old package ID and are superseded. The new-package test 18 AABs are also superseded by test 20 candidates. Final codes, upload-certificate enrollment and Play Console health declarations still require Console inspection. / test 17 為舊套件、test 18 為舊候選，均已由 test 20 本機候選取代；尚未上傳或通過 Play 審核。
+The test 17 signed AABs have the old package ID and are superseded. The new-package test 18 and test 20 AABs are superseded by test 21 candidates. Final codes, upload-certificate enrollment and Play Console health declarations still require Console inspection. / test 17 為舊套件、test 18 與 test 20 為舊候選，均已由 test 21 本機候選取代；尚未上傳或通過 Play 審核。
 
 ## Verified / 已驗證
+
+- The current test 21 signed AABs use `net.ailisa.healthbridge`, mobile/Wear codes `182`/`183`. Both `bundleRelease` and `lintVitalRelease` passed; bundletool 1.17.2 validated both bundles and decoded their packed manifests. Only the phone declares `android.permission.health.READ_SPEED`; only Wear declares `android.hardware.type.watch`; neither declares `REQUEST_INSTALL_PACKAGES`. `jarsigner -verify` passed. Local SHA-256: phone `BC14EF6745B0269EA9FF831637BE0545CF89712EB4853E4D5058EBD09E778118`, Wear `3B2B4F00DF05E07576C49B689F2A362671F1F4391FAE6978BD8099E1B4D11BEF`. Ignored copies are in `dist/play-candidates/test21/`. Play Console has not accepted or enrolled them. New phone speed-read permission requires a matching Health Connect/Play declaration before submission.
 
 - The current test 20 signed AABs use `net.ailisa.healthbridge`, mobile/Wear codes `179`/`180`, and the same candidate upload certificate SHA-256 `CA:BC:F3:70:D8:4A:2E:4D:BF:72:CE:B9:AF:2D:71:20:12:F4:04:05:89:86:34:95:3E:01:B7:FA:2C:FD:EE:A8`. Both `bundleRelease` and `lintVitalRelease` tasks passed; bundletool 1.17.2 validated both packed bundles and decoded the package/version from each manifest. Only Wear declares `android.hardware.type.watch`; neither declares `REQUEST_INSTALL_PACKAGES`. `jarsigner -verify` passed. Local SHA-256: mobile `77D5143047440373351AFD78E9202B07CA61745345FF40C0A4492B6301FCAA1E`, Wear `4EC79C0E2526FFA585878F53BE582FAE6E1C0F63611A8F18037CF9E9B7C24101`. Ignored copies and checksums are in `dist/play-candidates/test20/`. Play Console has not accepted or enrolled them.
 
