@@ -82,7 +82,7 @@ class WearEcgActivity : ComponentActivity() {
                 setTextColor(Color.WHITE); setPadding(0, dp(2), 0, dp(2))
             })
             addView(TextView(context).apply {
-                text = "研究解碼波形 · 相對振幅，非 mV"
+                text = "量測後查看訊號與結果"
                 textSize = 10f; gravity = Gravity.CENTER
                 setTextColor(Color.rgb(140, 150, 170)); setPadding(0, 0, 0, dp(8))
             })
@@ -110,7 +110,7 @@ class WearEcgActivity : ComponentActivity() {
                 background = ecgButtonBackground("#2A3857", "#182238")
                 setOnClickListener {
                     if (active || continuationPending) {
-                        detail.text = "請先結束本 App 的原始資料擷取，再查看原廠頁面。"
+                        detail.text = "請先結束這次量測，再查看原廠頁面。"
                     } else {
                         detail.text = OemChipEnabler.enable(this@WearEcgActivity, RawVitalsProbe.Kind.ECG)
                             ?: "此裝置沒有可開啟的原廠 ECG 頁面"
@@ -122,7 +122,7 @@ class WearEcgActivity : ComponentActivity() {
                 textSize = 10f; setTextColor(Color.rgb(165, 177, 196)); gravity = Gravity.CENTER
             }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
             addView(Button(context).apply {
-                text = "結束並保存原始資料"; isAllCaps = false; textSize = 13f; setTextColor(Color.WHITE)
+                text = "結束量測"; isAllCaps = false; textSize = 13f; setTextColor(Color.WHITE)
                 background = ecgButtonBackground("#6B3A3A", "#3A1E1E")
                 isEnabled = false
                 setOnClickListener {
@@ -202,7 +202,7 @@ class WearEcgActivity : ComponentActivity() {
             val failedSnapshot = session.stop()
             EcgMeasurementLease.release(session)
             headline.text = "無法啟動 ECG 通道"
-            detail.text = "註冊：${failedSnapshot.registrationResult}\n原因：${failedSnapshot.acquisitionStopReason}\n請確認感測器權限後重試。"
+            detail.text = "請確認感測器權限與佩戴狀態，然後重試。"
             rhythmStatus.text = "心律：無法啟動"
             runCatching { publishFinal(failedSnapshot) }.onFailure {
                 detail.append("\n失敗紀錄未能送出；請重新量測。")
@@ -219,7 +219,7 @@ class WearEcgActivity : ComponentActivity() {
         lastSampleAtMs = System.currentTimeMillis()
         startButton.isEnabled = false
         stopButton.isEnabled = true
-        stopButton.text = "結束並保存原始資料"
+        stopButton.text = "結束量測"
         if (::doneButton.isInitialized) doneButton.visibility = android.view.View.GONE
         headline.text = "持續收集中 · 第 ${completedSegments + 1} 區段"
         detail.text = "雙指穩定接觸錶冠與側鍵，手臂平放並保持不動。"
@@ -274,7 +274,7 @@ class WearEcgActivity : ComponentActivity() {
         startButton.text = "重新量測"
         if (continueAutomatically) {
             headline.text = "持續收集中 · 已保存第 ${completedSegments} 區段"
-            detail.append("\n將自動開始下一區段（最多 ${EcgCapturePolicy.MAX_AUTO_SEGMENTS} 區段）；按「結束並保存」可隨時停止。")
+            detail.append("\n即將繼續量測；可隨時按「結束量測」。")
             continuationPending = true
             startButton.isEnabled = false
             stopButton.isEnabled = true
