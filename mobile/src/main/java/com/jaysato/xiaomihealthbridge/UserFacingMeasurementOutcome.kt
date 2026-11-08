@@ -42,22 +42,22 @@ internal object UserFacingMeasurementOutcome {
             )
             SensorDisplayState.SIGNAL_VALID_RESEARCH -> Outcome(
                 Kind.RAW_CAPTURED,
-                "研究資料",
-                "訊號品質已通過工程檢查，但不是已驗證的生理結果",
-                "可查看研究趨勢；不要當作疾病診斷"
+                "已收到訊號",
+                "這次尚無可顯示的健康讀值",
+                retryAction(metricKind)
             )
             SensorDisplayState.DERIVED_ESTIMATE -> Outcome(
                 Kind.RAW_CAPTURED,
-                "推估資料",
-                "這是由其他資料推估的結果，不是此感測器實測值",
-                "可查看來源與方法；不要當作實測或診斷"
+                "估算結果",
+                "這是根據其他紀錄估算的結果",
+                "可查看計算來源與近期變化"
             )
             SensorDisplayState.RAW_ONLY,
             SensorDisplayState.CALIBRATION_MISSING -> Outcome(
                 Kind.RAW_CAPTURED,
-                "已取得原始資料",
+                "這次沒有可顯示的讀值",
                 rawOnlyConclusion(metricKind),
-                "原始資料已保存；可重測或查看技術細節"
+                retryAction(metricKind)
             )
             SensorDisplayState.QUALITY_REJECTED -> Outcome(
                 Kind.QUALITY_INSUFFICIENT,
@@ -98,12 +98,12 @@ internal object UserFacingMeasurementOutcome {
     }
 
     private fun rawOnlyConclusion(metricKind: String): String = when (metricKind) {
-        "ecg" -> "已保存 ECG 原始資料，但目前不能判定心律"
-        "ppg", "max_hr", "lifeq_ott" -> "已保存光學原始資料，但目前不能換算脈率"
-        "spo2_raw", "mi_spo2" -> "已保存血氧原始資料，但目前不能換算百分比"
-        "bioz", "bioz_respiration" -> "已保存 BioZ 原始資料，但目前不能換算身體組成"
-        "body_temperature_raw", "thermometer" -> "已保存溫度通道原始資料，但目前不能當作體溫"
-        else -> "已保存原始資料，但目前不能換算生理結果"
+        "ecg" -> "這次沒有可解讀的心律結果"
+        "ppg", "max_hr", "lifeq_ott" -> "這次沒有可顯示的脈搏或心率"
+        "spo2_raw", "mi_spo2" -> "這次沒有可顯示的血氧百分比"
+        "bioz", "bioz_respiration" -> "這次沒有可顯示的體成分結果"
+        "body_temperature_raw", "thermometer" -> "這次沒有可顯示的體溫讀值"
+        else -> "這次沒有可顯示的量測結果"
     }
 
     private fun retryAction(metricKind: String): String = when (metricKind) {

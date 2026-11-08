@@ -14,8 +14,8 @@ class UserFacingMeasurementOutcomeTest {
         )
 
         assertEquals(UserFacingMeasurementOutcome.Kind.RAW_CAPTURED, result.kind)
-        assertEquals("已取得原始資料", result.label)
-        assertEquals("已保存 ECG 原始資料，但目前不能判定心律", result.conclusion)
+        assertEquals("這次沒有可顯示的讀值", result.label)
+        assertEquals("這次沒有可解讀的心律結果", result.conclusion)
         assertFalse(result.conclusion.contains("正常"))
         assertFalse(result.conclusion.contains("異常"))
     }
@@ -60,8 +60,8 @@ class UserFacingMeasurementOutcomeTest {
 
         assertEquals(UserFacingMeasurementOutcome.Kind.RAW_CAPTURED, research.kind)
         assertEquals(UserFacingMeasurementOutcome.Kind.RAW_CAPTURED, derived.kind)
-        assertEquals("訊號品質已通過工程檢查，但不是已驗證的生理結果", research.conclusion)
-        assertEquals("這是由其他資料推估的結果，不是此感測器實測值", derived.conclusion)
+        assertEquals("這次尚無可顯示的健康讀值", research.conclusion)
+        assertEquals("這是根據其他紀錄估算的結果", derived.conclusion)
     }
 
     @Test
