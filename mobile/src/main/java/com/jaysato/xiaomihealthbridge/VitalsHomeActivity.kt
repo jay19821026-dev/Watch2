@@ -248,8 +248,8 @@ class VitalsHomeActivity : ComponentActivity() {
             ?: raw.getInt("ppg_formula_stress_score", -1).takeIf { it >= 0 && ppgFresh }
         root.addView(tile(
             "研究壓力",
-            stress?.toString() ?: ppgAvailability?.label ?: "待量測",
-            if (stress == null) ppgAvailability?.detail ?: "需佩戴且取得足夠的有效光學 RR 間隔" else "本專案 HRV 啟發式；非小米原廠壓力分數",
+            stress?.let { "$it/100 · 壓力參考" } ?: ppgAvailability?.label ?: "待量測",
+            if (stress == null) ppgAvailability?.detail ?: "戴好手錶，靜止時再量測" else "分數越高，推估負擔越高；可與自己平時比較",
             Color.rgb(255, 149, 0), measurementPath = "/control/ppg-now"
         ) {
             startActivity(Intent(this, MeasureResultActivity::class.java).putExtra("kind", "hrv_research"))
