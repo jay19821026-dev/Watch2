@@ -718,33 +718,47 @@ class MetricDetailActivity : ComponentActivity() {
                 )
             }
         }
-        val clinicalCard = card("臨床公開資料比對")
-        clinicalCard.addView(text(
-            if (clinical.trusted && clinical.score != null) "參考 · ${clinical.grade}（${clinical.score}/100）" else "不提供分數（資料有效性或參考模型不足）",
-            16,
-            if (clinical.trusted) accent else muted,
-            true
-        ))
-        clinicalCard.addView(text(clinical.headline, 14, Color.rgb(220, 225, 235)).apply { setPadding(0, dp(8), 0, 0) })
+        val clinicalCard = card("這段紀錄怎麼看")
+        val plainResult = when (metric) {
+            "oxygen" -> if (clinicalValue in 70.0..100.0 &&
+                OxygenRecordingMethodPolicy.eligibleForDeviceReference(selected.map { it.recordingMethod }))
+                "血氧 ${number(clinicalValue)}% · ${if (clinicalValue < 95.0) "低於常見範圍" else "在常見範圍內"}"
+                else "這段紀錄的血氧量測方式未確認"
+            "heart_rate", "resting_heart_rate" ->
+                "心率 ${number(clinicalValue)} bpm · ${ConsumerVitalsSummary.heartRateLabel(clinicalValue)}${if (metric == "heart_rate") "（未確認靜息）" else ""}"
+            "sleep" -> sleepDailyMean?.let { "有紀錄日平均 ${number(it)} 小時睡眠" }
+                ?: "尚無可比較的睡眠時長"
+            "steps" -> stepsDailyMean?.let { "有紀錄日平均 ${number(it)} 步" }
+                ?: "尚無可比較的每日步數"
+            "temperature" -> "已記錄腕部溫度；不與核心體溫比較"
+            else -> "已記錄資料；可查看近期變化"
+        }
+        clinicalCard.addView(text(plainResult, 16, Color.WHITE, true))
+        val referenceDetails = column().apply { visibility = View.GONE }
+        clinicalCard.addView(button("查看參考依據", "展開參考依據") {
+            referenceDetails.visibility = if (referenceDetails.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        })
+        clinicalCard.addView(referenceDetails)
+        referenceDetails.addView(text(clinical.headline, 14, Color.rgb(220, 225, 235)).apply { setPadding(0, dp(8), 0, 0) })
         if (metric == "sleep" && period != 0) {
-            clinicalCard.addView(text(
+            referenceDetails.addView(text(
                 "依醒來日歸屬；${sleepDailyTotals.size} 個有紀錄日的日均 ${sleepDailyMean?.let { "${number(it)} 小時" } ?: "無法計算"}。",
                 12, muted
             ).apply { setPadding(0, dp(6), 0, 0) })
         }
         if (metric == "sleep" && !sleepStagesComplete) {
-            clinicalCard.addView(text("睡眠階段缺失、不連續、重疊、超出 session 範圍或含未知階段；圖表僅顯示 session 時段，不代表實際睡眠時數，也不計睡眠分數。", 12, muted))
+            referenceDetails.addView(text("睡眠階段缺失、不連續、重疊、超出 session 範圍或含未知階段；圖表僅顯示 session 時段，不代表實際睡眠時數，也不計睡眠分數。", 12, muted))
         }
         if (metric == "steps" && period != 0) {
-            clinicalCard.addView(text(
+            referenceDetails.addView(text(
                 "按日合計後取 ${stepsDailyTotals.size} 個有紀錄日的平均：${stepsDailyMean?.let { "${number(it)} 步／日" } ?: "無法計算"}。",
                 12, muted
             ).apply { setPadding(0, dp(6), 0, 0) })
         }
         clinical.comparisons.forEach { line ->
-            clinicalCard.addView(text("· $line", 13, muted).apply { setPadding(0, dp(4), 0, 0) })
+            referenceDetails.addView(text("· $line", 13, muted).apply { setPadding(0, dp(4), 0, 0) })
         }
-        clinicalCard.addView(text(ClinicalVerdict.DISCLAIMER, 12, Color.rgb(255, 200, 120)).apply { setPadding(0, dp(10), 0, 0) })
+        referenceDetails.addView(text(ClinicalVerdict.DISCLAIMER, 12, Color.rgb(255, 200, 120)).apply { setPadding(0, dp(10), 0, 0) })
         sourceButton.background = HealthVisuals.interactive(this)
         sourceButton.textSize = 13f
         body.addView(sourceButton, LinearLayout.LayoutParams(-1, dp(48)).apply { topMargin = dp(16) })
