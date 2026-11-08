@@ -28,8 +28,8 @@ internal object UserFacingMeasurementOutcome {
         if (hasSyncFailure) {
             return Outcome(
                 Kind.SYNC_FAILED,
-                "同步失敗",
-                "手錶資料尚未完整送到手機",
+                "尚未同步到手機",
+                "這次手錶資料尚未完整送到手機",
                 "請保持兩台裝置連線後重試同步"
             )
         }
@@ -69,7 +69,7 @@ internal object UserFacingMeasurementOutcome {
             SensorDisplayState.FUTURE_TIMESTAMP,
             SensorDisplayState.TIMESTAMP_UNKNOWN -> Outcome(
                 Kind.STALE,
-                "請重新量測",
+                if (state == SensorDisplayState.STALE) "這是較早的紀錄" else "時間無法確認",
                 if (state == SensorDisplayState.STALE) "最近一次量測已過期" else "這筆紀錄缺少可確認的量測時間",
                 "在手錶重新量測"
             )
@@ -101,7 +101,7 @@ internal object UserFacingMeasurementOutcome {
         "ecg" -> "已收到心電訊號"
         "ppg", "max_hr", "lifeq_ott" -> "已收到脈搏訊號"
         "spo2_raw", "mi_spo2" -> "已收到血氧訊號"
-        "bioz", "bioz_respiration" -> "已收到體成分訊號"
+        "bioz", "bioz_respiration" -> "已收到阻抗原始訊號"
         "body_temperature_raw", "thermometer" -> "已收到溫度訊號"
         else -> "已收到手錶訊號"
     }
@@ -110,7 +110,7 @@ internal object UserFacingMeasurementOutcome {
         "ecg" -> "尚無可解讀的心律結果"
         "ppg", "max_hr", "lifeq_ott" -> "尚無可用的脈率或心率讀值"
         "spo2_raw", "mi_spo2" -> "尚無可用的血氧百分比"
-        "bioz", "bioz_respiration" -> "尚無可用的體成分讀值"
+        "bioz", "bioz_respiration" -> "尚無可用的阻抗量測結果"
         "body_temperature_raw", "thermometer" -> "尚無可用的體溫讀值"
         else -> "尚無可用的健康讀值"
     }

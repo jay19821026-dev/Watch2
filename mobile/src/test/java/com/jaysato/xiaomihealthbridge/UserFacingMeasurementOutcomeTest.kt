@@ -24,7 +24,7 @@ class UserFacingMeasurementOutcomeTest {
     fun capturedSensorKindsExplainWhatWasReceivedWithoutClaimingAReading() {
         val expected = mapOf(
             "spo2_raw" to ("已收到血氧訊號" to "尚無可用的血氧百分比"),
-            "bioz" to ("已收到體成分訊號" to "尚無可用的體成分讀值"),
+            "bioz" to ("已收到阻抗原始訊號" to "尚無可用的阻抗量測結果"),
             "body_temperature_raw" to ("已收到溫度訊號" to "尚無可用的體溫讀值")
         )
         expected.forEach { (metric, labels) ->
@@ -46,7 +46,7 @@ class UserFacingMeasurementOutcomeTest {
         )
 
         assertEquals(UserFacingMeasurementOutcome.Kind.SYNC_FAILED, result.kind)
-        assertEquals("同步失敗", result.label)
+        assertEquals("尚未同步到手機", result.label)
     }
 
     @Test
@@ -124,9 +124,14 @@ class UserFacingMeasurementOutcomeTest {
             SensorDisplayState.TIMESTAMP_UNKNOWN,
             SensorDisplayState.FUTURE_TIMESTAMP
         ).forEach { state ->
+            val outcome = UserFacingMeasurementOutcome.from(state, "ppg", "has_data")
             assertEquals(
                 UserFacingMeasurementOutcome.Kind.STALE,
-                UserFacingMeasurementOutcome.from(state, "ppg", "has_data").kind
+                outcome.kind
+            )
+            assertEquals(
+                if (state == SensorDisplayState.STALE) "這是較早的紀錄" else "時間無法確認",
+                outcome.label
             )
         }
     }

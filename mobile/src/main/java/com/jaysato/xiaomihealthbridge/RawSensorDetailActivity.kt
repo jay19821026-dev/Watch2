@@ -800,7 +800,8 @@ class RawSensorDetailActivity : ComponentActivity() {
                 if (receiptAt > 0L) {
                     val receiptLabel = when {
                         RawSensorDatedCapturePolicy.showPreviousCapture(currentEventCount, priorReceipt) ->
-                            "上次原始資料接收時間"
+                            if (prefs.getString("${kind}_last_capture_receipt_source", "") == "legacy_watch_publish_time")
+                                "上次原始資料發送時間（舊版紀錄）" else "上次原始資料接收時間"
                         priorReceipt <= 0L -> "手錶發送時間（舊版紀錄）"
                         prefs.getString("${kind}_last_capture_receipt_source", "") == "phone_receive_wall_clock" ->
                             "手機收到原始資料時間"

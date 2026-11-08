@@ -48,4 +48,14 @@ class RawSensorDatedCapturePolicyTest {
         assertEquals(phone to "phone_receive_wall_clock",
             RawSensorDatedCapturePolicy.callbackReceiptTime(2, phone - 8L * 24 * 60 * 60 * 1000, phone))
     }
+
+    @Test fun oldCaptureIsSavedBeforeAnEmptyNewSession() {
+        val capture = RawSensorDatedCapturePolicy.legacyCapture(0, 0L, 216, 42_000L, "123,456", "raw")
+        assertEquals(RawSensorDatedCapturePolicy.LegacyCapture(42_000L, 216, "123,456", "raw"), capture)
+        assertNull(RawSensorDatedCapturePolicy.legacyCapture(1, 0L, 216, 42_000L, "123", "raw"))
+        assertNull(RawSensorDatedCapturePolicy.legacyCapture(0, 41_000L, 216, 42_000L, "123", "raw"))
+        assertNull(RawSensorDatedCapturePolicy.legacyCapture(0, 0L, 0, 42_000L, "123", "raw"))
+        assertEquals(256, RawSensorDatedCapturePolicy.legacyCapture(0, 0L, 2, 42_000L,
+            "1".repeat(4096), "s".repeat(4096))!!.preview!!.length)
+    }
 }

@@ -26,6 +26,26 @@ internal object RawSensorDatedCapturePolicy {
     fun showPreviousCapture(currentEventCount: Int, savedReceiptAt: Long): Boolean =
         currentEventCount <= 0 && savedReceiptAt > 0L
 
+    data class LegacyCapture(val publishedAt: Long, val eventCount: Int, val preview: String?, val summary: String)
+
+    fun legacyCapture(
+        incomingEventCount: Int,
+        savedReceiptAt: Long,
+        previousEventCount: Int,
+        previousPublishedAt: Long,
+        previousLatest: String?,
+        previousSummary: String?
+    ): LegacyCapture? {
+        if (incomingEventCount > 0 || savedReceiptAt > 0L || previousEventCount <= 0 || previousPublishedAt <= 0L)
+            return null
+        return LegacyCapture(
+            previousPublishedAt,
+            previousEventCount,
+            previousLatest?.takeIf(String::isNotBlank)?.take(MAX_RAW_PREVIEW_CHARS),
+            previousSummary.orEmpty().take(MAX_SUMMARY_CHARS)
+        )
+    }
+
     private const val MAX_WATCH_RECEIPT_AGE_MS = 7L * 24 * 60 * 60 * 1000
     private const val MAX_CLOCK_SKEW_MS = 5L * 60 * 1000
 }

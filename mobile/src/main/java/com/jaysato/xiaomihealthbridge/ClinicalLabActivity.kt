@@ -1057,7 +1057,8 @@ class ClinicalLabActivity : ComponentActivity() {
             verdictBody.text = "${outcome.conclusion}\n\n${outcome.nextAction}"
             meta.text = "點擊查看量測詳情"
             verdictBody.setOnClickListener {
-                startActivity(Intent(this@ClinicalLabActivity, RawSensorDetailActivity::class.java).putExtra("kind", kindKey()))
+                val detailKind = if (modality.id == "temperature") temperatureOutcomeKind(prefs) else kindKey()
+                startActivity(Intent(this@ClinicalLabActivity, RawSensorDetailActivity::class.java).putExtra("kind", detailKind))
             }
         }
 
@@ -1072,19 +1073,46 @@ class ClinicalLabActivity : ComponentActivity() {
                     sourceStatus = if (received > 0) "has_data" else "not_measured"
                 )
             }
-            val kind = kindKey()
+            val kind = if (modality.id == "temperature") temperatureOutcomeKind(prefs) else kindKey()
             val status = prefs.getString("${kind}_status", "not_measured").orEmpty()
+            val receivedCount = receivedDataCount(prefs, kind)
+            val now = System.currentTimeMillis()
+            val syncDiagnostics = getSharedPreferences(HeartRateDataListenerService.PREFS, MODE_PRIVATE)
+            val recentSyncFailure = receivedCount <= 0 && SensorSyncFailurePolicy.isRecentForKind(
+                requestedKind = kind,
+                lastRejectedKind = syncDiagnostics.getString(
+                    WearDataProcessor.KEY_RAW_SNAPSHOT_LAST_REJECTED_KIND,
+                    null
+                ),
+                lastRejectionTime = syncDiagnostics.getLong(
+                    WearDataProcessor.KEY_RAW_SNAPSHOT_LAST_REJECTION_TIME,
+                    0L
+                ),
+                now = now
+            )
             val state = SensorDisplayState.from(
-                samples = receivedDataCount(prefs, kind),
+                samples = receivedCount,
                 status = status,
                 measuredAt = prefs.getLong("${kind}_time", 0L),
-                now = System.currentTimeMillis(),
+                now = now,
                 freshnessMs = SensorDisplayState.APP_DISPLAY_FRESHNESS_MILLIS,
                 kind = kind,
                 timestampSource = prefs.getString("${kind}_timestamp_source", null)
             )
-            return UserFacingMeasurementOutcome.from(state, kind, status)
+            return UserFacingMeasurementOutcome.from(state, kind, status, recentSyncFailure)
         }
+
+        private fun temperatureOutcomeKind(prefs: android.content.SharedPreferences): String =
+            listOf("body_temperature_raw", "thermometer")
+                .filter { receivedDataCount(prefs, it) > 0 }
+                .maxWithOrNull(
+                    compareBy<String> {
+                        HealthAnalysisFreshnessPolicy.hasTrustedSensorTimestamp(
+                            prefs.getString("${it}_timestamp_source", null)
+                        )
+                    }.thenBy { prefs.getLong("${it}_time", 0L) }
+                        .thenBy { receivedDataCount(prefs, it) }
+                ) ?: "body_temperature_raw"
 
         private fun wave(kind: String): List<Float> {
             val prefs = RawSensorStore.open(this@ClinicalLabActivity)

@@ -135,6 +135,8 @@ class VitalsHomeActivity : ComponentActivity() {
         val ecg = report.items.firstOrNull { it.id == "ecg" && it.available }
         val ecgRawEvidence = raw.getInt("ecg_raw_value_count", 0) > 0 ||
             raw.getInt("ecg_event_count", 0) > 0 || raw.getInt("ecg_research_decoded_value_count", 0) > 0
+        val ecgRawHistory = !ecgRawEvidence && raw.getInt("ecg_last_capture_event_count", 0) > 0 &&
+            raw.getLong("ecg_last_capture_receipt_at_ms", 0L) > 0L
         val ecgStatusText = raw.getString("ecg_status", "").orEmpty()
         val lastRejectedKind = syncDiagnostics.getString(WearDataProcessor.KEY_RAW_SNAPSHOT_LAST_REJECTED_KIND, null)
         val lastRejectionTime = syncDiagnostics.getLong(WearDataProcessor.KEY_RAW_SNAPSHOT_LAST_REJECTION_TIME, 0L)
@@ -148,6 +150,8 @@ class VitalsHomeActivity : ComponentActivity() {
                 )
         )
         val ppgRawEvidence = raw.getInt("ppg_raw_value_count", 0) > 0 || raw.getInt("ppg_event_count", 0) > 0
+        val ppgRawHistory = !ppgRawEvidence && raw.getInt("ppg_last_capture_event_count", 0) > 0 &&
+            raw.getLong("ppg_last_capture_receipt_at_ms", 0L) > 0L
         val ppgStatusText = raw.getString("ppg_status", "").orEmpty()
         val ppgAvailability = SensorResultAvailability.classify(
             hasRawEvidence = ppgRawEvidence,
@@ -228,21 +232,35 @@ class VitalsHomeActivity : ComponentActivity() {
                 SensorResultAvailability.RAW_CAPTURED -> "已收到心電訊號"
                 SensorResultAvailability.QUALITY_INSUFFICIENT -> "訊號不穩，請重測"
                 SensorResultAvailability.SYNC_FAILED -> "同步未完成"
-                null -> "待量測"
+                null -> if (ecgRawHistory) "上次有心電原始資料" else "待量測"
             },
-            EcgHomeCardPresentationPolicy.supportingText(ecg?.valueText, ecgAvailability),
+            if (ecgRawHistory && ecgAvailability == null) "這次未收到訊號；可查看上次原始資料" else
+                EcgHomeCardPresentationPolicy.supportingText(ecg?.valueText, ecgAvailability),
             Color.rgb(52, 199, 89), measurementPath = "/control/ecg-now"
         ) {
-            startActivity(Intent(this, IrregularRhythmActivity::class.java))
+            if ((ecgRawHistory && ecgAvailability == null) || ecgAvailability == SensorResultAvailability.RAW_CAPTURED ||
+                ecgAvailability == SensorResultAvailability.QUALITY_INSUFFICIENT) {
+                startActivity(Intent(this, RawSensorDetailActivity::class.java).putExtra("kind", "ecg"))
+            } else {
+                startActivity(Intent(this, IrregularRhythmActivity::class.java))
+            }
         })
         val hrvKind = hrvSource.takeIf { it.isNotBlank() && it != "ecg" } ?: "ppg"
         root.addView(tile(
             "HRV",
-            rmssd?.let { "%.0f ms".format(it) } ?: ppgAvailability?.label ?: "待量測",
-            if (rmssd == null) ppgAvailability?.detail ?: "請在手錶開始量測" else "心率變異參考值",
+            rmssd?.let { "%.0f ms".format(it) } ?: ppgAvailability?.label ?:
+                if (ppgRawHistory) "上次有脈搏原始資料" else "待量測",
+            if (rmssd == null) ppgAvailability?.detail ?:
+                if (ppgRawHistory) "這次未收到訊號；可查看上次原始資料" else "請在手錶開始量測" else "心率變異參考值",
             Color.rgb(175, 82, 222), measurementPath = "/control/ppg-now"
         ) {
-            startActivity(Intent(this, MeasureResultActivity::class.java).putExtra("kind", "hrv_research"))
+            if (rmssd == null && ((ppgRawHistory && ppgAvailability == null) ||
+                ppgAvailability == SensorResultAvailability.RAW_CAPTURED ||
+                ppgAvailability == SensorResultAvailability.QUALITY_INSUFFICIENT)) {
+                startActivity(Intent(this, RawSensorDetailActivity::class.java).putExtra("kind", "ppg"))
+            } else {
+                startActivity(Intent(this, MeasureResultActivity::class.java).putExtra("kind", "hrv_research"))
+            }
         })
         val stress = raw.getInt("hrv_research_formula_stress_score", -1).takeIf { it >= 0 && researchFresh }
             ?: raw.getInt("ppg_formula_stress_score", -1).takeIf { it >= 0 && ppgFresh }
@@ -255,13 +273,32 @@ class VitalsHomeActivity : ComponentActivity() {
             startActivity(Intent(this, MeasureResultActivity::class.java).putExtra("kind", "hrv_research"))
         })
         val temperatureDisplay = TemperatureHomeSummaryPolicy.resolve(deviceTemperature, tempItem)
+        val temperatureRawKinds = listOf("body_temperature_raw", "thermometer")
+        val temperatureCurrentKind = temperatureRawKinds
+            .filter { raw.getInt("${it}_event_count", 0) > 0 }
+            .maxByOrNull { raw.getLong("${it}_published_at", 0L) }
+        val temperatureHistoryKind = temperatureRawKinds
+            .filter { raw.getInt("${it}_last_capture_event_count", 0) > 0 &&
+                raw.getLong("${it}_last_capture_receipt_at_ms", 0L) > 0L }
+            .maxByOrNull { raw.getLong("${it}_last_capture_receipt_at_ms", 0L) }
+        val temperatureRawKind = if (temperatureDisplay.value == "待量測")
+            temperatureCurrentKind ?: temperatureHistoryKind else null
+        val temperatureRawHistory = temperatureRawKind != null && temperatureCurrentKind == null
         root.addView(tile(
             "體表溫度",
-            temperatureDisplay.value,
-            temperatureDisplay.detail,
+            when {
+                temperatureRawHistory -> "上次有溫度原始資料"
+                temperatureRawKind != null -> "已收到溫度原始資料"
+                else -> temperatureDisplay.value
+            },
+            if (temperatureRawKind != null) "尚無攝氏讀值；可查看原始資料" else temperatureDisplay.detail,
             Color.rgb(255, 149, 0), measurementPath = "/control/temperature-now"
         ) {
-            startActivity(Intent(this, MetricDetailActivity::class.java).putExtra("metric", "temperature"))
+            if (temperatureRawKind != null) {
+                startActivity(Intent(this, RawSensorDetailActivity::class.java).putExtra("kind", temperatureRawKind))
+            } else {
+                startActivity(Intent(this, MetricDetailActivity::class.java).putExtra("metric", "temperature"))
+            }
         })
         root.addView(tile("運動", "開始", "步行 · 暫停／結束同步", Color.rgb(52, 199, 89)) {
             startActivity(Intent(this, WorkoutAnalysisActivity::class.java))

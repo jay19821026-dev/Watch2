@@ -856,6 +856,20 @@ object WearDataProcessor {
                     }
                     putLong("${kind}_time", sampleTime)
                     putLong("${kind}_published_at", incomingTime)
+                    RawSensorDatedCapturePolicy.legacyCapture(
+                        eventCount,
+                        prefs.getLong("${kind}_last_capture_receipt_at_ms", 0L),
+                        prefs.getInt("${kind}_event_count", 0),
+                        prefs.getLong("${kind}_published_at", 0L),
+                        prefs.getString("${kind}_latest", ""),
+                        prefs.getString("${kind}_summary", "")
+                    )?.let { legacy ->
+                        putLong("${kind}_last_capture_receipt_at_ms", legacy.publishedAt)
+                        putString("${kind}_last_capture_receipt_source", "legacy_watch_publish_time")
+                        putInt("${kind}_last_capture_event_count", legacy.eventCount)
+                        legacy.preview?.let { putString("${kind}_last_capture_raw_preview", it) }
+                        putString("${kind}_last_capture_summary", legacy.summary)
+                    }
                     val phoneReceivedAt = System.currentTimeMillis()
                     putLong("${kind}_phone_received_at_ms", phoneReceivedAt)
                     val captureReceipt = RawSensorDatedCapturePolicy.callbackReceiptTime(
