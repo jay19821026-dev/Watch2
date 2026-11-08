@@ -864,7 +864,7 @@ class MainActivity : ComponentActivity() {
                 val sleepSessions = readSafely("睡眠", HealthPermission.getReadPermission(SleepSessionRecord::class)) {
                     client.readAllRecords(SleepSessionRecord::class, historyFilter)
                         .let { sessions ->
-                            HealthConnectAggregatePolicy.completeIntervalsWithinRange(
+                            HealthInsightWindowPolicy.retainOverlappingIntervals(
                                 sessions, historyStart, endTime, { it.startTime }, { it.endTime }
                             )
                         }
@@ -878,15 +878,15 @@ class MainActivity : ComponentActivity() {
                 val sleepSessionMeasurements = sleepSessions.map {
                     SourceIntervalMeasurement(
                         it.metadata.dataOrigin.packageName,
-                        it.startTime,
-                        it.endTime,
-                        java.time.Duration.between(it.startTime, it.endTime).toMinutes().toDouble()
+                        maxOf(it.startTime, historyStart),
+                        minOf(it.endTime, endTime),
+                        java.time.Duration.between(maxOf(it.startTime, historyStart), minOf(it.endTime, endTime)).toMinutes().toDouble()
                     )
                 }
                 val sleepSessionAssessment = SourceIntervalAggregation.assess(sleepSessionMeasurements)
                 val sleepSessionMinutes = sleepSessionMeasurements.takeIf { sleepSessionAssessment.eligible }
                     ?.sumOf { it.value }
-                val sleepUnionMinutes = sleepSessions.map { it.startTime to it.endTime }
+                val sleepUnionMinutes = sleepSessions.map { maxOf(it.startTime, historyStart) to minOf(it.endTime, endTime) }
                     .sortedBy { it.first }
                     .fold(mutableListOf<Pair<java.time.Instant, java.time.Instant>>()) { merged, interval ->
                         val previous = merged.lastOrNull()
