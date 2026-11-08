@@ -404,7 +404,20 @@ class HealthCenterActivity : ComponentActivity() {
                             "尚未量測；請到手機「裝置 → 手錶工具」啟動完整掃描"
                         )
                     }
-                    val subtitle = when (rowDisplayState) {
+                    val heartReading = if (rowDisplayState == SensorDisplayState.AVAILABLE &&
+                        item.kind in setOf("whs_heart_rate", "heart_rate_raw")) {
+                        HeartRatePresentationPolicy.visibleDetailBpm(
+                            item.kind,
+                            rawPrefs.getFloat("${item.kind}_average", Float.NaN),
+                            status.orEmpty(),
+                            measuredAt,
+                            rawPrefs.getString("${item.kind}_timestamp_source", null),
+                            System.currentTimeMillis()
+                        )
+                    } else null
+                    val subtitle = if (heartReading != null) {
+                        "心率 ${"%.0f".format(heartReading)} bpm · ${ConsumerVitalsSummary.heartRateLabel(heartReading.toDouble())}（靜息參考）"
+                    } else when (rowDisplayState) {
                         SensorDisplayState.NOT_MEASURED -> "尚無量測 · 點選查看量測方式"
                         SensorDisplayState.STALE -> "較早的紀錄 · $ageText"
                         SensorDisplayState.FUTURE_TIMESTAMP, SensorDisplayState.TIMESTAMP_UNKNOWN -> "量測時間未確認 · 建議重新量測"
