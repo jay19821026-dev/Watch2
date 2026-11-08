@@ -506,7 +506,7 @@ class HealthCenterActivity : ComponentActivity() {
                 showFeatureInfo("指南針與返航導航", "請從手錶 App 開啟指南針或返航導航。手機端負責顯示功能狀態，不會在背景持續讀取磁力計或 GPS。")
             }, margin(bottom = 10))
             body.addView(card("跌倒風險與運動姿勢", "運動期間使用加速度計與陀螺儀偵測高衝擊與姿態變化；這是提醒功能，不是醫療診斷。", Color.rgb(255, 164, 82)) {
-                showFeatureInfo("跌倒風險偵測", "只有手錶運動工作階段啟動時才會分析高衝擊事件，避免背景常駐造成耗電。若出現不適，請以醫療器材或專業人員確認。")
+                showFeatureInfo("跌倒風險偵測", "目前只在手錶記錄運動時檢查可能的跌倒；平時不會持續偵測。若跌倒後感到不適，請尋求醫療協助。")
             }, margin(bottom = 10))
             body.addView(card("手勢控制", "可用加速度計、陀螺儀與旋轉向量辨識抬腕、翻腕與操作姿勢；設定由手錶端控制。", Color.rgb(177, 143, 255)) {
                 showFeatureInfo("手勢控制", "手勢辨識不會在手機背景常駐。請從手錶的「手勢與夜間省電設定」開關，啟用後才會在需要時取樣。")

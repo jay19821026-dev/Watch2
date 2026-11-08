@@ -299,7 +299,7 @@ class VitalsHomeActivity : ComponentActivity() {
         root.addView(navButton("心律通知（不規則心律／ECG 結果）", Color.rgb(52, 199, 89)) {
             startActivity(Intent(this, IrregularRhythmActivity::class.java))
         })
-        root.addView(navButton("健康結論（全感測計算＋臨床對照）", Color.rgb(255, 59, 48)) {
+        root.addView(navButton("查看全部健康結果", Color.rgb(255, 59, 48)) {
             startActivity(Intent(this, HealthConclusionActivity::class.java))
         })
         root.addView(navButton("瀏覽分類（心律／睡眠／活動／身體）", Color.rgb(0, 122, 255)) {

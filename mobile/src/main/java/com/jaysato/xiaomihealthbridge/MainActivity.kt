@@ -230,7 +230,7 @@ class MainActivity : ComponentActivity() {
             }, margins(bottom = 10))
             addView(metricsStatus)
             addView(sectionTitle("手錶工具", "控制、診斷與無線安裝"), margins(top = 30, bottom = 10))
-            addView(actionButton("健康結論（計算＋臨床對照）") {
+            addView(actionButton("查看全部健康結果") {
                 startActivity(Intent(this@MainActivity, HealthConclusionActivity::class.java))
             }, margins(bottom = 10))
             addView(actionButton("健康指標總覽") {
@@ -510,7 +510,7 @@ class MainActivity : ComponentActivity() {
             RestingHeartRateEstimator(this@MainActivity).update(System.currentTimeMillis())
                 .onSuccess { value ->
                     toast(value?.let { "已寫入靜止心率 $it bpm" }
-                        ?: "目前活動或樣本不足；請安靜配戴約 8 分鐘後再試")
+                        ?: "這次沒有量到安靜時的心率；請坐下休息、戴好手錶，約 8 分鐘後再試。")
                     loadSevenDaySummary(force = true)
                 }
                 .onFailure { toast("這次無法取得靜止心率，請稍後重試。") }
@@ -1406,7 +1406,7 @@ class MainActivity : ComponentActivity() {
         SourceIntervalAggregation.Rejection.NO_RECORDS -> " · 尚無趨勢紀錄"
         SourceIntervalAggregation.Rejection.MULTIPLE_DATA_ORIGINS -> " · 多來源，趨勢暫不合併"
         SourceIntervalAggregation.Rejection.OVERLAPPING_INTERVALS -> " · 區間重疊，趨勢暫不合併"
-        SourceIntervalAggregation.Rejection.DUPLICATE_SAMPLE_TIMESTAMPS -> " · 樣本時間重複，趨勢暫不合併"
+        SourceIntervalAggregation.Rejection.DUPLICATE_SAMPLE_TIMESTAMPS -> " · 紀錄時間重複，暫不顯示趨勢"
         SourceIntervalAggregation.Rejection.INVALID_INTERVAL -> " · 時段資料無效，趨勢不計"
         SourceIntervalAggregation.Rejection.INVALID_VALUE -> " · 數值無效，趨勢不計"
     }
@@ -1582,7 +1582,7 @@ class MainActivity : ComponentActivity() {
         addView(featureRow("跑", "戶外跑步", "GPS、配速、心率區間與運動路線", "#25D366") { sendWatchCommand("/control/exercise/start") }, margins(bottom = 10))
         addView(featureRow("走", "健走", "步數、距離、卡路里與訓練時間", "#A8D400") { sendWatchCommand("/control/exercise/start") }, margins(bottom = 10))
         addView(featureRow("騎", "戶外騎行", "GPS 路線、速度與爬升資料", "#35A8FF") { sendWatchCommand("/control/exercise/start") }, margins(bottom = 18))
-        addView(sectionTitle("訓練指標", "資料不足時會清楚標示，不以猜測填補"), margins(bottom = 10))
+        addView(sectionTitle("訓練指標", "查看已有的運動紀錄與趨勢"), margins(bottom = 10))
         addView(featureRow("圖", "GPS 路線與訓練分析", "軌跡回放、心率疊圖、海拔、配速、分段與爬升效率", "#35A8FF") {
             startActivity(Intent(this@MainActivity, WorkoutAnalysisActivity::class.java))
         }, margins(bottom = 10))

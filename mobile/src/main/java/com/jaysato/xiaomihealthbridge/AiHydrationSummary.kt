@@ -29,16 +29,16 @@ object AiHydrationSummary {
                 value, origins, recordTotal, records.map { it.metadata.dataOrigin.packageName }
             )
             when {
-                value == null -> "今日尚無飲水紀錄；可補登實際飲水量。不能據此判定脫水。"
-                !value.isFinite() || value < 0 -> "飲水紀錄讀值無效，請核對原始紀錄。"
-                origins.size != 1 -> "飲水紀錄含多來源或來源不明，需先核對重複紀錄。"
-                !accepted -> "飲水彙總與原始紀錄不一致，需先核對；不把部分資料當成今日完整攝取。"
-                else -> "今日已記錄 ${"%.0f".format(value)} mL\n來源 ${origins.single()}；紀錄量不等同全部攝取量，請依醫療建議補水。"
+                value == null -> "今天尚無飲水紀錄；可補登喝水量。"
+                !value.isFinite() || value < 0 -> "這次飲水紀錄有誤，請檢查後重試。"
+                origins.size != 1 -> "飲水紀錄可能重複，請檢查來源後重試。"
+                !accepted -> "飲水紀錄有重複或缺漏，請檢查後重試。"
+                else -> "今天已記錄飲水 ${"%.0f".format(value)} mL。這只包含已登錄的飲水量。"
             }
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: Exception) {
-            "補水資料讀取失敗（${error.javaClass.simpleName}）；其他分析可繼續。"
+            "飲水紀錄暫時讀不到；其他健康結果仍可查看。"
         }
     }
 }
