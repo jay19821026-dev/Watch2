@@ -102,7 +102,7 @@ class UserFacingMeasurementOutcomeTest {
         )
 
         assertEquals(UserFacingMeasurementOutcome.Kind.QUALITY_INSUFFICIENT, result.kind)
-        assertEquals("品質不足", result.label)
+        assertEquals("訊號不清楚", result.label)
     }
 
     @Test

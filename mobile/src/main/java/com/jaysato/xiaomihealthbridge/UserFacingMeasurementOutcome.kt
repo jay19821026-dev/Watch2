@@ -61,8 +61,8 @@ internal object UserFacingMeasurementOutcome {
             )
             SensorDisplayState.QUALITY_REJECTED -> Outcome(
                 Kind.QUALITY_INSUFFICIENT,
-                "品質不足",
-                "本次訊號品質不足，無法產生可信結果",
+                "訊號不清楚",
+                "這次量測無法產生可靠讀值",
                 retryAction(metricKind)
             )
             SensorDisplayState.STALE,

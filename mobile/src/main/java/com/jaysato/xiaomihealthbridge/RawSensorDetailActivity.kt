@@ -433,7 +433,7 @@ class RawSensorDetailActivity : ComponentActivity() {
             setBackgroundColor(Color.rgb(6, 10, 16))
             addView(label("‹  返回", 16f, HealthVisuals.blue).apply { setOnClickListener { finish() } })
             addView(label(title(kind), 28f, Color.WHITE), margins(top = 18))
-            addView(label("CLINICAL REFERENCE  ·  本程式提供參考，非醫療用途", 11f, accent), margins(top = 5, bottom = 14))
+            addView(label("手錶健康參考", 11f, accent), margins(top = 5, bottom = 14))
             if (kind == "ecg") {
                 val ecgCommandFeedback = label(
                     if (values.isEmpty()) "目前沒有可顯示波形；可直接從此頁啟動手錶 ECG。" else "可重新啟動手錶 ECG 擷取新波形。",
