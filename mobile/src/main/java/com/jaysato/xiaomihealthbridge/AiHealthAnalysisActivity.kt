@@ -176,7 +176,7 @@ class AiHealthAnalysisActivity : ComponentActivity() {
                 addView(text("研究推估 · 信心低；計算方式見詳細資料", 12f, HealthVisuals.secondary), lp(top = 6))
             }
         }, lp(bottom = 14))
-        content.addView(panel().apply {
+        val modelReviewPanel = panel().apply {
             addView(text("本機規則檢查面向", 20f, Color.WHITE, true))
             addView(text("不同分析面向各自檢查可用資料，再由整合器比對；不是多個生成式 AI，也不是醫療診斷。", 12f, HealthVisuals.secondary), lp(top = 5, bottom = 8))
             result.teamReviews.forEach { review ->
@@ -184,9 +184,9 @@ class AiHealthAnalysisActivity : ComponentActivity() {
                 addView(text(review.finding, 13f, HealthVisuals.secondary), lp(top = 4))
             }
             addView(text(result.agreement, 13f, Color.rgb(178, 196, 226)).apply { setLineSpacing(dp(3).toFloat(), 1f) }, lp(top = 14))
-        }, lp(bottom = 14))
+        }
         content.addView(section("資料觀察", "依可取得的壓力、睡眠、恢復與活動負荷規則整理", result.observations, "✦"), lp(bottom = 14))
-        content.addView(panel().apply {
+        val activitySourcePanel = panel().apply {
             addView(text("Health Connect｜近 7 日活動觀測", 19f, Color.WHITE, true))
             addView(text("平台彙總基本總量；空白日保留為無紀錄，不補 0。這些值不會放寬訓練負荷、ANS、TRIMP 或步態計算條件。", 12f, HealthVisuals.secondary), lp(top = 5, bottom = 10))
             addView(text(insights.stepsObservation.display("步數", "步", java.time.ZoneId.systemDefault()), 13f, Color.rgb(228, 232, 241)).apply { setLineSpacing(dp(3).toFloat(), 1f) })
@@ -200,7 +200,7 @@ class AiHealthAnalysisActivity : ComponentActivity() {
                     insights.recordedTotalCaloriesExcludedBoundaryRecords
                 ), 13f, Color.rgb(228, 232, 241)
             ).apply { setLineSpacing(dp(3).toFloat(), 1f) }, lp(top = 12))
-        }, lp(bottom = 14))
+        }
         content.addView(section("今天可以這樣做", "優先提供可執行、低風險的生活建議", result.actions, "✓"), lp(bottom = 14))
         content.addView(panel().apply {
             addView(text("健康數據", 21f, Color.WHITE, true))
@@ -258,6 +258,8 @@ class AiHealthAnalysisActivity : ComponentActivity() {
                 }
             })
             addView(details, lp(top = 10))
+            details.addView(modelReviewPanel, lp(top = 10))
+            details.addView(activitySourcePanel, lp(top = 10))
             details.addView(text("探索性規則計分使用近期同來源 HRV、個人基準與睡眠紀錄，信心低。個別研究／訓練估算依各自輸入計算。", 12f, HealthVisuals.secondary), lp(top = 5))
             details.addView(text("規則版本 ${ResearchCompositeModel.VERSION}：恢復採睡眠／HRV 50/50 權重，能量採睡眠／HRV 壓力規則 60/40，準備度為兩者平均。睡眠支持＝記錄時長／8 小時；紀錄可能含清醒，未經臨床驗證。", 12f, HealthVisuals.secondary), lp(top = 5))
             if (insights.sleepInferred) details.addView(text("目前睡眠時數是低心率樣本跨度，不是睡眠紀錄；只作探索顯示。", 12f, HealthVisuals.secondary), lp(top = 5))
