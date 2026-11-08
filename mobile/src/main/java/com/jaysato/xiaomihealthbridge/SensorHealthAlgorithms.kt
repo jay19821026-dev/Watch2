@@ -78,14 +78,14 @@ object SensorHealthAlgorithms {
     }
 
     fun oxygenSampleSummary(values: List<Double>): OxygenSampleSummary? {
-        val clean = values.filter { it.isFinite() && it in 0.0..100.0 }
+        val clean = values.filter { it.isFinite() && it > 0.0 && it <= 100.0 }
         if (clean.isEmpty()) return null
         val below90Percent = if (clean.size >= 3) clean.count { it < 90.0 } * 100.0 / clean.size else null
         return OxygenSampleSummary(clean.size, clean.min(), clean.max(), below90Percent)
     }
 
     fun timedOxygenSampleSummary(samples: List<Pair<Instant, Double>>): OxygenSampleSummary? {
-        val clean = samples.filter { (_, value) -> value.isFinite() && value in 0.0..100.0 }
+        val clean = samples.filter { (_, value) -> value.isFinite() && value > 0.0 && value <= 100.0 }
         val summary = oxygenSampleSummary(clean.map { it.second }) ?: return null
         return summary.copy(
             firstValidSampleAt = clean.minOf { it.first },

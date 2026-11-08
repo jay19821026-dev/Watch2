@@ -70,10 +70,11 @@ class SensorHealthAlgorithmsTest {
     @Test fun oxygenSummaryReportsValidSampleRangeWithoutCallingItStability() {
         val summary = SensorHealthAlgorithms.oxygenSampleSummary(listOf(98.0, 65.0, 101.0, Double.NaN, 0.0, 92.0))!!
 
-        assertEquals(4, summary.validSampleCount)
-        assertEquals(0.0, summary.minimumPercent, 0.0)
+        assertEquals(3, summary.validSampleCount)
+        assertEquals(65.0, summary.minimumPercent, 0.0)
         assertEquals(98.0, summary.maximumPercent, 0.0)
-        assertEquals(50.0, summary.below90Percent!!, 0.0001)
+        assertEquals(100.0 / 3.0, summary.below90Percent!!, 0.0001)
+        assertNull(SensorHealthAlgorithms.oxygenSampleSummary(listOf(0.0, 101.0, Double.NaN)))
         assertNull(SensorHealthAlgorithms.oxygenSampleSummary(listOf(-1.0, 101.0, Double.NaN)))
         assertNull(SensorHealthAlgorithms.oxygenSampleSummary(listOf(98.0, 88.0))!!.below90Percent)
     }

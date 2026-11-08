@@ -989,9 +989,9 @@ class AlgorithmicInsightsEngine(context: Context) {
         if (oxygen != null && oxygenSamples == null) {
             unavailableInputs += "血氧：有樣本時間超出查詢區間，整組資料未納入摘要"
         }
-        val rejectedOxygenCount = oxygenSamples?.count { (_, value) -> !value.isFinite() || value !in 0.0..100.0 } ?: 0
+        val rejectedOxygenCount = oxygenSamples?.count { (_, value) -> !value.isFinite() || value <= 0.0 || value > 100.0 } ?: 0
         if (rejectedOxygenCount > 0) {
-            unavailableInputs += "血氧：$rejectedOxygenCount 筆樣本值不在 Health Connect 0–100 範圍，已排除"
+            unavailableInputs += "血氧：$rejectedOxygenCount 筆樣本為零、非有限值或超過 100%，已排除"
         }
         val oxygenSummary = oxygenSamples?.let(SensorHealthAlgorithms::timedOxygenSampleSummary)
         val oxygenWindowStartAt = oxygenSummary?.firstValidSampleAt
