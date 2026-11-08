@@ -78,6 +78,7 @@ class LocalAiHealthAnalyzerTest {
         assertEquals(3, result.teamReviews.size)
         assertTrue(result.observations.any { it.contains("壓力估算目前平穩") })
         assertTrue(result.observations.any { it.contains("睡眠時間約") })
+        assertTrue(result.observations.none { it.contains("TRIMP") || it.contains("樣本") || it.contains("自律神經") })
     }
 
     @Test fun incompleteSleepStagesStillShowRecordedSessionWindowWithoutCallingItSleepDuration() {

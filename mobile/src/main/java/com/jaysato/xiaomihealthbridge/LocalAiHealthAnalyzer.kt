@@ -100,7 +100,16 @@ object LocalAiHealthAnalyzer {
             TeamReview("睡眠觀察", sleepNotes.joinToString("；"), if (insights.sleepHours != null && !insights.sleepInferred) "中" else "低"),
             TeamReview("活動負荷", activityNotes.joinToString("；"), "低至中")
         )
-        observations += teamReviews.map { "${it.role}：${it.finding}" }
+        observations += recoveryNotes.filterNot { it.contains("等待近期") }
+        if (insights.sleepInferred) {
+            observations += "睡眠時數尚未確認；請查看手錶的睡眠紀錄。"
+        } else if (insights.sleepHours != null) {
+            observations += sleepNotes
+        } else if (insights.sleepSessionHours != null) {
+            observations += "已記錄睡眠時段約 ${"%.1f".format(insights.sleepSessionHours)} 小時；實際睡眠時數尚未確認。"
+        }
+        if (insights.trainingLoad != null) observations += "最近一週已有運動紀錄；可查看運動趨勢。"
+        if (observations.isEmpty()) observations += "目前沒有新的日常趨勢；可先查看已取得的個別量測。"
         val highConcernReviews = listOfNotNull(
             insights.stress?.let { it >= 50 },
             if (!insights.sleepInferred) insights.sleepHours?.let { it < 7.0 } else null,
