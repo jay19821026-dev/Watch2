@@ -1,6 +1,7 @@
 package com.jaysato.xiaomihealthbridge
 
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ConsumerVitalsSummaryTest {
@@ -16,5 +17,20 @@ class ConsumerVitalsSummaryTest {
         assertTrue(copy.detail.contains("高於成人靜息參考"))
         assertTrue(ConsumerVitalsSummary.heartRateLabel(101.0) == "偏高")
         assertTrue(ConsumerVitalsSummary.heartRateLabel(80.0) == "正常範圍")
+    }
+
+    @Test fun attentionReadingLeadsBeforeNormalReading() {
+        fun item(id: String, value: String) = HealthConclusionEngine.Item(
+            id, id, value, "", "", HealthConclusionEngine.Level.GOOD, null, true,
+            HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL
+        )
+        val highHeart = HealthConclusionEngine.Report(
+            listOf(item("spo2", "98%"), item("hr", "101 bpm")), "", ""
+        )
+        assertEquals("心率 101 bpm：偏高", ConsumerVitalsSummary.from(highHeart).headline)
+        val lowOxygen = HealthConclusionEngine.Report(
+            listOf(item("hr", "77 bpm"), item("spo2", "94%")), "", ""
+        )
+        assertEquals("血氧 94%：偏低", ConsumerVitalsSummary.from(lowOxygen).headline)
     }
 }

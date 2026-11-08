@@ -10,7 +10,7 @@ internal object ConsumerVitalsSummary {
     }
 
     fun heartRate(bpm: Double): Copy = Copy(
-        "心率 ${"%.0f".format(bpm)} bpm",
+        "心率 ${"%.0f".format(bpm)} bpm：${heartRateLabel(bpm)}",
         when {
             bpm > 100.0 -> "高於成人靜息參考 60–100 bpm；若當時在活動，休息後再測。"
             bpm < 60.0 -> "低於成人靜息參考 60–100 bpm；睡眠或規律運動可能影響數值。"
@@ -28,10 +28,12 @@ internal object ConsumerVitalsSummary {
         val oxygenPercent = report.items.firstOrNull {
             it.id == "spo2" && it.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL
         }?.valueText?.substringBefore('%')?.trim()?.toDoubleOrNull()
-        if (oxygenPercent != null && oxygenPercent in 70.0..100.0) return oxygen(oxygenPercent)
         val heart = report.items.firstOrNull {
             it.id == "hr" && it.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL
         }?.valueText?.substringBefore("bpm")?.trim()?.toDoubleOrNull()
+        if (oxygenPercent != null && oxygenPercent >= 70.0 && oxygenPercent < 95.0) return oxygen(oxygenPercent)
+        if (heart != null && heart in 30.0..220.0 && heart !in 60.0..100.0) return heartRate(heart)
+        if (oxygenPercent != null && oxygenPercent in 95.0..100.0) return oxygen(oxygenPercent)
         if (heart != null && heart in 30.0..220.0) return heartRate(heart)
         return Copy("查看健康讀值", "開啟各項卡片查看最近紀錄與參考範圍。")
     }
