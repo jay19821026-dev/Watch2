@@ -12,7 +12,7 @@ internal object MeasurementFeedbackFactory {
             status == "derived_estimate" -> "僅有推估資料"
             status == "off_wrist" -> "有資料，但偵測為離腕"
             status == "invalid_optical" -> "光學訊號品質不足"
-            !dataReceived -> "等待手錶回報"
+            !dataReceived -> "這次沒有可顯示的量測值"
             status in setOf("research_signal_unscaled", "research_optical", "unscaled_optical") -> "已收到研究訊號"
             status == "calibrated_external_reference" -> "已取得外部參考校準資料"
             else -> "已收到感測資料"

@@ -59,13 +59,24 @@ class MeasureResultActivity : ComponentActivity() {
             ?: raw.getInt("${kind}_event_count", 0).takeIf {
                 RawSensorPayloadPolicy.isBiomedicalKind(kind) && raw.getInt("${kind}_event_count_known", 0) == 1 && it > 0
             }
-        val hasReceivedData = if (isHealthServicesHeartRate) (samples ?: 0) > 0
-            else receivedDataCount(raw, kind) > 0
-        val feedback = MeasurementFeedbackFactory.create(status, samples ?: 0, hasReceivedData)
         val time = (if (isHealthServicesHeartRate) feature.getLong("whs_heart_rate_timestamp", 0L)
             else raw.getLong("${kind}_time", 0L)).takeIf { it > 0 }
             ?: raw.getLong("hrv_research_time", 0L).takeIf { kind == "hrv_research" && it > 0 }
             ?: 0L
+        val supplementalHeartRate = if (kind == "ppg") PpgSupplementalHeartRatePolicy.match(
+            ppgMeasuredAt = time,
+            ppgEventCount = samples ?: 0,
+            ppgTimestampSource = raw.getString("ppg_timestamp_source", null),
+            sessionStartedAt = raw.getLong("ppg_session_started_at_ms", 0L),
+            publishedAt = raw.getLong("ppg_published_at", 0L),
+            bpm = feature.getFloat("whs_heart_rate", Float.NaN),
+            heartRateMeasuredAt = feature.getLong("whs_heart_rate_timestamp", 0L),
+            timestampSource = feature.getString("whs_heart_rate_timestamp_source", null),
+            now = System.currentTimeMillis()
+        ) else null
+        val hasReceivedData = if (isHealthServicesHeartRate) (samples ?: 0) > 0
+            else receivedDataCount(raw, kind) > 0 || supplementalHeartRate != null
+        val feedback = MeasurementFeedbackFactory.create(status, samples ?: 0, hasReceivedData)
         val timestampSource = if (isHealthServicesHeartRate) {
             feature.getString("whs_heart_rate_timestamp_source", null)
         } else if (kind == "hrv_research") {
@@ -85,37 +96,40 @@ class MeasureResultActivity : ComponentActivity() {
             timestampSource = timestampSource,
             wearQualified = if (raw.contains("${kind}_wear_qualified")) raw.getBoolean("${kind}_wear_qualified", false) else null
         )
-        val (value, unit) = primaryValue(kind, raw, feature, opticalEstimate)
+        val (value, unit) = primaryValue(kind, raw, feature, opticalEstimate, supplementalHeartRate)
         val resultPresentation = MeasureResultValuePolicy.present(
-            kind = kind,
+            kind = if (supplementalHeartRate != null) "whs_heart_rate" else kind,
             value = value,
             unit = unit,
-            samples = samples ?: 0,
-            status = status,
-            measuredAtMillis = time,
+            samples = if (supplementalHeartRate != null) 1 else samples ?: 0,
+            status = if (supplementalHeartRate != null) "has_data" else status,
+            measuredAtMillis = supplementalHeartRate?.measuredAt ?: time,
             nowMillis = System.currentTimeMillis(),
-            timestampSource = timestampSource
+            timestampSource = if (supplementalHeartRate != null)
+                HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE else timestampSource
         )
         val displayValue = resultPresentation.value
-        val detail = detailLine(kind, raw)
+        val detail = detailLine(kind, raw) + (supplementalHeartRate?.let {
+            "\n獨立心率：Wear Health Services ${"%.0f".format(it.bpm)} bpm；不是由 PPG 原始封包推算。"
+        } ?: "")
         val resultConclusion = when {
-            !feedback.receivedData -> "本次結論：未收到可用的 $title 量測資料；請重新量測。"
+            !feedback.receivedData -> "本次結果：$title 量測未完成。請確認佩戴與連線後重新量測。"
+            supplementalHeartRate != null && displayValue != "—" ->
+                "本次結果：手錶心率 $displayValue bpm（Wear Health Services）。PPG 光學波形是另一筆研究資料。"
+            kind == "ecg" && resultPresentation.unit == "原始資料點／事件" ->
+                "本次結果：已記錄心電感測訊號；目前沒有可核對的心律分類。可查看波形，並保持電極接觸重新量測。"
+            kind == "ppg" && resultPresentation.unit == "原始資料點／事件" ->
+                "本次結果：已記錄光學脈波，但這次沒有可信的心率數值。請貼緊手錶、保持靜止後重新量測。"
             resultPresentation.unit == "原始資料點／事件" && displayValue != "—" ->
-                "本次結論：已收到 $displayValue 個 $title 原始資料點／事件；目前只能確認資料擷取，尚不能換算成經驗證的生理值。"
+                "本次結果：已取得 $title 感測資料；目前沒有可核對的生理數值，請查看量測狀態與來源。"
             displayValue == "—" ->
-                "本次結論：已收到 $title 資料，但目前無法提供可信的生理數值；請查看下方原因與量測時間。"
-            else -> "本次結論：$title $displayValue ${resultPresentation.unit}；請連同量測時間與來源查看。"
+                "本次結果：已收到 $title 資料，但這次沒有可核對的生理數值；請查看原因並重新量測。"
+            else -> "本次結果：$title $displayValue ${resultPresentation.unit}；量測來源與時間見下方。"
         }
-        val note = if (kind == "ecg") {
-            "研究用途估算，非經裝置校準的 ECG／心率量測，不可用於診斷或醫療決策。原始波形與公式結果不代表臨床有效性。"
-        } else if (OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
-            "MAX86178／LifeQ 光學原始封包不是心率。只有品質合格、未過期的研究估算才顯示脈率；不作疾病診斷。"
-        } else when (kind) {
-            else -> raw.getString("${kind}_formula_note", null)
+        val note = if (kind == "ecg" || OpticalPulseDisplayPolicy.isOpticalKind(kind)) null
+        else raw.getString("${kind}_formula_note", null)
                 ?: raw.getString("hrv_research_formula_note", null)
                 ?: raw.getString("${kind}_summary", null)
-                ?: "已同步手錶量測"
-        }
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -124,7 +138,9 @@ class MeasureResultActivity : ComponentActivity() {
             gravity = android.view.Gravity.CENTER_HORIZONTAL
         }
         root.addView(TextView(this).apply {
-            text = resultPresentation.headline ?: feedback.headline; textSize = 15f
+            text = if (supplementalHeartRate != null && resultPresentation.isCurrent) "已取得手錶心率"
+                else resultPresentation.headline ?: feedback.headline
+            textSize = 15f
             setTextColor(if (resultPresentation.isCurrent && kind != "ecg") Color.rgb(40, 120, 90) else Color.rgb(180, 80, 50))
             gravity = android.view.Gravity.CENTER
         })
@@ -134,6 +150,12 @@ class MeasureResultActivity : ComponentActivity() {
             gravity = android.view.Gravity.CENTER
             setPadding(0, dp(8), 0, dp(4))
         })
+        root.addView(card(resultConclusion, Color.rgb(232, 244, 252)))
+        val typedHeartRate = supplementalHeartRate?.bpm
+            ?: healthServicesBpm.takeIf { isHealthServicesHeartRate && it.isFinite() }
+        if (resultPresentation.isCurrent) {
+            typedHeartRate?.let { root.addView(card(HeartRateMeaningPolicy.explain(it), Color.WHITE)) }
+        }
         root.addView(TextView(this).apply {
             text = displayValue; textSize = 56f; setTextColor(Color.BLACK)
             setTypeface(typeface, Typeface.BOLD)
@@ -145,18 +167,17 @@ class MeasureResultActivity : ComponentActivity() {
             setPadding(0, 0, 0, dp(12))
         })
         root.addView(card(detail, Color.WHITE))
-        root.addView(card(resultConclusion, Color.rgb(232, 244, 252)))
-        if (kind == "ecg" || OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
-            root.addView(card(
-                "注意：本次研究判讀可能不準確，不能作為疾病診斷或排除疾病的依據。若有胸痛、暈厥、呼吸困難或持續不適，請就醫；健康疑慮以醫師評估為準。",
-                Color.rgb(255, 242, 225)
-            ))
+        if (!resultPresentation.isCurrent || !feedback.receivedData) {
+            root.addView(card(resultPresentation.guidance ?: feedback.guidance, Color.WHITE))
         }
-        root.addView(card(resultPresentation.guidance ?: feedback.guidance, Color.WHITE))
-        root.addView(card(note.take(220), Color.WHITE))
-        if (!resultPresentation.isCurrent) {
+        note?.takeIf(String::isNotBlank)?.let { root.addView(card(it.take(220), Color.WHITE)) }
+        val shouldOfferRetry = !resultPresentation.isCurrent || status in setOf(
+            "invalid_optical", "invalid_sensor_values", "rejected_quality", "no_events", "error",
+            "needs_contact", "needs_oem_mode", "off_wrist"
+        ) || (kind in setOf("ecg", "ppg") && resultPresentation.unit == "原始資料點／事件")
+        if (shouldOfferRetry) {
             root.addView(Button(this).apply {
-                text = "要求手錶重新量測"
+                text = "重新量測${if (kind == "ppg") " PPG" else ""}"
                 isAllCaps = false; textSize = 16f; setTextColor(Color.WHITE)
                 background = GradientDrawable().apply {
                     cornerRadius = dp(16).toFloat(); setColor(accent)
@@ -165,7 +186,17 @@ class MeasureResultActivity : ComponentActivity() {
                 layoutParams = LinearLayout.LayoutParams(-1, dp(54)).apply { bottomMargin = dp(10) }
             })
         }
-        MeasureResultTimestampPresentation.label(time, timestampSource, System.currentTimeMillis())?.let { timeLabel ->
+        if (kind == "ecg" || OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
+            root.addView(card(
+                "此為消費型手錶健康參考，結果可能有誤差。若有胸痛、暈厥、呼吸困難或持續不適，請就醫評估。",
+                Color.rgb(255, 242, 225)
+            ))
+        }
+        MeasureResultTimestampPresentation.label(
+            supplementalHeartRate?.measuredAt ?: time,
+            if (supplementalHeartRate != null) HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE else timestampSource,
+            System.currentTimeMillis()
+        )?.let { timeLabel ->
             root.addView(TextView(this).apply {
                 text = timeLabel
                 textSize = 13f; setTextColor(Color.rgb(140, 140, 150))
@@ -309,7 +340,8 @@ class MeasureResultActivity : ComponentActivity() {
             kind: String,
             raw: android.content.SharedPreferences,
             feature: android.content.SharedPreferences,
-            opticalEstimate: Float?
+            opticalEstimate: Float?,
+            supplementalHeartRate: PpgSupplementalHeartRatePolicy.Reading?
         ): Pair<String, String> {
             fun f(key: String) = raw.getFloat(key, Float.NaN).takeIf { it.isFinite() }
             return when (kind) {
@@ -320,7 +352,8 @@ class MeasureResultActivity : ComponentActivity() {
                             ?: raw.getInt("${kind}_event_count", 0).takeIf {
                                 raw.getInt("${kind}_event_count_known", 0) == 1 && it > 0
                             }
-                        if (opticalEstimate != null) "%.0f".format(opticalEstimate) to "研究估算 bpm"
+                        if (supplementalHeartRate != null) "%.0f".format(supplementalHeartRate.bpm) to "Health Services bpm"
+                        else if (opticalEstimate != null) "%.0f".format(opticalEstimate) to "研究估算 bpm"
                         else (count?.toString() ?: "—") to "原始資料點／事件"
                     } else {
                         val bpm = f("${kind}_formula_pulse_bpm") ?: f("${kind}_average")
@@ -415,12 +448,12 @@ class MeasureResultActivity : ComponentActivity() {
                     if (contractVersion >= 2) {
                         append("事件 ${SensorCountLabels.eventCount(eventCount)}")
                     } else {
-                        append("舊版回報數 ${SensorCountLabels.count(samples)}")
+                        append("尚無可顯示的原始值")
                     }
                 }
                 status?.let { append(" · $it") }
                 stress?.let { append(" · 研究壓力分數 $it（非原廠）") }
-                append(" · 已同步手機")
+                if ((samples ?: 0) > 0 || raw.getInt("${kind}_event_count", 0) > 0) append(" · 已保存於手機")
             }
         }
     }
@@ -434,6 +467,46 @@ internal object MeasureResultTimestampPresentation {
         }
         if (timestampMillis > nowMillis) return "量測時間異常（時間戳在未來）"
         return SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault()).format(Date(timestampMillis))
+    }
+}
+
+internal object PpgSupplementalHeartRatePolicy {
+    data class Reading(val bpm: Float, val measuredAt: Long)
+
+    fun match(
+        ppgMeasuredAt: Long,
+        ppgEventCount: Int,
+        ppgTimestampSource: String?,
+        bpm: Float,
+        heartRateMeasuredAt: Long,
+        timestampSource: String?,
+        now: Long,
+        sessionStartedAt: Long = 0L,
+        publishedAt: Long = 0L
+    ): Reading? {
+        if (ppgEventCount <= 0 ||
+            timestampSource != HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE ||
+            !bpm.isFinite() || bpm !in 30f..220f ||
+            heartRateMeasuredAt !in 1L..now || now - heartRateMeasuredAt > 600_000L) return null
+        val trustedPpgTime = ppgMeasuredAt.takeIf {
+            HealthAnalysisFreshnessPolicy.hasTrustedSensorTimestamp(ppgTimestampSource) && it in 1L..now
+        }
+        val sessionStart = sessionStartedAt.takeIf { it in 1L..now }
+        val sessionEnd = publishedAt.takeIf { it in 1L..now && (sessionStart == null || it >= sessionStart) }
+        val nearSession = if (sessionStart != null && sessionEnd != null) {
+            heartRateMeasuredAt >= sessionStart - 120_000L && heartRateMeasuredAt <= sessionEnd + 120_000L
+        } else trustedPpgTime?.let { kotlin.math.abs(it - heartRateMeasuredAt) <= 120_000L } ?: false
+        return Reading(bpm, heartRateMeasuredAt).takeIf { nearSession }
+    }
+}
+
+internal object HeartRateMeaningPolicy {
+    /** Context for a single typed BPM measurement; rest/activity state is unknown. */
+    fun explain(bpm: Float): String = when {
+        !bpm.isFinite() || bpm !in 30f..220f -> "這次心率讀值不在可解釋範圍；請重新量測。"
+        bpm < 60f -> "這次心跳較慢。睡眠、運動習慣或藥物可能影響心率；若清醒休息時反覆偏慢，或伴隨頭暈、虛弱、快昏倒，請聯絡醫師評估。單次 bpm 不能判定心律種類。"
+        bpm <= 100f -> "若量測時正安靜休息，這個數值落在成人常見靜息心率 60–100 bpm 範圍；運動、情緒和藥物也會改變心率。單次 bpm 不能排除心律問題。"
+        else -> "這次心跳較快。活動、壓力或身體不適都可能使心率上升；請安靜休息後重新量測。若休息時仍持續偏快或反覆心悸，請聯絡醫師評估。單次 bpm 不能判定原因。"
     }
 }
 

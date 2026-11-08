@@ -731,12 +731,15 @@ class WearMeasurePageActivity : ComponentActivity() {
             )) ClinicalSensorFormulas.researchStressScore(hrv?.nRmssd, hrv?.bpm ?: optical?.pulseRateBpm)
             else null
         val formulaLine = ClinicalSensorFormulas.summaryLine(optical, hrv, pressure, stressScore)
+        val supplementalHeartRate = if (mode == Mode.PPG) whs else null
         val conclusion = when (mode) {
             Mode.HEART_RATE -> WearHealthConclusion.forHeartRateBpm(
                 WearMeasurementPolicy.directHeartRateBpm(snapshot) ?: optical?.pulseRateBpm
             )
-            Mode.PPG, Mode.LIFE_Q_OTT ->
-                WearHealthConclusion.forPpg(snapshot.samples, optical?.pulseRateBpm ?: hrv?.bpm)
+            Mode.PPG -> supplementalHeartRate?.let {
+                "結論：已取得手錶心率 ${"%.0f".format(it)} bpm（Wear Health Services）；光學波形另作研究分析。"
+            } ?: WearHealthConclusion.forPpg(snapshot.samples, optical?.pulseRateBpm ?: hrv?.bpm)
+            Mode.LIFE_Q_OTT -> WearHealthConclusion.forPpg(snapshot.samples, optical?.pulseRateBpm ?: hrv?.bpm)
             Mode.TEMPERATURE -> when (snapshot.worn) {
                 false -> "結論：離腕時取得的原始溫度值不作為量測完成證據"
                 null -> "結論：佩戴狀態未確認；原始溫度值僅供研究"
@@ -757,16 +760,17 @@ class WearMeasurePageActivity : ComponentActivity() {
                 if (snapshot.worn == true) "結論：已佩戴" else if (snapshot.worn == false) "結論：已離腕" else "結論：佩戴狀態未知"
             else -> if (snapshot.samples > 0) "結論：已取得原始資料" else "結論：無數值"
         }
-        val supplementalHeartRate = if (mode == Mode.PPG) whs else null
         val primary = when (mode) {
             Mode.HEART_RATE ->
                 (WearMeasurementPolicy.directHeartRateBpm(snapshot) ?: optical?.pulseRateBpm)
                     ?.takeIf { it in 30.0..220.0 }
                     ?.let { "%.0f".format(it) to "bpm" }
-            Mode.PPG, Mode.LIFE_Q_OTT ->
+            Mode.PPG -> supplementalHeartRate?.let { "%.0f".format(it) to "Health Services bpm" }
+                ?: (optical?.pulseRateBpm ?: hrv?.bpm)?.takeIf { it in 30.0..220.0 }
+                    ?.let { "%.0f".format(it) to "PPG 研究估算 bpm" }
+            Mode.LIFE_Q_OTT ->
                 (optical?.pulseRateBpm ?: hrv?.bpm)?.takeIf { it in 30.0..220.0 }
-                    ?.let { "%.0f".format(it) to "PPG bpm" }
-                    ?: supplementalHeartRate?.let { "%.0f".format(it) to "Health Services bpm" }
+                    ?.let { "%.0f".format(it) to "光學研究估算 bpm" }
             Mode.TEMPERATURE ->
                 (snapshot.average ?: snapshot.latest.firstOrNull())?.takeIf { snapshot.worn == true && it.isFinite() }
                     ?.let { "%.1f".format(it) to "原始值 · 單位未驗證" }
@@ -854,8 +858,7 @@ class WearMeasurePageActivity : ComponentActivity() {
         }
         if (publish && snapshot.samples > 0 && mode != Mode.SUITE) {
             val trustedHeartRate = when (mode) {
-                Mode.HEART_RATE -> WearMeasurementPolicy.directHeartRateBpm(snapshot) ?: optical?.pulseRateBpm
-                Mode.PPG, Mode.LIFE_Q_OTT -> optical?.pulseRateBpm ?: hrv?.bpm
+                Mode.HEART_RATE -> WearMeasurementPolicy.directHeartRateBpm(snapshot)
                 else -> null
             }
             trustedHeartRate?.toLong()?.takeIf { it in 30L..220L }

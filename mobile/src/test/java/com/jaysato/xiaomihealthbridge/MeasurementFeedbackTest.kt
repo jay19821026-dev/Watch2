@@ -11,7 +11,7 @@ class MeasurementFeedbackTest {
         listOf("missing", "no_events", "not_measured", "skipped_charging").forEach { status ->
             val result = MeasurementFeedbackFactory.create(status, 0)
             assertFalse(result.receivedData)
-            assertEquals("等待手錶回報", result.headline)
+            assertEquals("這次沒有可顯示的量測值", result.headline)
             assertTrue(result.guidance.isNotBlank())
         }
     }

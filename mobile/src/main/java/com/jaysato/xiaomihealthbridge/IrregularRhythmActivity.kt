@@ -43,12 +43,6 @@ class IrregularRhythmActivity : ComponentActivity() {
             setPadding(0, 0, 0, dp(10))
         }
         root.addView(commandFeedback)
-        root.addView(card(
-            "原廠 ECG 啟用",
-            "原廠 ECG 由手機 Mi Fitness 與手錶 Xiaomi 健康服務共同管理。本 App 不會修改原廠狀態。已安裝 Mi Fitness 的程式顯示：裝置設定中的 ECG 卡片先檢查產品功能清單是否含 ecg；Play 版的提醒路徑另檢查 electrocardiogram_global。正式啟用畫面會發送裝置同步請求，在同步呼叫回報成功後寫入手機端啟用偏好；此回呼不等於已讀回手錶的 ECG 啟用狀態。這些並非同一個開關。手機的 Eco 產品快取有三種 Watch 2 Pro 列項，均未列出上述 ECG 功能鍵；但快取不是配對裝置的最終授權清單。若手錶顯示 Activation Guidance，請在 Mi Fitness 查找 ECG 卡片；若沒有，本 App 無法代替原廠開通。下方可獨立擷取未校準的原始感測事件。",
-            Color.rgb(90, 90, 100)
-        ))
-
         val title = raw.getString("ecg_rhythm_title", null)
         val detail = raw.getString("ecg_rhythm_detail", null)
         val bpm = raw.getFloat("ecg_rhythm_bpm", Float.NaN).takeIf { it.isFinite() }
@@ -91,12 +85,8 @@ class IrregularRhythmActivity : ComponentActivity() {
             root.addView(card(displayedTitle, consumerStatus.detail, Color.rgb(142, 142, 147)))
         } else if (!estimateUsable || title.isNullOrBlank()) {
             root.addView(card(
-                displayedTitle,
-                buildString {
-                    append(consumerStatus.detail)
-                    append("\n已保存原始事件 $eventCount 個 · 研究解碼點 $decodedSampleCount 個 · 原始樣本 $samples 個")
-                    append("\n事件、解碼點與原始樣本分別計數；僅代表資料已收到，不等於可判讀心律。")
-                },
+                "已完成這次 ECG 訊號擷取",
+                "手錶已保存 $eventCount 筆訊號。這次沒有產生可解讀的心律結果；請重新貼合電極再量一次。原始波形可在下方查看。",
                 Color.rgb(90, 200, 250)
             ))
         } else {
@@ -134,6 +124,17 @@ class IrregularRhythmActivity : ComponentActivity() {
                 Color.rgb(28, 28, 30)
             ))
         }
+
+        root.addView(Button(this).apply {
+            text = "查看原廠 ECG 啟用說明"
+            isAllCaps = false
+            setOnClickListener {
+                android.app.AlertDialog.Builder(this@IrregularRhythmActivity)
+                    .setTitle("原廠 ECG 啟用")
+                    .setMessage("原廠 ECG 由 Mi Fitness 和手錶健康服務管理。若手錶出現 Activation Guidance，請在 Mi Fitness 的裝置設定尋找 ECG 卡片；本 App 的原始訊號擷取不等於原廠心律分類已啟用。")
+                    .setPositiveButton("知道了", null).show()
+            }
+        })
 
         root.addView(Button(this).apply {
             text = "啟動手錶 ECG 研究量測"

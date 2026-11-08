@@ -9,6 +9,49 @@ class MeasureResultActivityTest {
     private val now = 100_000_000L
 
     @Test
+    fun ppgUsesOnlyHeartRateFromItsOwnMeasurementWindow() {
+        val source = HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE
+        val ppgSource = "android_sensor_event_elapsed_realtime"
+        val matched = PpgSupplementalHeartRatePolicy.match(now - 60_000L, 400, ppgSource,
+            78f, now - 55_000L, source, now)
+        val old = PpgSupplementalHeartRatePolicy.match(now - 60_000L, 400, ppgSource,
+            78f, now - 500_000L, source, now)
+        val noPpg = PpgSupplementalHeartRatePolicy.match(now - 60_000L, 0, ppgSource,
+            78f, now - 55_000L, source, now)
+        assertEquals(78f, matched?.bpm)
+        assertEquals(null, old)
+        assertEquals(null, noPpg)
+    }
+
+    @Test
+    fun ppgWithMissingSensorClockCanShowNearbyIndependentHeartRate() {
+        val source = HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE
+        val nearby = PpgSupplementalHeartRatePolicy.match(
+            ppgMeasuredAt = 0L, ppgEventCount = 8,
+            ppgTimestampSource = "sensor_event_timestamp_missing", bpm = 82f,
+            heartRateMeasuredAt = now - 35_000L, timestampSource = source, now = now,
+            sessionStartedAt = now - 80_000L, publishedAt = now - 60_000L
+        )
+        val stale = PpgSupplementalHeartRatePolicy.match(
+            ppgMeasuredAt = 0L, ppgEventCount = 8,
+            ppgTimestampSource = "sensor_event_timestamp_missing", bpm = 82f,
+            heartRateMeasuredAt = now - 700_000L, timestampSource = source, now = now,
+            sessionStartedAt = now - 80_000L, publishedAt = now - 60_000L
+        )
+        assertEquals(82f, nearby?.bpm)
+        assertEquals(null, stale)
+    }
+
+    @Test
+    fun typedHeartRateHasPlainLanguageContextWithoutClaimingRhythmDiagnosis() {
+        assertTrue(HeartRateMeaningPolicy.explain(55f).contains("較慢"))
+        assertTrue(HeartRateMeaningPolicy.explain(75f).contains("安靜休息"))
+        assertTrue(HeartRateMeaningPolicy.explain(115f).contains("較快"))
+        assertTrue(HeartRateMeaningPolicy.explain(115f).contains("重新量測"))
+        assertTrue(HeartRateMeaningPolicy.explain(75f).contains("不能排除心律問題"))
+    }
+
+    @Test
     fun rawEventCountRemainsVisibleWhenTimestampIsUnknown() {
         val result = MeasureResultValuePolicy.present(
             kind = "ecg", value = "45", unit = "原始資料點／事件", samples = 45,
