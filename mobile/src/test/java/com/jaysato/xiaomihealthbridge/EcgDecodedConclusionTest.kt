@@ -20,10 +20,10 @@ class EcgDecodedConclusionTest {
             rrCount = 0, titleRhythm = null, measuredAt = 0, now = 1000,
             decodedEventCount = 263, decodedValueCount = 2630
         )
-        assertTrue(item.valueText.contains("573 個原始事件 · 263 個研究解碼事件／2630 點"))
+        assertEquals("已取得 ECG 訊號，時間未確認", item.valueText)
         assertFalse(item.valueText.contains("測量中"))
         assertFalse(item.valueText.contains("未解碼"))
-        assertTrue(item.conclusion.contains("不輸出 bpm"))
+        assertTrue(item.conclusion.contains("尚無心律結果"))
         assertTrue(item.conclusion.contains("不是診斷準確率"))
         assertTrue(item.conclusion.contains("不能據此判定正常／異常"))
         assertTrue(item.conclusion.contains("胸痛／胸悶"))
@@ -36,8 +36,8 @@ class EcgDecodedConclusionTest {
             rrCount = 0, titleRhythm = null, measuredAt = 1000, now = 2000,
             timestampSource = "sensor_event", decodedEventCount = 263, decodedValueCount = 2630
         )
-        assertEquals("2630 點 · 研究解碼", item.valueText)
-        assertTrue(item.conclusion.contains("263 個事件形成 2630 個研究波形點"))
+        assertEquals("已取得 ECG 訊號，尚無心律結果", item.valueText)
+        assertFalse(item.conclusion.contains("263 個事件"))
         assertTrue(item.conclusion.contains("不輸出 bpm"))
         assertFalse(item.conclusion.contains("正常心律"))
     }

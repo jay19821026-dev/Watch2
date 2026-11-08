@@ -446,13 +446,13 @@ object HealthConclusionEngine {
                 val evidence = if (decoded) "$eventCount 個原始事件 · $decodedEventCount 個研究解碼事件／$decodedValueCount 點"
                     else if (samples > 0) "$samples 點歷史原始資料" else "$eventCount 個歷史原始事件"
                 return Item(
-                    "ecg", "ECG", evidence, "尚未取得可驗證 ECG 波形與研究 RR · $provenance",
-                    (if (decoded) "近期保存子集已研究解碼；不代表所有事件都已解碼。來源時間或校準尚未驗證，不輸出 bpm、AF 或正常／異常判斷。"
-                    else "原始證據已保存（$evidence），但量測時間已過期、時間來源無效或事件尚未形成可判讀波形；請重新量測。") + ECG_RESEARCH_SAFETY_NOTE,
+                    "ecg", "ECG", if (measuredAt > 0L && HealthAnalysisFreshnessPolicy.hasTrustedSensorTimestamp(timestampSource) && now - measuredAt > TEN_MINUTES) "較早的 ECG 紀錄" else "已取得 ECG 訊號，時間未確認", "尚未取得可驗證 ECG 波形與研究 RR · $provenance",
+                    (if (decoded) "這筆訊號的量測時間未確認，尚無心律結果；請重新量測。"
+                    else "已保存較早或時間未確認的 ECG 訊號；請重新量測。") + ECG_RESEARCH_SAFETY_NOTE,
                     Level.RESEARCH, null, true
                 )
             }
-            return Item("ecg", "ECG", "0 點／0 事件 · 無法判定", "需單導波形與研究 RR",
+            return Item("ecg", "ECG", "尚無 ECG 結果", "需單導波形與研究 RR",
                 if (samples <= 0) "尚未取得 ECG；請雙指接觸電極量測。" else "上次 ECG 已超出健康結論 10 分鐘分析輸入窗；請重新量測後再查看波形分析。",
                 Level.UNAVAILABLE, null, false)
         }
@@ -464,14 +464,14 @@ object HealthConclusionEngine {
         }
         if (samples <= 0 && decoded) {
             return Item(
-                "ecg", "ECG", "$decodedValueCount 點 · 研究解碼", compare,
-                "本次取得 $eventCount 個 ECG 原始事件，其中 $decodedEventCount 個事件形成 $decodedValueCount 個研究波形點。已能確認資料存在；逐點時鐘與裝置校準尚未驗證，因此不輸出 bpm 或正常／異常心律判讀。請查看波形並保持電極接觸後重測。$ECG_RESEARCH_SAFETY_NOTE",
+                "ecg", "ECG", "已取得 ECG 訊號，尚無心律結果", compare,
+                "已取得 ECG 訊號，但尚無可確認的心律結果。請保持電極接觸後重新量測；本次不輸出 bpm。$ECG_RESEARCH_SAFETY_NOTE",
                 Level.RESEARCH, null, true
             )
         }
         if (samples < MIN_ECG_SAMPLES) {
             return Item(
-                "ecg", "ECG", "$samples 點 · 研究資料", compare,
+                "ecg", "ECG", "ECG 訊號不清楚，請重新量測", compare,
                 "已收到 ECG 原始資料，但樣本數低於工程最低完整性門檻 $MIN_ECG_SAMPLES；不輸出心率品質分級或正向結論。$ECG_RESEARCH_SAFETY_NOTE",
                 Level.RESEARCH, null, true
             )
@@ -487,7 +487,7 @@ object HealthConclusionEngine {
             waveformEncoding = waveformEncoding,
             timelineSource = timelineSource
         )
-        val value = if (estimateEligible) "%.0f bpm · 研究估算 · RR $rrCount".format(hr) else "$samples 點 · 原始研究資料"
+        val value = if (estimateEligible) "估算心率 %.0f bpm（研究參考）".format(hr) else "已取得 ECG 訊號，尚無心律結果"
         val conclusion = if (estimateEligible) {
             "此數值僅為通過工程品質門檻的研究估算，不等同校準心率或醫療 ECG 判讀；不可用於診斷。$ECG_RESEARCH_SAFETY_NOTE"
         } else {
@@ -898,10 +898,10 @@ object HealthConclusionEngine {
                         ?.let { add("最大自相關 %.2f".format(it)) }
                     add("品質 ${ResearchScoreDisplay.format(qualityScore)} · 資料完整度 ${ResearchScoreDisplay.format(confidenceScore)}")
                 }.joinToString(" · ")
-                return Item("ppg", "PPG 光學", value, "${ClinicalReferenceTables.PPG_RATE_HZ.compare(null)} · $timeAndIndex",
+                return Item("ppg", "PPG 光學", if (measuredAt > 0L && timestampTrusted && age > TEN_MINUTES) "較早的光學訊號紀錄" else "已取得光學訊號，時間未確認", "${ClinicalReferenceTables.PPG_RATE_HZ.compare(null)} · $timeAndIndex",
                     detail + " 原始證據仍保留，不等同可換算脈率。", Level.RESEARCH, null, true)
             }
-            return Item("ppg", "PPG 光學", "0 點／0 事件 · 無法判定", ClinicalReferenceTables.PPG_RATE_HZ.compare(null),
+            return Item("ppg", "PPG 光學", "尚無光學脈搏結果", ClinicalReferenceTables.PPG_RATE_HZ.compare(null),
                 detail, Level.UNAVAILABLE, null, false)
         }
 
@@ -947,10 +947,7 @@ object HealthConclusionEngine {
         }
         if (rawOnly) {
             return Item(
-                "ppg", "PPG 光學", buildString {
-                    append("研究原始訊號")
-                    indexPeriodSamples?.takeIf { it > 0 }?.let { append(" · $samples 點 · 索引週期 $it 點") }
-                },
+                "ppg", "PPG 光學", "已取得光學訊號，尚無脈率結果",
                 compare,
                 if (wearUnconfirmed) {
                     "已收到 PPG 原始資料，但手錶佩戴狀態未知或判定離腕；不輸出脈率、HRV 或灌注指數。請戴妥手錶後重新量測。"
@@ -971,7 +968,7 @@ object HealthConclusionEngine {
             else ->
                 Triple(Level.RESEARCH, "已收到訊號，但品質／取樣條件未通過；請貼合錶帶並保持靜止後重測。訊號問題不是身體異常判定。", null)
         }
-        return Item("ppg", "PPG 光學", trustedPulse?.let { "%.0f bpm".format(it) } ?: "$flattenedValues 筆原始值",
+        return Item("ppg", "PPG 光學", trustedPulse?.let { "估算脈率 %.0f bpm".format(it) } ?: "已取得光學訊號，尚無脈率結果",
             compare, conclusion, level, score?.takeIf { it > 0 }, true)
     }
 

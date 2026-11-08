@@ -124,7 +124,7 @@ class WearMeasurePageActivity : ComponentActivity() {
         SUITE(
             "感測器檢查", "全感測器掃描", "#56AEFF",
             null, WearControlService.ACTION_SENSOR_SUITE, 0,
-            "會依序掃描公開通道並同步手機。掃描期間請佩戴並適度活動手腕。"
+            "會逐項檢查手錶可讀取的感測資料。請戴好手錶，依畫面提示操作。"
         ),
         HEART_RATE(
             "心率", "心率量測", "#FF5F73",
@@ -510,7 +510,7 @@ class WearMeasurePageActivity : ComponentActivity() {
             candidateTimeout = null
             if (index >= kinds.size) {
                 stopMeasure(publish = false)
-                headline.text = "通道無法啟動"
+                headline.text = "這次無法開始量測"
                 detail.text = "這次沒有取得${mode.subtitle}結果；請確認佩戴後重新量測。"
                 startButton.text = "重新量測"
                 doneButton.visibility = View.VISIBLE

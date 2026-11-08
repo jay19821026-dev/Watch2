@@ -361,9 +361,9 @@ class HealthConclusionEngineTest {
         )
 
         assertTrue(items.all { it.valueText != "—" })
-        assertTrue(items.all { it.valueText.contains("無法判定") })
+        assertTrue(items.all { it.valueText.isNotBlank() })
         assertTrue(items.any { it.valueText.contains("0 筆原始值") })
-        assertTrue(items.any { it.valueText.contains("0 點／0 事件") })
+        assertTrue(items.any { it.id == "ecg" && it.valueText == "尚無 ECG 結果" })
     }
 
     @Test
@@ -474,7 +474,7 @@ class HealthConclusionEngineTest {
         assertFalse(item.valueText.contains("bpm"))
         assertFalse(item.clinicalCompare.contains("PI "))
         assertTrue(item.conclusion.contains("時間來源未驗證"))
-        assertTrue(item.valueText.contains("時間來源未驗證"))
+        assertTrue(item.valueText.contains("時間未確認"))
     }
 
     @Test
@@ -597,7 +597,7 @@ class HealthConclusionEngineTest {
         assertEquals(HealthConclusionEngine.Level.RESEARCH, item.level)
         assertNull(item.score)
         assertTrue(item.available)
-        assertEquals("8 點 · 研究資料", item.valueText)
+        assertEquals("ECG 訊號不清楚，請重新量測", item.valueText)
         assertTrue(item.conclusion.contains("樣本數低於工程最低完整性門檻"))
     }
 
@@ -616,7 +616,7 @@ class HealthConclusionEngineTest {
         assertEquals(HealthConclusionEngine.Level.RESEARCH, item.level)
         assertNull(item.score)
         assertTrue(item.available)
-        assertTrue(item.valueText.contains("原始研究資料"))
+        assertTrue(item.valueText.contains("尚無心律結果"))
         assertFalse(item.valueText.contains("165"))
         assertTrue(item.conclusion.contains("隱藏 bpm"))
         assertTrue(item.clinicalCompare.contains("來源：公開 Sensor HAL 原始通道"))
@@ -644,7 +644,7 @@ class HealthConclusionEngineTest {
 
         assertEquals(HealthConclusionEngine.Level.RESEARCH, item.level)
         assertNull(item.score)
-        assertTrue(item.valueText.contains("研究估算"))
+        assertTrue(item.valueText.contains("估算心率"))
         assertFalse(HealthConclusionSummaryPolicy.shouldShowScore(item))
     }
 
@@ -682,20 +682,20 @@ class HealthConclusionEngineTest {
             )
 
         val eligible = evaluate(50f, "has_data", true)
-        assertTrue(eligible.valueText.contains("研究估算"))
-        assertTrue(evaluate(50f, "has_data", true, timelineSource = "NORMALIZED_INDEX").valueText.contains("原始研究資料"))
-        assertTrue(evaluate(50f, "has_data", true, timelineSource = "ESTIMATED").valueText.contains("原始研究資料"))
-        assertTrue(evaluate(0f, "has_data", true).valueText.contains("原始研究資料"))
-        assertTrue(evaluate(50f, "no_events", true).valueText.contains("原始研究資料"))
-        assertTrue(evaluate(50f, "has_data", false).valueText.contains("原始研究資料"))
-        assertTrue(evaluate(50f, "has_data", true, EcgPayloadInterpretationPolicy.UNMAPPED_EVENT_PREVIEW).valueText.contains("原始研究資料"))
+        assertTrue(eligible.valueText.contains("估算心率"))
+        assertTrue(evaluate(50f, "has_data", true, timelineSource = "NORMALIZED_INDEX").valueText.contains("尚無心律結果"))
+        assertTrue(evaluate(50f, "has_data", true, timelineSource = "ESTIMATED").valueText.contains("尚無心律結果"))
+        assertTrue(evaluate(0f, "has_data", true).valueText.contains("尚無心律結果"))
+        assertTrue(evaluate(50f, "no_events", true).valueText.contains("尚無心律結果"))
+        assertTrue(evaluate(50f, "has_data", false).valueText.contains("尚無心律結果"))
+        assertTrue(evaluate(50f, "has_data", true, EcgPayloadInterpretationPolicy.UNMAPPED_EVENT_PREVIEW).valueText.contains("尚無心律結果"))
         assertTrue(
             HealthConclusionEngine.ecgConclusion(
                 samples = 2_170, qualityScore = 80, hr = 900.0, rrCount = 14,
                 titleRhythm = "規律", measuredAt = 9_000L, now = 10_000L,
                 sampleRate = 50f, status = "has_data", wearQualified = true,
                 waveformEncoding = EcgPayloadInterpretationPolicy.VERIFIED_WAVEFORM_ENCODING
-            ).valueText.contains("原始研究資料")
+            ).valueText.contains("尚無心律結果")
         )
     }
 
@@ -908,7 +908,7 @@ class HealthConclusionEngineTest {
         )
 
         assertEquals(HealthConclusionEngine.Level.RESEARCH, item.level)
-        assertEquals("研究原始訊號", item.valueText)
+        assertEquals("已取得光學訊號，尚無脈率結果", item.valueText)
         assertTrue(item.available)
         assertTrue(item.clinicalCompare.contains("封包 16"))
         assertTrue(item.conclusion.contains("不能換算 bpm、HRV"))
@@ -937,7 +937,7 @@ class HealthConclusionEngineTest {
         )
 
         assertTrue(item.valueText.contains("時間未確認"))
-        assertTrue(item.valueText.contains("索引週期 40 點／週期"))
+        assertTrue(item.clinicalCompare.contains("最大自相關 0.91"))
         assertFalse(item.valueText.contains("歷史"))
         assertFalse(item.valueText.contains("bpm"))
         assertTrue(item.clinicalCompare.contains("NORMALIZED_INDEX"))
@@ -967,7 +967,7 @@ class HealthConclusionEngineTest {
 
         val item = HealthConclusionEngine.ppgConclusion(raw)
 
-        assertTrue(item.valueText.startsWith("研究原始訊號 · 512 點 · 索引週期 "))
+        assertTrue(item.valueText == "已取得光學訊號，尚無脈率結果")
         assertTrue(item.clinicalCompare.contains("最大自相關"))
         assertTrue(item.clinicalCompare.contains("品質 未評分"))
         assertTrue(item.clinicalCompare.contains("資料完整度 72/100"))
@@ -996,7 +996,7 @@ class HealthConclusionEngineTest {
         )
 
         assertRetainedResearchExcludedFromHealthSummary(item)
-        assertEquals("76 筆歷史原始值 · 16 事件", item.valueText)
+        assertEquals("較早的光學訊號紀錄", item.valueText)
         assertFalse(item.valueText.contains("bpm"))
         assertFalse(item.clinicalCompare.contains("PI "))
         assertTrue(item.conclusion.contains("超出健康結論 10 分鐘分析輸入窗"))
@@ -1019,7 +1019,7 @@ class HealthConclusionEngineTest {
         )
 
         assertEquals(HealthConclusionEngine.Level.RESEARCH, item.level)
-        assertEquals("研究原始訊號", item.valueText)
+        assertEquals("已取得光學訊號，尚無脈率結果", item.valueText)
         assertTrue(item.clinicalCompare.contains("不計算脈率"))
     }
 
@@ -1071,7 +1071,7 @@ class HealthConclusionEngineTest {
 
         assertEquals(SensorDisplayState.CALIBRATION_MISSING, displayState)
         assertRetainedResearchExcludedFromHealthSummary(conclusion)
-        assertEquals("76 筆歷史原始值 · 16 事件", conclusion.valueText)
+        assertEquals("較早的光學訊號紀錄", conclusion.valueText)
         assertFalse(conclusion.valueText.contains("bpm"))
         assertTrue(conclusion.conclusion.contains("超出健康結論 10 分鐘分析輸入窗"))
     }
@@ -1093,7 +1093,7 @@ class HealthConclusionEngineTest {
         )
 
         assertEquals(HealthConclusionEngine.Level.RESEARCH, item.level)
-        assertEquals("研究原始訊號", item.valueText)
+        assertEquals("已取得光學訊號，尚無脈率結果", item.valueText)
         assertTrue(item.clinicalCompare.contains("通道映射未驗證"))
     }
 
@@ -1136,7 +1136,7 @@ class HealthConclusionEngineTest {
         )
 
         listOf(unknownWear, offWrist).forEach { item ->
-            assertEquals("研究原始訊號", item.valueText)
+            assertEquals("已取得光學訊號，尚無脈率結果", item.valueText)
             assertEquals(HealthConclusionEngine.Level.RESEARCH, item.level)
             assertTrue(item.clinicalCompare.contains("佩戴狀態未確認"))
             assertTrue(item.conclusion.contains("佩戴狀態未知或判定離腕"))

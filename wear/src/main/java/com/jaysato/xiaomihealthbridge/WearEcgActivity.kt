@@ -188,7 +188,7 @@ class WearEcgActivity : ComponentActivity() {
                 if (snapshot.eventCount > 0) lastSampleAtMs = System.currentTimeMillis()
             }
         } }, onFailure = {
-            headline.text = "ECG 通道建立失敗"
+            headline.text = "這次無法開始 ECG 量測"
             detail.text = if (it is SecurityException) "請重新授予感測器權限後重試。" else "感測器初始化失敗；其他功能仍可使用，請重新量測。"
             rhythmStatus.text = "未啟動，沒有量測結果"
         }) ?: return
@@ -201,7 +201,7 @@ class WearEcgActivity : ComponentActivity() {
         if (!session.start()) {
             val failedSnapshot = session.stop()
             EcgMeasurementLease.release(session)
-            headline.text = "無法啟動 ECG 通道"
+            headline.text = "這次無法開始 ECG 量測"
             detail.text = "請確認感測器權限與佩戴狀態，然後重試。"
             rhythmStatus.text = "心律：無法啟動"
             runCatching { publishFinal(failedSnapshot) }.onFailure {

@@ -108,8 +108,8 @@ class WearHrvActivity : ComponentActivity() {
             candidateTimeout = null
             if (index >= kinds.size) {
                 active = false
-                headline.text = "通道無法啟動"
-                detail.text = "請開啟原廠心率頁後重試，或從晶片中心量測 PPG。"
+                headline.text = "這次無法開始量測"
+                detail.text = "請戴好手錶，開啟心率量測後再試一次。"
                 startButton.text = "再次量測"
                 return
             }

@@ -74,6 +74,16 @@ class ConsumerMetricPresentationTest {
         assertEquals("尚無脈率讀值", display.state)
     }
 
+    @Test fun explicitlyGatedResearchPulseKeepsReadableEstimate() {
+        val ecg = HealthConclusionEngine.Item("ecg", "ECG", "估算心率 75 bpm（研究參考）", "", "",
+            HealthConclusionEngine.Level.RESEARCH, null, true)
+        val ppg = HealthConclusionEngine.Item("ppg", "PPG", "估算脈率 72 bpm（研究參考）", "", "",
+            HealthConclusionEngine.Level.RESEARCH, null, true)
+        assertEquals("75 bpm · 研究估算", ConsumerMetricPresentation.from(ecg).value)
+        assertEquals("72 bpm · 研究估算", ConsumerMetricPresentation.from(ppg).value)
+        assertEquals("心律未判定", ConsumerMetricPresentation.from(ecg).state)
+    }
+
     @Test fun recordedSleepAndResearchHrvKeepReadableValuesWithoutClaimingNormalHealth() {
         val sleep = HealthConclusionEngine.Item(
             "sleep", "睡眠", "近 7 日 42.2 小時紀錄區間", "", "",

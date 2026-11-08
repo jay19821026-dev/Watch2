@@ -138,7 +138,8 @@ object ConsumerMetricPresentation {
             "sleep" -> captured("^近 7 日\\s+([0-9]+(?:\\.[0-9]+)?)\\s*小時紀錄區間")?.let { "$it 小時 · 7 日紀錄" }
             "pressure" -> captured("^([0-9]+(?:\\.[0-9]+)?)\\s*hPa")?.let { "$it hPa" }
             "hrv" -> captured("RMSSD\\s+([0-9]+(?:\\.[0-9]+)?)\\s*ms")?.let { "$it ms · 研究估算" }
-            "ppg", "ecg" -> captured("^([0-9]+(?:\\.[0-9]+)?)\\s*bpm")?.let { "$it bpm · 研究估算" }
+            "ppg", "ecg" -> captured("^估算(?:心率|脈率)\\s+([0-9]+(?:\\.[0-9]+)?)\\s*bpm（研究參考）")
+                ?.let { "$it bpm · 研究估算" }
             else -> null
         }
     }
