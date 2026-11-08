@@ -73,7 +73,7 @@ class MetricDetailActivity : ComponentActivity() {
         "sleep" -> "#B498FF"; "weight" -> "#69D6E9"; "calories" -> "#FF9B60"; else -> "#FF607E"
     })
     private val title get() = mapOf("heart_rate" to "心率", "resting_heart_rate" to "靜止心率", "oxygen" to "血氧",
-        "steps" to "步數", "distance" to "距離", "sleep" to "睡眠", "calories" to "活動熱量", "weight" to "體重", "temperature" to "體表溫度")[metric] ?: "健康"
+        "steps" to "步數", "distance" to "距離", "sleep" to "睡眠", "calories" to "活動熱量", "weight" to "體重", "temperature" to "腕部體溫紀錄")[metric] ?: "健康"
     private val unit get() = when(metric) {
         "oxygen" -> "%"; "temperature" -> "°C"; "steps" -> "步"; "distance" -> "km"; "sleep" -> "小時"
         "calories" -> "kcal"; "weight" -> "kg"; else -> "次/分"
@@ -358,7 +358,10 @@ class MetricDetailActivity : ComponentActivity() {
             Point(it.time, it.percentage.value, it.metadata.dataOrigin.packageName, recordingMethod = it.metadata.recordingMethod)
         }
         "temperature" -> records(BodyTemperatureRecord::class, queryEnd)
-            .filter { it.metadata.dataOrigin.packageName != packageName }
+            .filter {
+                it.metadata.dataOrigin.packageName != packageName &&
+                    it.measurementLocation == BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_WRIST
+            }
             .map { Point(it.time, it.temperature.inCelsius, it.metadata.dataOrigin.packageName) }
         "weight" -> records(WeightRecord::class, queryEnd).map { Point(it.time, it.weight.inKilograms, it.metadata.dataOrigin.packageName) }
         "steps" -> records(StepsRecord::class, queryEnd)
@@ -659,10 +662,11 @@ class MetricDetailActivity : ComponentActivity() {
                 )
                 "heart_rate" -> it.forHeartRate(clinicalValue, resting = false)
                 "resting_heart_rate" -> it.forHeartRate(clinicalValue, resting = true)
-                "temperature" -> {
-                    val v = ClinicalVerdict.forTemperature(clinicalValue, selected.size, "has_data", null)
-                    ClinicalMetricCalibration.Result(metric, clinicalValue, v.grade, v.score, v.headline, v.clinicalComparisons, v.qualityScoreAvailable)
-                }
+                "temperature" -> ClinicalMetricCalibration.Result(
+                    metric, clinicalValue, "不評分", null,
+                    "僅顯示 Health Connect 腕部位置的體溫紀錄；量測位置與方法未經本 App 校驗，不套用核心體溫參考範圍，也不視為原廠 skinTemp 日報表。",
+                    emptyList(), false
+                )
                 "sleep" -> it.forSleepHours(sleepDailyMean)
                 "steps" -> it.forSteps(stepsDailyMean)
                 else -> ClinicalMetricCalibration.Result(
