@@ -18,11 +18,11 @@ class WearReadinessActivity : ComponentActivity() {
         val readiness100 = WearInsightPacketPolicy.compositeScoreForDisplay(prefs.getInt("readiness", -1))
         val readiness10 = readiness100?.let { ((it + 5) / 10).coerceIn(0, 10) } ?: -1
         val status = when (readiness10) {
-            in 0..3 -> "規則指標較低"
-            in 4..5 -> "規則指標中低"
-            in 6..8 -> "規則指標中等"
-            in 9..10 -> "規則指標較高"
-            else -> "複合分數目前停用"
+            in 0..3 -> "今日恢復狀態偏低"
+            in 4..5 -> "今日恢復狀態稍低"
+            in 6..8 -> "今日恢復狀態平穩"
+            in 9..10 -> "今日恢復狀態較好"
+            else -> "今日沒有恢復評估"
         }
         val color = when (readiness10) {
             in 0..3 -> "#FF5F57"
@@ -37,44 +37,32 @@ class WearReadinessActivity : ComponentActivity() {
         val temp = prefs.getFloat("temperature_deviation", Float.NaN)
         val timestamp = prefs.getLong("timestamp", 0L)
         val dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-        fun sourceTime(key: String): String = prefs.getLong(key, 0L).takeIf { it > 0L }
-            ?.let { dateFormat.format(Date(it)) } ?: "時間未提供"
-        val sleepTimeLabel = if (prefs.getBoolean("sleep_inferred", false)) {
-            "心率推估樣本區間 ${sourceTime("sleep_inference_start_at")} 至 ${sourceTime("sleep_inference_end_at")}"
-        } else "睡眠紀錄結束 ${sourceTime("sleep_session_end_at")}"
-        val trainingWindow = "${sourceTime("training_window_start_at")} 至 ${sourceTime("training_window_end_at")}"
         val body = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER_HORIZONTAL
             setPadding(dp(16), dp(18), dp(16), dp(28)); setBackgroundColor(Color.BLACK)
             addView(text("健康資料摘要", 10f, Color.rgb(100, 210, 255)))
-            addView(text("個別觀測與訓練紀錄", 19f, Color.WHITE))
-            addView(TextView(context).apply {
-                text = if (readiness10 >= 0) "$readiness10" else "—"
-                textSize = 48f; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
+            addView(text("今天的紀錄", 19f, Color.WHITE))
+            if (readiness10 >= 0) addView(TextView(context).apply {
+                text = "$readiness10 / 10"
+                textSize = 28f; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
                 background = GradientDrawable(GradientDrawable.Orientation.TL_BR,
                     intArrayOf(Color.parseColor(color), Color.parseColor("#18191D"))).apply { shape = GradientDrawable.OVAL }
             }, LinearLayout.LayoutParams(dp(115), dp(115)).apply { topMargin = dp(12) })
             addView(text(status, 19f, Color.parseColor(color)))
-            addView(card("恢復／電量／壓力", "未提供未驗證複合分數"))
             val sleepLabel = when {
-                prefs.getBoolean("sleep_inferred", false) -> "低心率跨度"
+                prefs.getBoolean("sleep_inferred", false) -> "睡眠紀錄"
                 sleepStagesComplete -> "睡眠時長"
-                else -> "睡眠 session"
+                else -> "睡眠時段"
             }
             val sleepValue = when {
-                sleep.isFinite() -> "%.1f 小時${if (prefs.getBoolean("sleep_inferred", false)) "（非睡眠紀錄）" else ""}".format(sleep)
-                sleepSession.isFinite() -> "%.1f 小時（session時段，非實際睡眠）".format(sleepSession)
-                else -> "—"
+                sleep.isFinite() && !prefs.getBoolean("sleep_inferred", false) -> "%.1f 小時".format(sleep)
+                sleepSession.isFinite() -> "%.1f 小時（含可能醒來時間）".format(sleepSession)
+                else -> "尚無紀錄"
             }
             addView(card(sleepLabel, sleepValue))
             addView(card("訓練負荷", WearReadinessPresentation.trainingLoad(prefs.getInt("training_load", -1))))
-            addView(card("腕溫偏移", if (temp.isFinite()) "%+.1f °C".format(temp) else "—"))
-            addView(text(if (timestamp > 0) "手機分析更新 ${dateFormat.format(Date(timestamp))} · 信心度 ${prefs.getString("confidence", "—")}" else "請在手機開啟健康中心更新分析", 10f, Color.LTGRAY))
-            addView(text("靜息心率時間：${sourceTime("rhr_measured_at")} · HRV 時間：${sourceTime("hrv_measured_at")} · $sleepTimeLabel", 10f, Color.LTGRAY))
-            addView(text("腕溫來源時間：${sourceTime("temperature_measured_at")} · 訓練負荷區間：$trainingWindow", 10f, Color.LTGRAY))
-            addView(text("血氧觀測區間：${sourceTime("oxygen_window_start_at")} 至 ${sourceTime("oxygen_window_end_at")} · 每日能量：${sourceTime("daily_energy_window_start_at")} 至 ${sourceTime("daily_energy_window_end_at")}", 10f, Color.LTGRAY))
-            addView(text("Health Connect 查詢資料截止（非量測時間）：${sourceTime("source_data_cutoff_at")}", 10f, Color.LTGRAY))
-            addView(text("目前不提供未具可追溯驗證的壓力、電量、恢復或準備度複合分數；活動卡路里不作訓練負荷。", 10f, Color.rgb(255, 190, 120)))
+            if (temp.isFinite()) addView(card("腕溫變化", "%+.1f °C".format(temp)))
+            addView(text(if (timestamp > 0) "更新於 ${dateFormat.format(Date(timestamp))}" else "請在手機開啟健康中心更新紀錄", 10f, Color.LTGRAY))
         }
         WearUi.installScrollable(this, body)
     }

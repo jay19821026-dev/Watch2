@@ -41,7 +41,7 @@ class WearHrvActivity : ComponentActivity() {
                 setPadding(0, dp(6), 0, dp(6))
             })
             addView(TextView(context).apply {
-                text = "公開感測通道的 HRV 研究估算；與原廠壓力量測分開。有足夠 RR 後自動結束。"
+                text = "戴好手錶並保持靜止，完成後顯示本次 HRV。"
                 textSize = 11f; gravity = Gravity.CENTER; setTextColor(Color.rgb(150, 158, 178))
             })
             addView(TextView(context).apply {
@@ -49,7 +49,7 @@ class WearHrvActivity : ComponentActivity() {
                 setPadding(0, dp(16), 0, dp(8))
             }.also { headline = it })
             addView(TextView(context).apply {
-                text = "請靜止貼合；優先 PPG，再試 LifeQ／max_hr。每通道最多 15 秒。"
+                text = "手錶貼合手腕，量測時保持不動。"
                 textSize = 12f; gravity = Gravity.CENTER; setTextColor(Color.rgb(170, 180, 200))
             }.also { detail = it })
             addView(Button(context).apply {
@@ -117,10 +117,10 @@ class WearHrvActivity : ComponentActivity() {
             val session = RawVitalsProbe(this, kind) { snap ->
                 runOnUiThread {
                     if (!active) return@runOnUiThread
-                    headline.text = "${kind.label} · ${snap.samples} 點"
+                    headline.text = "正在記錄心跳"
                     val optical = ClinicalSensorFormulas.opticalFromWaveform(snap.waveform.toList(), snap.sampleRateHz)
                     val hrv = ClinicalSensorFormulas.hrvFromRr(optical.rrIntervalsMs)
-                    detail.text = "等待足夠 RR… 目前 ${hrv.rrCount}"
+                    detail.text = "請保持靜止，量測即將完成。"
                     if (WearMeasurementPolicy.hasEnoughRrIntervalsForHrv(hrv.rrCount)) {
                         stopCapture(publish = true)
                     }
@@ -133,8 +133,8 @@ class WearHrvActivity : ComponentActivity() {
             probe = session
             active = true
             startButton.text = "量測中…"
-            headline.text = "量測中（${kind.label}）"
-            detail.text = "保持靜止；有足夠 RR 後結束"
+            headline.text = "量測中"
+            detail.text = "請保持靜止。"
             val timeout = Runnable {
                 if (!active || probe !== session) return@Runnable
                 if (index + 1 < kinds.size) {
@@ -177,7 +177,6 @@ class WearHrvActivity : ComponentActivity() {
                 hrv.rrCount
             )) ClinicalSensorFormulas.researchStressScore(hrv.nRmssd, hrv.bpm ?: optical.pulseRateBpm)
             else null
-        val line = ClinicalSensorFormulas.summaryLine(optical, hrv, null, stressScore)
         headline.text = if (WearMeasurementPolicy.hasEnoughRrIntervalsForHrv(hrv.rrCount))
             "HRV 量測完成" else "這次沒有可用的 HRV 讀值"
         detail.text = if (WearMeasurementPolicy.hasEnoughRrIntervalsForHrv(hrv.rrCount))
