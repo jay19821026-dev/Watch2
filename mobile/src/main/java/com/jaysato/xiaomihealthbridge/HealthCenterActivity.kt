@@ -232,9 +232,9 @@ class HealthCenterActivity : ComponentActivity() {
                     maxAge
                 )
             val wornText = when {
-                !feature.contains("worn") || !isFreshSensorFeature("worn", HeartRatePresentationPolicy.WEAR_STATE_FRESHNESS_MILLIS) -> "佩戴狀態尚未掃描／資料已過期或時間來源不可信"
-                feature.getBoolean("worn", false) -> "離腕感測器回報已佩戴；不代表生理校準完成"
-                else -> "離腕感測器回報未貼合；狀態待確認"
+                !feature.contains("worn") || !isFreshSensorFeature("worn", HeartRatePresentationPolicy.WEAR_STATE_FRESHNESS_MILLIS) -> "佩戴狀態待更新"
+                feature.getBoolean("worn", false) -> "手錶顯示已佩戴"
+                else -> "手錶顯示未貼合；請調整錶帶"
             }
             val featureLines = buildList {
                 add(wornText)
@@ -293,16 +293,16 @@ class HealthCenterActivity : ComponentActivity() {
                     feature.contains(field) && !isFreshSensorFeature(field)
                 }.map { it.second }
                 if (unavailableFeatures.isNotEmpty()) {
-                    add("${unavailableFeatures.joinToString("、")}快照已過期或時間來源不可信；未列為目前讀值（顯示窗 30 分鐘）")
+                    add("${unavailableFeatures.joinToString("、")}是較早的紀錄；請重新檢查手錶狀態。")
                 } else if (size == 1) {
-                    add("功能快照尚未同步；請從裝置頁重新掃描")
+                    add("尚未收到手錶狀態；請重新檢查。")
                 }
             }
-            body.addView(card("最近功能快照", featureLines.joinToString("\n"), Color.rgb(99, 178, 255)), margin(bottom = 10))
+            body.addView(card("手錶目前狀態", featureLines.joinToString("\n"), Color.rgb(99, 178, 255)), margin(bottom = 10))
             body.addView(text("立即量測", 20f, Color.WHITE, true), margin(top = 18, bottom = 10))
             body.addView(card(
-                "手錶研究量測控制台",
-                "僅在你點擊時啟動手錶前景量測；不建立背景常駐掃描。ECG／PPG／BIOZ 僅供原始訊號與品質研究，不能作醫療診斷。",
+                "手錶量測",
+                "點選項目開始量測。心電、脈搏與體成分訊號的結果會依可用資料顯示。",
                 Color.rgb(0, 180, 150)
             ), margin(bottom = 10))
             body.addView(watchActionRow(
