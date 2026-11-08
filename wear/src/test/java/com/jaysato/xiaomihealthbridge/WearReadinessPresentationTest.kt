@@ -5,13 +5,13 @@ import org.junit.Test
 
 class WearReadinessPresentationTest {
     @Test
-    fun trainingLoadUsesArbitraryUnitsAndKeepsMeasuredZero() {
-        assertEquals("0 AU", WearReadinessPresentation.trainingLoad(0))
-        assertEquals("42 AU", WearReadinessPresentation.trainingLoad(42))
+    fun trainingLoadExplainsAnEstimateWithoutShowingArbitraryUnits() {
+        assertEquals("已取得運動負荷估算", WearReadinessPresentation.trainingLoad(0))
+        assertEquals("已取得運動負荷估算", WearReadinessPresentation.trainingLoad(42))
     }
 
     @Test
     fun missingTrainingLoadExplainsUnavailableData() {
-        assertEquals("尚無有效訓練負荷資料", WearReadinessPresentation.trainingLoad(-1))
+        assertEquals("尚無運動負荷紀錄", WearReadinessPresentation.trainingLoad(-1))
     }
 }

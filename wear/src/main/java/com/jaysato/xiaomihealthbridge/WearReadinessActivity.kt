@@ -80,5 +80,5 @@ class WearReadinessActivity : ComponentActivity() {
 
 internal object WearReadinessPresentation {
     fun trainingLoad(value: Int): String =
-        if (value >= 0) "$value AU" else "尚無有效訓練負荷資料"
+        if (value >= 0) "已取得運動負荷估算" else "尚無運動負荷紀錄"
 }

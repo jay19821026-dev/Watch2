@@ -30,7 +30,7 @@ class WearSleepActivity : ComponentActivity() {
             sessionHours.isFinite() && sessionHours > 0f -> sessionHours
             else -> Float.NaN
         }
-        val hoursText = if (displayedHours.isFinite()) "%.1f".format(displayedHours) else "—"
+        val hoursText = if (!inferred && displayedHours.isFinite()) "%.1f".format(displayedHours) else "—"
         setContent {
             WearComposeUi.Screen("睡眠") {
                 item {
@@ -46,10 +46,10 @@ class WearSleepActivity : ComponentActivity() {
                 item {
                     Text(
                         when {
-                            !displayedHours.isFinite() || displayedHours <= 0f -> "小時 · 詳情在手機 Sleep 專頁"
-                            inferred -> "小時 · 低心率跨度，非睡眠紀錄"
-                            stagesComplete -> "小時 · Health Connect 分期完整覆蓋，已扣除清醒"
-                            else -> "小時 · 睡眠 session 時段，非實際睡眠時數"
+                            inferred -> "尚無可確認的睡眠時長"
+                            !displayedHours.isFinite() || displayedHours <= 0f -> "尚無睡眠紀錄"
+                            stagesComplete -> "小時 · 已扣除記錄的清醒時間"
+                            else -> "小時 · 睡眠時段，可能包含醒來時間"
                         },
                         color = WearComposeUi.Secondary,
                         fontSize = 12.sp,
@@ -59,7 +59,7 @@ class WearSleepActivity : ComponentActivity() {
                 }
                 item {
                     Text(
-                        "REM／核心／深睡：無經驗證分期 API，不推算假分期。",
+                        "睡眠階段目前沒有可靠紀錄；詳情可在手機查看。",
                         color = Color(0xFFFFBE78),
                         fontSize = 11.sp,
                         textAlign = TextAlign.Center,

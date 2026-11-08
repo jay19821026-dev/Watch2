@@ -27,11 +27,11 @@ object WearHealthConclusion {
     }
 
     fun forHrv(rmssdMs: Double?): String {
-        if (rmssdMs == null || !rmssdMs.isFinite()) return "結論：尚無 HRV"
+        if (rmssdMs == null || !rmssdMs.isFinite()) return "請重新量測心率變化"
         return when {
-            rmssdMs in 15.0..70.0 -> "結論：RMSSD 落在短時研究常見帶"
-            rmssdMs < 15.0 -> "結論：RMSSD 偏低·可能壓力／過短量測"
-            else -> "結論：RMSSD 偏高於常見帶·研究參考"
+            rmssdMs in 15.0..70.0 -> "HRV ${"%.0f".format(rmssdMs)} ms · 在程式研究參考範圍內"
+            rmssdMs < 15.0 -> "HRV ${"%.0f".format(rmssdMs)} ms · 低於程式研究參考範圍"
+            else -> "HRV ${"%.0f".format(rmssdMs)} ms · 高於程式研究參考範圍"
         }
     }
 

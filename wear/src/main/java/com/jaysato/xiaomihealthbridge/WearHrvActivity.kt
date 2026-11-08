@@ -33,15 +33,15 @@ class WearHrvActivity : ComponentActivity() {
             setPadding(dp(18), dp(18), dp(18), dp(28))
             setBackgroundColor(Color.BLACK)
             addView(TextView(context).apply {
-                text = "HRV / STRESS RESEARCH"; textSize = 10f; letterSpacing = .12f; gravity = Gravity.CENTER
+                text = "HEART RATE VARIABILITY"; textSize = 10f; letterSpacing = .12f; gravity = Gravity.CENTER
                 setTextColor(Color.rgb(255, 180, 120))
             })
             addView(TextView(context).apply {
-                text = "心率變異／壓力專屬頁"; textSize = 20f; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
+                text = "心率變化"; textSize = 20f; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
                 setPadding(0, dp(6), 0, dp(6))
             })
             addView(TextView(context).apply {
-                text = "戴好手錶並保持靜止，完成後顯示本次 HRV。"
+                text = "戴好手錶並保持靜止，完成後查看本次結果。"
                 textSize = 11f; gravity = Gravity.CENTER; setTextColor(Color.rgb(150, 158, 178))
             })
             addView(TextView(context).apply {
@@ -77,7 +77,7 @@ class WearHrvActivity : ComponentActivity() {
                 }
             }, LinearLayout.LayoutParams(-1, dp(50)).apply { topMargin = dp(8) })
             addView(TextView(context).apply {
-                text = "本頁的 HRV／壓力研究值不是小米的壓力分數，也不是醫療診斷。"
+                text = "本頁顯示心率變化參考；不代表疾病判斷。"
                 textSize = 11f; setTextColor(Color.rgb(255, 190, 120)); setPadding(0, dp(14), 0, 0)
             })
         }
