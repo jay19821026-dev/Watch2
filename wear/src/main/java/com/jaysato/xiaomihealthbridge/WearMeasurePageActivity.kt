@@ -775,24 +775,21 @@ class WearMeasurePageActivity : ComponentActivity() {
             }
             else -> null
         }
+        val hasCapturedSignal = snapshot.samples > 0 || snapshot.eventCount > 0
         headline.text = when {
             mode == Mode.PPG && supplementalHeartRate != null -> "已取得心率讀值"
-            snapshot.samples <= 0 -> "這次沒有量到讀值"
+            !hasCapturedSignal -> "這次沒有收到量測資料"
             mode == Mode.HEART_RATE && primary != null -> "心率已取得 · 已同步手機"
             mode == Mode.HEART_RATE -> "這次沒有量到心率"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && primary != null -> "已取得脈搏參考值"
-            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && opticalCaptureUsable -> "這次沒有可用的脈搏讀值"
-            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && snapshot.samples > 0 -> "這次沒有脈搏結果 · 請重新量測"
+            mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) && hasCapturedSignal -> "已收到脈搏訊號"
             mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) -> "沒有收到可用光學訊號"
             mode == Mode.TEMPERATURE && snapshot.worn == false -> "請戴好手錶後重測"
-            mode == Mode.TEMPERATURE && snapshot.worn == null -> "請確認手錶貼合手腕後重測"
-            mode == Mode.TEMPERATURE -> "目前無法顯示腕部溫度"
+            mode == Mode.TEMPERATURE -> "已收到溫度訊號"
             mode == Mode.SPO2 && snapshot.worn == false -> "請戴好手錶後重測"
-            mode == Mode.SPO2 && snapshot.worn == null -> "請確認手錶貼合手腕後重測"
-            mode == Mode.SPO2 -> "目前無法顯示血氧百分比"
+            mode == Mode.SPO2 -> "已收到血氧訊號"
             mode in setOf(Mode.BIOZ, Mode.RESPIRATION) && snapshot.worn == false -> "請戴好手錶後重測"
-            mode in setOf(Mode.BIOZ, Mode.RESPIRATION) && snapshot.worn == null -> "請確認手錶貼合手腕後重測"
-            mode in setOf(Mode.BIOZ, Mode.RESPIRATION) -> "目前無法顯示體成分結果"
+            mode in setOf(Mode.BIOZ, Mode.RESPIRATION) -> "已收到體成分訊號"
             else -> "這次沒有可用的結果"
         }
         if (primary != null) {
@@ -815,6 +812,10 @@ class WearMeasurePageActivity : ComponentActivity() {
             )
             primary != null && mode == Mode.PPG -> "已取得心率讀值；可在手機查看趨勢。"
             snapshot.worn == false -> "請戴好手錶後重新量測。"
+            hasCapturedSignal && mode == Mode.TEMPERATURE -> "尚無可用的體溫讀值；可在手機查看訊號。"
+            hasCapturedSignal && mode == Mode.SPO2 -> "尚無可用的血氧百分比；可在手機查看訊號。"
+            hasCapturedSignal && mode in setOf(Mode.BIOZ, Mode.RESPIRATION) -> "尚無可用的體成分讀值；可在手機查看訊號。"
+            hasCapturedSignal && mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) -> "尚無可用的脈率讀值；可在手機查看訊號。"
             else -> "請保持手錶貼合、手腕靜止後重新量測。"
         }
         startButton.text = "再次量測"
