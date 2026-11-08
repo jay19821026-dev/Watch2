@@ -1,5 +1,20 @@
 # Data-window audit / 資料時間窗對照
 
+## 9.8.348i vs 3.59.2i / 兩版交叉核對
+
+The local 9.8.348i decompilation exposes `com/xiaomi/fit/fitness/export/data/item/HrItem.java` (`time`, `bpm`) and `Spo2Item.java` (`time`, typed SpO2), plus `com/xiaomi/fitness/repo/heartrate/HeartRateBiz.java`, `spo2/Spo2Biz.java`, `sleep/SleepBiz.java`, and `teperature/TemperatureBiz.java`. The 3.59.2i decompilation exposes the separate Health Connect writer path under `com/xiaomi/fitness/repo/healthconnect/biz/daily`. These are two inspected APKs and two different paths; the 9.8.348i aggregation code must not be described as a Health Connect writer.
+
+本機 9.8.348i 反組譯可核對原廠型別化資料項目與彙總類別；3.59.2i 則另有 Health Connect 寫入路徑。兩個版本、兩條路徑不可混稱。
+
+| Metric / 項目 | 9.8.348i typed aggregation / 型別化彙總 | 3.59.2i Health Connect export / 寫入 | AILISA status / 狀態 |
+| --- | --- | --- | --- |
+| Heart rate / 心率 | `HeartRateBiz` keeps positive `HrItem.hr`, uses each `HrItem.time`, and groups by view tag into minute, half-hour, hour or day buckets. | `HrSyncBiz` puts sample timestamps into `HeartRateRecord`; the enclosing record uses a separate sync bucket. | Reads individual sample timestamps and bpm. The detail page now filters samples to `[start, end)` **before** validating them, so a boundary-spanning OEM record does not invalidate the whole page. OEM display aggregation and source priority are not reproduced. / 逐筆時間與數值對應；圖表彙總不等同原廠。 |
+| Oxygen / 血氧 | `Spo2Biz` keeps positive typed `Spo2Item.spo2`, uses `Spo2Item.time`, and groups chart values by hour, half-hour or day. | `Spo2SyncBiz` writes typed SpO2 to `OxygenSaturationRecord.percentage` at `Spo2Item.time`. | Reads typed Health Connect percentage and measurement time. Raw optical events are not interpreted as percent; OEM grouping is not reproduced. / 讀取型別化百分比，不將原始光學值冒充血氧。 |
+| Sleep / 睡眠 | `SleepBiz` forms `SleepSegmentReport` with bed/wake times, then uses `SleepAggregateUtils.aggregateDaySleep` and `DaySleepReportUtils` for daily/weekly reports; it also attaches sleep HR/SpO2 detail where available. | `SleepSyncBiz` exports bed/wake interval and stages to `SleepSessionRecord`. | Reads exported session/stages and clips intervals at the selected range. It does not reproduce the OEM daily/weekly sleep algorithm or infer sleep from HR. / 使用已匯出區間與階段，未複製原廠睡眠演算法。 |
+| Temperature / 溫度 | `TemperatureBiz` separately checks positive `bodyTemp` and `skinTemp`, computing distinct averages/min/max and chart buckets. | No temperature writer was established in the inspected `healthconnect/biz/daily` path. | Reads wrist-location `BodyTemperatureRecord` from Health Connect with its stated origin; cannot equate this to OEM skin/body typed reports. / 腕部 HC 紀錄不等於原廠型別化日報表。 |
+
+These comparisons establish field and time semantics visible in decompiled code, not equality of live readings or clinical algorithms. Device-side paired samples and a verified OEM export would be needed for numerical parity. / 此處只證實可見程式的欄位與時間語意；沒有同時段實測樣本，不能宣稱數值或醫學判讀一致。
+
 Checked against the locally decompiled Mi Fitness 3.59.2i APK on 2026-11-08. Paths below refer to local research material, not files shipped in this repository. Decompiled Java can misrepresent Kotlin boundaries; the statements here are limited to visible call paths. This audit does **not** establish the OEM's clinical decision window or signal calibration.
 
 本頁對照 2026-11-08 本機反組譯的 Mi Fitness 3.59.2i。所列路徑是研究用本機素材，不隨 AILISA 發行。反組譯 Java 對 Kotlin 邊界可能失真；下表只記載能核對的呼叫路徑，**不能**據此宣稱掌握原廠臨床判讀窗或訊號校準。

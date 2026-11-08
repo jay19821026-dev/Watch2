@@ -349,8 +349,11 @@ class MetricDetailActivity : ComponentActivity() {
         val result = when(metric) {
         "heart_rate" -> buildList {
             records(HeartRateRecord::class, queryEnd).forEach { record ->
-                if (size + record.samples.size > MAX_POINTS) throw MetricHistoryLimitException()
-                addAll(record.samples.map { Point(it.time, it.beatsPerMinute.toDouble(), record.metadata.dataOrigin.packageName) })
+                val samplesInRange = record.samples.filter {
+                    MetricPointIntegrityPolicy.isInHalfOpenRange(it.time, start, queryEnd)
+                }
+                if (size + samplesInRange.size > MAX_POINTS) throw MetricHistoryLimitException()
+                addAll(samplesInRange.map { Point(it.time, it.beatsPerMinute.toDouble(), record.metadata.dataOrigin.packageName) })
             }
         }
         "resting_heart_rate" -> records(RestingHeartRateRecord::class, queryEnd).map { Point(it.time, it.beatsPerMinute.toDouble(), it.metadata.dataOrigin.packageName) }

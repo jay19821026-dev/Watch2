@@ -14,7 +14,7 @@ Publication status / 發布狀態：**draft; LinkedIn profile has not been updat
 
 **說明：**
 
-由王宥傑獨立開發的開源 Android 手機與 Wear OS 健康資料專案，支援 Xiaomi Watch 2 Pro。以 Wear OS Health Services、Wearable Data Layer 與 Health Connect 整理使用者授權的心率、活動、睡眠等紀錄，並標示來源、時間、品質與同步狀態。4.0 test 24 對照 Mi Fitness 3.53.0i 與配對手機 3.59.2i 的步數及活動熱量同步：原廠依內部來源分組後取最高合計值。本專案優先使用 Health Connect 的平台彙總；不可用時檢查來源與時段，避免重疊紀錄相加，並標示備援值不是去重或完整日總量。手錶首頁已實機修正重疊文字。GitHub 提供雙端原始碼與測試 APK、中英文文件，以及公開資料庫、論文與演算法用途對照。ECG 原始事件僅供研究，不宣稱已解鎖原廠 ECG 或具醫療診斷能力。
+由王宥傑獨立開發的開源 Android 手機與 Wear OS 健康資料專案，以 Xiaomi Watch 2 Pro 作為相容性研究裝置。使用 Wear OS Health Services、Wearable Data Layer 與 Health Connect 整理授權的心率、活動、睡眠紀錄，顯示來源、量測時間、品質與同步狀態。4.0 test 27 對照反組譯的 Mi Fitness 與原廠手錶資料流，修正心率逐樣本時間、跨界睡眠時段、血氧量測時間與腕部體溫圖表窗口；不再以低心率跨度推估睡眠，也不顯示缺乏本裝置驗證的 VO₂max 數字。GitHub 提供手機／手錶原始碼、雙端測試 APK、中英文文件及資料庫、論文、演算法用途對照。ECG、PPG 與 BioZ 原始事件仍屬研究資料，不宣稱已解鎖原廠功能或具醫療診斷能力。test 27 已通過雙端建置與單元測試，尚待配對裝置量測驗證。
 
 ## English
 
@@ -26,9 +26,17 @@ Publication status / 發布狀態：**draft; LinkedIn profile has not been updat
 
 **Description:**
 
-An open-source Android phone and Wear OS health-data project independently developed by Wang You-Jie, compatible with Xiaomi Watch 2 Pro. It uses Wear OS Health Services, the Wearable Data Layer and Health Connect to organize user-authorized heart-rate, activity and sleep records with visible provenance, timing, quality and sync state. Version 4.0 test 24 compares Mi Fitness 3.53.0i and the paired phone's 3.59.2i step and active-calorie synchronization, where the OEM groups internal sources and takes the highest source total. AILISA prefers Health Connect's platform aggregate; its fallbacks check source intervals rather than adding overlapping records, and label the source maximum as neither a deduplicated nor a complete daily total. The watch home layout was corrected on the paired device. Phone and watch source, test APKs, bilingual documentation and a dataset–paper–algorithm use map are public. Raw ECG events remain research-only; no OEM ECG unlock or medical-diagnostic claim is made.
+An open-source Android phone and Wear OS health-data project independently developed by Wang You-Jie, using Xiaomi Watch 2 Pro for compatibility research. Wear OS Health Services, the Wearable Data Layer and Health Connect organize authorized heart-rate, activity and sleep records with visible source, measurement time, quality and sync state. Version 4.0 test 27 compares decompiled Mi Fitness and OEM watch data paths to correct per-sample heart-rate timing, boundary-crossing sleep intervals, oxygen measurement time and wrist-temperature chart windows. It no longer treats low-heart-rate spans as sleep or displays an unvalidated VO₂max number. Phone and watch source, test APKs, bilingual documentation and a dataset–paper–algorithm use map are public. Raw ECG, PPG and BioZ events remain research-only; no OEM feature unlock or medical-diagnostic claim is made. Test 27 passed both builds and unit tests; paired-device measurement validation is pending.
+
+## One-field bilingual version / 單一欄位中英文短版
+
+王宥傑開發的 Android 與 Wear OS 開源健康資料研究專案，以 Xiaomi Watch 2 Pro 為相容性研究裝置。4.0 test 27 對照原廠資料流修正量測時間、睡眠時段與腕部體溫圖表；雙端原始碼、測試 APK、論文與資料庫用途對照已公開。ECG／PPG／BioZ 僅供研究；雙端建置與單元測試通過，真機量測待驗證。
+
+Open-source Android and Wear OS health-data research by Wang You-Jie. Test 27 corrects timing, sleep and wrist-temperature views using inspected OEM data paths. Phone/watch source, test APKs and research provenance are public. ECG/PPG/BioZ remain research-only; paired-device measurement validation is pending.
+
+Project: https://ailisa.net/portfolio/ailisa-health-bridge
 
 ## Evidence before posting / 發布前核對
 
-- Test 24 is public on GitHub Release and ailisa.net (Site version 194); the real test 20 Wear screenshot remains on the site and its home layout carries into test 24. Both test 24 APKs installed; the phone's ungranted Health Connect state remains. Watch sensors, consented Mi Fitness records and bidirectional sync remain unverified. Signed Play AABs are local candidates only and have not been uploaded. Do not claim OEM ECG unlock or clinical validation.
+- Test 27 is public on GitHub Release and ailisa.net (Site version 198). Both APKs passed builds and unit tests, but ADB listed no devices before publication; no test 27 install or live measurement is claimed. The site's watch photo is an older test 20 capture. Signed Play AABs have not been uploaded. Do not claim OEM ECG unlock or clinical validation.
 - Add the project to the user's own LinkedIn profile only after the authenticated profile and destination fields can be verified. Record the resulting project URL after saving.
