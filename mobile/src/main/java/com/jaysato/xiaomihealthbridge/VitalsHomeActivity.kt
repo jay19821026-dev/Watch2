@@ -355,14 +355,14 @@ class VitalsHomeActivity : ComponentActivity() {
         lifecycleScope.launch {
             val client = try {
                 if (HealthConnectClient.getSdkStatus(this@VitalsHomeActivity) != HealthConnectClient.SDK_AVAILABLE) {
-                    target.text = "今日心率摘要：Health Connect 目前不可用；手錶即時心率仍可獨立顯示。"
+                    target.text = "今日心率紀錄暫時讀不到；手錶目前讀值仍會顯示。"
                     return@launch
                 }
                 HealthConnectClient.getOrCreate(this@VitalsHomeActivity)
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                target.text = "今日心率摘要：無法連線 Health Connect；即時心率不受影響。"
+                target.text = "今日心率紀錄暫時讀不到；請稍後重試。"
                 return@launch
             }
 
@@ -374,7 +374,7 @@ class VitalsHomeActivity : ComponentActivity() {
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                target.text = "今日心率摘要：無法查詢 Health Connect 權限狀態；即時心率不受影響。"
+                target.text = "無法確認心率紀錄權限；請檢查健康資料權限。"
                 return@launch
             }
 
@@ -423,7 +423,7 @@ class VitalsHomeActivity : ComponentActivity() {
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                "今日最低／最高：Health Connect 讀取失敗（${HealthConnectReadFailurePolicy.describe("心率", error)}）"
+                "今日心率範圍暫時讀不到；請稍後重試"
             }
 
             val restingText = if (restingPermission !in granted) {
@@ -436,12 +436,12 @@ class VitalsHomeActivity : ComponentActivity() {
                         HeartRateDailySummaryPolicy.Sample(it.time.toEpochMilli(), it.beatsPerMinute.toDouble(), it.metadata.dataOrigin.packageName)
                     }
                     .toList())
-                if (latest == null) "靜息心率：本日沒有有效紀錄"
-                else "靜息心率：${"%.0f".format(latest.bpm)} bpm · ${java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT).format(java.util.Date(latest.timeMillis))} · 來源：Health Connect"
+                if (latest == null) "靜息心率：今天尚無紀錄"
+                else "靜息心率：${"%.0f".format(latest.bpm)} bpm · ${java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT).format(java.util.Date(latest.timeMillis))}"
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                "靜息心率：Health Connect 讀取失敗（${HealthConnectReadFailurePolicy.describe("靜息心率", error)}）"
+                "靜息心率暫時讀不到；請稍後重試"
             }
             target.text = "$heartText\n$restingText"
         }
