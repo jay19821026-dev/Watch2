@@ -50,6 +50,12 @@ The OEM result screen in `XiaomiHealth-watch-decompiled/sources/com/xiaomi/wear/
 
 原廠結果頁可見代碼 `200` 竇性心律、`201` 心房顫動、`202` 心率偏低、`203` 心率偏高、`204` 無法判定；代碼來自原廠 `fitness` 原生函式庫的判讀結果。解包 Java 只能看見介面及結果映射，不能證明 AILISA 已有相同演算法或準確率，也不能把原始數值直接套上這些診斷標籤。
 
+## PPG channels / PPG 通道
+
+The decompiled watch `MiHealthService-decompiled/sources/com/xiaomi/wear/fitness/whs_service/collection/DataCollectionService.java` distinguishes sensor `65597` as a heart-rate optical raw stream (`ppgHr`) and `65596` as a blood-oxygen optical raw stream (`ppgSpo2`). Its CSV headers have different red/IR/green field layouts depending on collection mode. This class is a raw-data collection/export path; it does not prove that the raw fields are calibrated heart rate or SpO₂ percentages, nor does it expose a disease classifier. AILISA must keep these channels separate and use a typed OEM/Wear Health Services result when displaying a measured physiological value. A PPG waveform may support a research pulse estimate when its sampling clock and signal quality are adequate, but it cannot by itself establish a disease diagnosis.
+
+原廠 `DataCollectionService.java` 將 `65597` 作為心率光學原始通道、`65596` 作為血氧光學原始通道，輸出欄位依收集模式不同。這段解包程式是原始資料收集與匯出路徑，沒有證明原始欄位已換算成心率／血氧百分比，也沒有疾病分類器。AILISA 會分開保存與標示這兩個通道；有可靠時基及品質證據時，PPG 可提供研究用脈搏估計，但不能僅憑波形宣稱疾病診斷。
+
 The phone home summary now applies the same overlap-and-clip rule to sleep-session fallback totals. Its label says *recorded interval*, because the OEM `SleepSyncBiz` uses bed/wake timestamps and stage records separately; the interval sum is not verified actual sleep. / 手機首頁的睡眠備援總時長也改為保留交集、按查詢界線裁切，並標明是紀錄區間，不能當作原廠實睡時長。
 
 Mi Fitness's `Spo2SyncBiz.java` writes each `Spo2Item.time` as the `OxygenSaturationRecord.time` and its typed `spo2` value as `percentage`; the metadata modification time is separate. AILISA's phone home now checks this measurement time against its local seven-date query before selecting the newest oxygen record. The typed percentage remains separate from raw optical `65596` events. / 原廠逐筆血氧使用 `Spo2Item.time` 作量測時間、`spo2` 作百分比；AILISA 首頁先按該量測時間篩選，再挑最新紀錄，不將光學原始事件轉成百分比。
