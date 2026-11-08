@@ -35,6 +35,7 @@ internal object ConsumerVitalsSummary {
         if (heart != null && heart in 30.0..220.0 && heart !in 60.0..100.0) return heartRate(heart)
         if (oxygenPercent != null && oxygenPercent in 95.0..100.0) return oxygen(oxygenPercent)
         if (heart != null && heart in 30.0..220.0) return heartRate(heart)
-        return Copy("查看健康讀值", "開啟各項卡片查看最近紀錄與參考範圍。")
+        val lead = AnalysisLeadSummary.from(report.items)
+        return Copy(lead.headline, lead.nextAction)
     }
 }

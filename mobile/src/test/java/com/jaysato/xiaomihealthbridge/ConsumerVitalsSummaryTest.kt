@@ -33,4 +33,14 @@ class ConsumerVitalsSummaryTest {
         )
         assertEquals("血氧 94%：偏低", ConsumerVitalsSummary.from(lowOxygen).headline)
     }
+
+    @Test fun nonHeartAndOxygenReadingStillGetsSpecificHeadline() {
+        val sleep = HealthConclusionEngine.Item(
+            "sleep", "睡眠", "7.0 小時", "", "", HealthConclusionEngine.Level.GOOD, null, true,
+            HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL
+        )
+        val copy = ConsumerVitalsSummary.from(HealthConclusionEngine.Report(listOf(sleep), "", ""))
+        assertTrue(copy.headline.contains("睡眠"))
+        assertTrue(copy.headline.contains("7.0 小時"))
+    }
 }
