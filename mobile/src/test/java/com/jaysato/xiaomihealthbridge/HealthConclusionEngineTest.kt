@@ -1279,7 +1279,7 @@ class HealthConclusionEngineTest {
 
     @Test
     fun oneSensorExceptionDoesNotHideOtherFiveCoreCards() {
-        val sensorIds = listOf("ppg", "ecg", "bioz", "spo2", "temperature", "heart")
+        val sensorIds = listOf("hr", "spo2", "ecg", "temp", "bioz", "ppg")
         sensorIds.forEach { failedId ->
             val items = HealthConclusionEngine.buildCoreSensorItems(
                 preferences(emptyMap()),

@@ -4,6 +4,9 @@ object ConsumerMetricPresentation {
     data class Display(val title: String, val value: String, val state: String)
 
     fun explanation(item: HealthConclusionEngine.Item): String {
+        if (item.valueText in setOf("資料讀取暫時不可用", "分析暫時不可用")) {
+            return "這次未能讀取資料，請稍後重試。"
+        }
         val recorded = item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL
         if (recorded && item.id == "spo2") {
             val percent = item.valueText.substringBefore('%').trim().toDoubleOrNull()
@@ -81,6 +84,7 @@ object ConsumerMetricPresentation {
             }
         val researchValue = researchValue(item)
         val value = when {
+            item.valueText in setOf("資料讀取暫時不可用", "分析暫時不可用") -> "讀取失敗"
             physiologicalValue != null -> physiologicalValue
             researchValue != null -> researchValue
             item.id == "glucose" -> "未支援"
@@ -98,6 +102,7 @@ object ConsumerMetricPresentation {
             else -> "待量測"
         }
         val state = when {
+            value == "讀取失敗" -> "請重試"
             item.id == "glucose" -> "此裝置無量測功能"
             researchValue != null -> when (item.id) {
                 "ecg" -> "心律未判定"

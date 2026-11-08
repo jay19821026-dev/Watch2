@@ -5,6 +5,14 @@ import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class ConsumerMetricPresentationTest {
+    @Test fun calculationFailureIsNotShownAsMissingMeasurement() {
+        val item = HealthConclusionEngine.buildSafely("hr", "心率") { error("storage failure") }
+        val display = ConsumerMetricPresentation.from(item)
+        assertEquals("讀取失敗", display.value)
+        assertEquals("請重試", display.state)
+        assertEquals("這次未能讀取資料，請稍後重試。", ConsumerMetricPresentation.explanation(item))
+    }
+
     @Test fun historicalRawCountsStayOutOfConsumerResult() {
         val item = HealthConclusionEngine.Item(
             "ecg", "ECG", "3170 個原始事件 · 260 個研究解碼事件／2600 點",

@@ -67,7 +67,7 @@ object HealthConclusionEngine {
             buildSafely("sleep", "睡眠") {
                 sleepConclusion(context.getSharedPreferences("health_summary_query_diagnostics", Context.MODE_PRIVATE))
             },
-            buildSafely("blood_pressure", "血壓") { bloodPressureConclusion(context, raw) },
+            buildSafely("bp", "血壓") { bloodPressureConclusion(context, raw) },
             buildSafely("glucose", "血糖") { glucoseSlot() }
         )
         val summary = HealthConclusionSummaryPolicy.summarize(items, items.size)
@@ -81,10 +81,10 @@ object HealthConclusionEngine {
             buildSafely(id, title, calculate)
         }
     ): List<Item> = listOf(
-            safeBuild("heart", "心率") { heartConclusion(raw, feature) },
+            safeBuild("hr", "心率") { heartConclusion(raw, feature) },
             safeBuild("spo2", "血氧") { spo2Conclusion(raw) },
             safeBuild("ecg", "ECG") { ecgConclusion(raw) },
-            safeBuild("temperature", "體表溫度") { temperatureConclusion(raw, feature) },
+            safeBuild("temp", "體表溫度") { temperatureConclusion(raw, feature) },
             safeBuild("bioz", "BioZ") { biozConclusion(raw) },
             safeBuild("ppg", "PPG") { ppgConclusion(raw) }
         )
@@ -105,10 +105,13 @@ object HealthConclusionEngine {
     }
 
     internal fun unavailableReport(reason: String): Report {
-        val items = listOf("心率", "血氧", "ECG", "HRV", "體表溫度", "氣壓高度", "BioZ", "PPG", "睡眠", "血壓", "血糖")
-            .mapIndexed { index, title ->
+        val items = listOf(
+            "hr" to "心率", "spo2" to "血氧", "ecg" to "ECG", "hrv" to "HRV",
+            "temp" to "體表溫度", "pressure" to "氣壓高度", "bioz" to "BioZ",
+            "ppg" to "PPG", "sleep" to "睡眠", "bp" to "血壓", "glucose" to "血糖"
+        ).map { (id, title) ->
                 Item(
-                    id = "analysis_unavailable_$index",
+                    id = id,
                     title = title,
                     valueText = "資料讀取暫時不可用",
                     clinicalCompare = reason,
