@@ -60,6 +60,15 @@ object DailyHealthReport {
         val hrvTime = insights.latestObservedHrvAt
         if (sameDay(hrvTime) && insights.latestObservedHrvMs?.isFinite() == true) {
             observations += "心率變化（HRV）${String.format(Locale.US, "%.1f", insights.latestObservedHrvMs)} ms · ${timeLabel(hrvTime!!)}"
+            insights.hrvPersonalBaselineDeviation?.let { trend ->
+                val roundedDifference = kotlin.math.abs(trend.difference).toInt()
+                val comparison = when {
+                    roundedDifference == 0 -> "與自己近期紀錄相近"
+                    trend.difference > 0 -> "較自己近期紀錄高約 $roundedDifference ms"
+                    else -> "較自己近期紀錄低約 $roundedDifference ms"
+                }
+                observations += "近期心率變化：$comparison"
+            }
         } else missing += "心率變化：今天沒有可用紀錄"
 
         val sleepTime = insights.dailySleepEndAt

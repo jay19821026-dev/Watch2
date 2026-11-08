@@ -856,17 +856,16 @@ class AlgorithmicInsightsEngine(context: Context) {
         val validHrvRecords = hrvRecords.orEmpty().filter {
             it.heartRateVariabilityMillis.isFinite() && it.heartRateVariabilityMillis > 0.0
         }
+        val latestObservedHrvRecord = validHrvRecords.maxByOrNull { it.time }
+        val hrvOrigin = latestObservedHrvRecord?.metadata?.dataOrigin?.packageName
         val hrvPersonalBaselineDeviation = SensorHealthAlgorithms.hrvDeviationFromPersonalBaseline(
-            validHrvRecords.map {
+            validHrvRecords.filter { it.metadata.dataOrigin.packageName == hrvOrigin }.map {
                 it.time.atZone(localZone).toLocalDate() to it.heartRateVariabilityMillis
             }
         )
-        val hrvOrigin = validHrvRecords.firstOrNull()?.metadata?.dataOrigin?.packageName
         val latestObservedRestingHeartRate = rawResting.orEmpty()
             .filter { !it.time.isBefore(start) && !it.time.isAfter(now) }
             .filter { it.beatsPerMinute in 30L..120L }
-            .maxByOrNull { it.time }
-        val latestObservedHrvRecord = validHrvRecords
             .maxByOrNull { it.time }
 
         val uniqueSleep = sleep

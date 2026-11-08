@@ -43,6 +43,18 @@ class DailyHealthReportTest {
         assertFalse(report.explanation.contains("正常"))
     }
 
+    @Test fun hrvTrendExplainsDirectionAgainstPersonalHistory() {
+        val report = DailyHealthReport.from(base().copy(
+            latestObservedHrvMs = 36.0,
+            latestObservedHrvAt = now.minusSeconds(3600),
+            hrvPersonalBaselineDeviation = SensorHealthAlgorithms.PersonalBaselineDeviation(
+                baseline = 42.0, latest = 36.0, difference = -6.0, baselineDays = 4
+            )
+        ), now, ZoneOffset.UTC)
+        assertTrue(report.observations.any { it == "近期心率變化：較自己近期紀錄低約 6 ms" })
+        assertFalse(report.observations.any { it.contains("異常") || it.contains("疾病") })
+    }
+
     @Test fun datedSleepAndOxygenAppearOnlyWithTheirOwnEvidence() {
         val report = DailyHealthReport.from(base().copy(
             dailySleepHours = 7.2,

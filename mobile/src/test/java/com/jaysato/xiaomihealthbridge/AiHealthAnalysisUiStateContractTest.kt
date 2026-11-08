@@ -8,6 +8,7 @@ import org.junit.Test
 class AiHealthAnalysisUiStateContractTest {
     @Test
     fun longAnalysisPanelsAreHiddenBehindTheDetailsControl() {
+        assertTrue(AiHealthAnalysisUiPolicy.isTechnicalDetailsPanel("日常狀態參考"))
         assertTrue(AiHealthAnalysisUiPolicy.isTechnicalDetailsPanel("本機規則檢查面向"))
         assertTrue(AiHealthAnalysisUiPolicy.isTechnicalDetailsPanel("資料觀察"))
         assertTrue(AiHealthAnalysisUiPolicy.isTechnicalDetailsPanel("Health Connect｜近 7 日活動觀測"))
