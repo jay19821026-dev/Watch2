@@ -1384,6 +1384,7 @@ class WearControlService : WearableListenerService() {
             if (activeSuiteId != null) dataMap.putLong("suite_session_started_at_ms", activeSuiteStartedAtMs)
             dataMap.putLong("first_sample_at_ms", snapshot.firstSampleAtEpochMs)
             dataMap.putLong("last_sample_at_ms", snapshot.lastSampleAtEpochMs)
+            dataMap.putLong("last_callback_received_at_ms", snapshot.lastCallbackReceivedAtEpochMs)
             dataMap.putString("last_sample_timestamp_source", snapshot.sampleTimestampSource)
             dataMap.putString("registration_result", snapshot.registrationResult)
             dataMap.putString("acquisition_stop_reason", snapshot.acquisitionStopReason)

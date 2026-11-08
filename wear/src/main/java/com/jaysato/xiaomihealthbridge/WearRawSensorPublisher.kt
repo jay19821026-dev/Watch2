@@ -68,6 +68,7 @@ object WearRawSensorPublisher {
             dataMap.putLong("session_started_elapsed_realtime_ns", snapshot.sessionStartedElapsedRealtimeNs)
             dataMap.putLong("first_sample_at_ms", snapshot.firstSampleAtEpochMs)
             dataMap.putLong("last_sample_at_ms", snapshot.lastSampleAtEpochMs)
+            dataMap.putLong("last_callback_received_at_ms", snapshot.lastCallbackReceivedAtEpochMs)
             dataMap.putString("last_sample_timestamp_source", snapshot.sampleTimestampSource)
             dataMap.putString("evidence_flags", snapshot.evidenceFlags().joinToString(","))
             dataMap.putInt("evidence_flags_version", 1)

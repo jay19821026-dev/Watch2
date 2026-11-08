@@ -23,6 +23,7 @@ internal object WearSerializedSensorPayloadGuard {
         val evidenceFlags = map.getString("evidence_flags")?.take(256)
         val firstSampleAt = map.getLong("first_sample_at_ms", 0L)
         val lastSampleAt = map.getLong("last_sample_at_ms", 0L)
+        val lastCallbackReceivedAt = map.getLong("last_callback_received_at_ms", 0L)
         val sessionStartedAt = map.getLong("session_started_at_ms", 0L)
         val sessionElapsedNs = map.getLong("session_started_elapsed_realtime_ns", 0L)
         val suiteId = map.getString("suite_id")?.take(96)
@@ -76,6 +77,7 @@ internal object WearSerializedSensorPayloadGuard {
             evidenceFlags?.let { map.putString("evidence_flags", it) }
             map.putLong("first_sample_at_ms", firstSampleAt)
             map.putLong("last_sample_at_ms", lastSampleAt)
+            map.putLong("last_callback_received_at_ms", lastCallbackReceivedAt)
             map.putLong("session_started_at_ms", sessionStartedAt)
             map.putLong("session_started_elapsed_realtime_ns", sessionElapsedNs)
             suiteId?.let { map.putString("suite_id", it) }

@@ -792,6 +792,35 @@ class RawSensorDetailActivity : ComponentActivity() {
                     }
                 } ?: "時間欄位：無記錄"
                 addView(label("資料狀態：${displayState.label}\n$timeLabel\n來源狀態：$status\n$visibleReason", 12f, HealthVisuals.secondary), margins(top = 8))
+                val currentEventCount = prefs.getInt("${kind}_event_count", 0)
+                val priorReceipt = prefs.getLong("${kind}_last_capture_receipt_at_ms", 0L)
+                val receiptAt = if (currentEventCount > 0) {
+                    priorReceipt.takeIf { it > 0L } ?: prefs.getLong("${kind}_published_at", 0L)
+                } else priorReceipt
+                if (receiptAt > 0L) {
+                    val receiptLabel = when {
+                        RawSensorDatedCapturePolicy.showPreviousCapture(currentEventCount, priorReceipt) ->
+                            "上次原始資料接收時間"
+                        priorReceipt <= 0L -> "手錶發送時間（舊版紀錄）"
+                        prefs.getString("${kind}_last_capture_receipt_source", "") == "phone_receive_wall_clock" ->
+                            "手機收到原始資料時間"
+                        else -> "手錶收到原始事件時間"
+                    }
+                    val formatted = java.text.DateFormat.getDateTimeInstance().format(java.util.Date(receiptAt))
+                    addView(label("$receiptLabel：$formatted；不是已確認的量測時間。", 12f, HealthVisuals.secondary), margins(top = 6))
+                    if (RawSensorDatedCapturePolicy.showPreviousCapture(currentEventCount, priorReceipt)) {
+                        prefs.getString("${kind}_last_capture_raw_preview", "")
+                            ?.takeIf(String::isNotBlank)?.let { preview ->
+                                addView(label("上次原始預覽：$preview", 12f, HealthVisuals.secondary), margins(top = 4))
+                            }
+                    }
+                }
+                RawSensorDatedCapturePolicy.historicalTime(
+                    measurementTime, prefs.getLong("${kind}_last_dated_time", 0L)
+                )?.let { lastDated ->
+                    val formatted = java.text.DateFormat.getDateTimeInstance().format(java.util.Date(lastDated))
+                    addView(label("上次有時間紀錄的原始擷取：$formatted（歷史紀錄）", 12f, HealthVisuals.secondary), margins(top = 6))
+                }
                 if (latest.isNotBlank()) {
                     val latestLabel = if (OpticalPulseDisplayPolicy.isOpticalKind(kind)) "最新原始碼值（非 bpm）" else "最新通道"
                     addView(label("$latestLabel：$latest", 12f, HealthVisuals.secondary), margins(top = 6))

@@ -80,6 +80,7 @@ class RawVitalsProbe(
     private var samples = 0
     private var firstSampleAtEpochMs = 0L
     private var lastSampleAtEpochMs = 0L
+    private var lastCallbackReceivedAtEpochMs = 0L
     private var sampleTimestampSource = "unknown"
     private var registrationResult = "unknown"
     private var acquisitionStopReason = "running"
@@ -137,6 +138,7 @@ class RawVitalsProbe(
         samples = 0
         firstSampleAtEpochMs = 0L
         lastSampleAtEpochMs = 0L
+        lastCallbackReceivedAtEpochMs = 0L
         sampleTimestampSource = "unknown"
         registrationResult = "unknown"
         acquisitionStopReason = "running"
@@ -394,11 +396,13 @@ class RawVitalsProbe(
 
     private fun ingest(values: FloatArray, source: Sensor, eventTimestampNanos: Long): Int {
         samples++
+        val callbackWallClockMillis = System.currentTimeMillis()
+        lastCallbackReceivedAtEpochMs = callbackWallClockMillis
         val sampleTime = SensorEventEpochTimeResolver.resolve(
             eventTimestampNanos = eventTimestampNanos,
             capturedElapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos(),
             epochOffsetMillis = eventEpochOffsetMs,
-            callbackWallClockMillis = System.currentTimeMillis()
+            callbackWallClockMillis = callbackWallClockMillis
         )
         sampleTimestampSource = sampleTime.source
         if (firstSampleAtEpochMs == 0L) firstSampleAtEpochMs = sampleTime.epochMillis
@@ -492,6 +496,7 @@ class RawVitalsProbe(
             sessionStartedElapsedRealtimeNs = sessionStartedElapsedRealtimeNs,
             firstSampleAtEpochMs = firstSampleAtEpochMs,
             lastSampleAtEpochMs = lastSampleAtEpochMs,
+            lastCallbackReceivedAtEpochMs = lastCallbackReceivedAtEpochMs,
             sampleTimestampSource = sampleTimestampSource,
             registrationResult = registrationResult,
             acquisitionStopReason = acquisitionStopReason,
@@ -629,6 +634,7 @@ class RawVitalsProbe(
         val sessionStartedElapsedRealtimeNs: Long = 0L,
         val firstSampleAtEpochMs: Long = 0L,
         val lastSampleAtEpochMs: Long = 0L,
+        val lastCallbackReceivedAtEpochMs: Long = 0L,
         val sampleTimestampSource: String = "unknown",
         val registrationResult: String = "unknown",
         val acquisitionStopReason: String = "unknown",

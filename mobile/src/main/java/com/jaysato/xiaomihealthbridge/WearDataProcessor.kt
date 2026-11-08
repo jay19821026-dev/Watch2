@@ -856,6 +856,34 @@ object WearDataProcessor {
                     }
                     putLong("${kind}_time", sampleTime)
                     putLong("${kind}_published_at", incomingTime)
+                    val phoneReceivedAt = System.currentTimeMillis()
+                    putLong("${kind}_phone_received_at_ms", phoneReceivedAt)
+                    val captureReceipt = RawSensorDatedCapturePolicy.callbackReceiptTime(
+                        eventCount, data.getLong("last_callback_received_at_ms", 0L), phoneReceivedAt
+                    )
+                    if (captureReceipt != null) {
+                        putLong("${kind}_last_capture_receipt_at_ms", captureReceipt.first)
+                        putString("${kind}_last_capture_receipt_source", captureReceipt.second)
+                        putInt("${kind}_last_capture_event_count", eventCount)
+                        if (sourceLatest.isNotBlank()) {
+                            putString("${kind}_last_capture_raw_preview", sourceLatest.take(RawSensorDatedCapturePolicy.MAX_RAW_PREVIEW_CHARS))
+                        } else {
+                            remove("${kind}_last_capture_raw_preview")
+                        }
+                        putString("${kind}_last_capture_summary", (
+                            calibration.summary ?: data.getString("summary")).orEmpty().take(RawSensorDatedCapturePolicy.MAX_SUMMARY_CHARS))
+                    }
+                    // Keep a dated raw capture apart from this latest attempt. Vendor sensor
+                    // clocks may be missing or incompatible, so a later attempt can have time 0.
+                    if (RawSensorDatedCapturePolicy.shouldRemember(
+                            kind, eventCount, sampleTime, data.getString("last_sample_timestamp_source")
+                        )
+                    ) {
+                        putLong("${kind}_last_dated_time", sampleTime)
+                        putLong("${kind}_last_dated_published_at", incomingTime)
+                        putString("${kind}_last_dated_timestamp_source", data.getString("last_sample_timestamp_source"))
+                        putInt("${kind}_last_dated_event_count", eventCount)
+                    }
                     putString("${kind}_evidence_flags", data.getString("evidence_flags").orEmpty())
                     putInt("${kind}_evidence_flags_version", data.getInt("evidence_flags_version", 0))
                     putString(
