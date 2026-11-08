@@ -42,6 +42,32 @@ class DailyHealthReportTest {
         assertFalse(report.explanation.contains("正常"))
     }
 
+    @Test fun datedSleepAndOxygenAppearOnlyWithTheirOwnEvidence() {
+        val report = DailyHealthReport.from(base().copy(
+            dailySleepHours = 7.2,
+            dailySleepEndAt = Instant.parse("2026-11-08T06:00:00Z"),
+            dailySleepOrigin = "sleep.source",
+            dailyOxygenSummary = SensorHealthAlgorithms.OxygenSampleSummary(
+                2, 94.0, 97.0, null,
+                Instant.parse("2026-11-08T07:00:00Z"),
+                Instant.parse("2026-11-08T09:00:00Z")
+            ),
+            dailyOxygenOrigin = "oxygen.source"
+        ), now, ZoneOffset.UTC)
+        assertTrue(report.observations.any { it.contains("睡眠 7.2 小時") && it.contains("sleep.source") })
+        assertTrue(report.observations.any { it.contains("血氧 94–97%") && it.contains("oxygen.source") })
+        assertFalse(report.missing.any { it.startsWith("睡眠：") || it.startsWith("血氧：") })
+
+        val stale = DailyHealthReport.from(base().copy(
+            dailyOxygenSummary = SensorHealthAlgorithms.OxygenSampleSummary(
+                1, 96.0, 96.0, null,
+                Instant.parse("2026-11-07T09:00:00Z"),
+                Instant.parse("2026-11-07T09:00:00Z")
+            )
+        ), now, ZoneOffset.UTC)
+        assertTrue(stale.missing.any { it.startsWith("血氧：") })
+    }
+
     private fun base() = AlgorithmicInsightsEngine.Insights(
         stress = null, bodyEnergy = null, recovery = null, trainingLoad = null,
         recordedExerciseMinutes = null, sleepHours = null, sleepInferred = false,

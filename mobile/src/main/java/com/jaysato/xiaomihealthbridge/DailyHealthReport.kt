@@ -64,10 +64,15 @@ object DailyHealthReport {
             observations += "HRV ${String.format(Locale.US, "%.1f", insights.latestObservedHrvMs)} ms · ${timeLabel(hrvTime!!)} · ${insights.latestObservedHrvOrigin ?: "來源未提供"}"
         } else missing += "HRV：當日無有效且註明量測時間的紀錄"
 
-        // The existing sleep and oxygen summaries span 30 hours and seven days respectively.
-        // Neither is a same-day measurement; keep them out until per-day records are queried.
-        missing += "睡眠：目前分析涵蓋近 30 小時，尚未按醒來日拆成單日報告"
-        missing += "血氧：目前摘要涵蓋近 7 日，尚未按量測日拆成單日報告"
+        val sleepTime = insights.dailySleepEndAt
+        if (sameDay(sleepTime) && insights.dailySleepHours?.let { it.isFinite() && it > 0.0 } == true) {
+            observations += "睡眠 ${String.format(Locale.US, "%.1f", insights.dailySleepHours)} 小時 · 醒來 ${timeLabel(sleepTime!!)} · ${insights.dailySleepOrigin ?: "來源未提供"} · 僅分期完整的紀錄"
+        } else missing += "睡眠：當日無按醒來日歸屬且分期完整的紀錄"
+
+        val oxygen = insights.dailyOxygenSummary
+        if (oxygen != null && oxygen.validSampleCount > 0 && sameDay(oxygen.firstValidSampleAt) && sameDay(oxygen.lastValidSampleAt)) {
+            observations += "血氧 ${String.format(Locale.US, "%.0f–%.0f", oxygen.minimumPercent, oxygen.maximumPercent)}% · ${oxygen.validSampleCount} 筆當日正值 · ${insights.dailyOxygenOrigin ?: "來源未提供"} · ${timeLabel(oxygen.firstValidSampleAt!!)}–${timeLabel(oxygen.lastValidSampleAt!!)}（範圍，非目前值）"
+        } else missing += "血氧：當日無可確認來源與量測時間的正值百分比紀錄"
 
         val explanation = if (observations.isEmpty()) {
             "今天尚無可確認的單日紀錄；請檢查 Health Connect 授權、同步和量測時間。"

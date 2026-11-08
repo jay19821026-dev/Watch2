@@ -517,7 +517,9 @@ class WearMainActivity : ComponentActivity() {
         val prefs = getSharedPreferences(WearFileReceiverService.PREFS, MODE_PRIVATE)
         val file = prefs.getString(WearFileReceiverService.KEY_FILE, null)?.let(::File)
         installAction.isEnabled = file?.isFile == true
-        installAction.text = if (file?.isFile == true) "安裝收到的 ${file.name}" else "尚未收到 APK"
+        val receiveError = prefs.getString(WearFileReceiverService.KEY_ERROR, null)
+        installAction.text = if (file?.isFile == true) "安裝收到的 ${file.name}"
+            else receiveError?.let { "接收失敗：$it" } ?: "尚未收到 APK"
     }
 
     private fun installReceivedApk() {

@@ -515,6 +515,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun sendFileToWatch(uri: android.net.Uri) {
+        Wearable.getNodeClient(this).connectedNodes
+            .addOnSuccessListener { nodes ->
+                if (WearCommandTargetPolicy.uniqueTarget(nodes) == null) {
+                    toast(WearCommandTargetPolicy.failureMessage(nodes.size))
+                } else enqueueFileToWatch(uri)
+            }
+            .addOnFailureListener { toast("無法確認手錶連線：${it.message}") }
+    }
+
+    private fun enqueueFileToWatch(uri: android.net.Uri) {
         val descriptor = contentResolver.openFileDescriptor(uri, "r") ?: run {
             toast("無法開啟檔案"); return
         }
@@ -526,9 +536,9 @@ class MainActivity : ComponentActivity() {
             dataMap.putAsset("file", Asset.createFromFd(descriptor))
             dataMap.putLong("sent_at", System.currentTimeMillis())
         }.asPutDataRequest().setUrgent()
-        toast("正在傳送 $displayName…")
+        toast("正在提交 $displayName 傳送工作…")
         Wearable.getDataClient(this).putDataItem(request)
-            .addOnSuccessListener { toast("已送出，請在手錶確認接收") }
+            .addOnSuccessListener { toast("已排入 Data Layer；這不代表手錶已收到。請等待手錶顯示檔案") }
             .addOnFailureListener { toast("傳送失敗：${it.message}") }
             .addOnCompleteListener { descriptor.close() }
     }

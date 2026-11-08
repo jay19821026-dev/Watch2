@@ -2,7 +2,7 @@
 
 Last verified / 最後驗證：2026-11-08
 Last built bundle / 上次已建置 AAB：test 31 原始碼，新套件手機 `versionCode 210`、手錶 `211`；候選 upload key 簽章，尚未上傳 Play。
-Current source / 目前原始碼：test 31 雙端 Debug 為 `4.0.0`／`versionCode 209`、套件 `net.ailisa.healthbridge`。包含 test 30 依原廠正值篩選對照排除 Health Connect 血氧零值、移除未校驗血氧分數的修正；手機版另新增[每日資料報告](DAILY_HEALTH_REPORT_4_0.md)，只列同日可追溯資料與缺口。雙端單元測試、Debug 建置、APK 套件與簽章檢查通過；目前無 ADB 裝置可驗證安裝與量測。對 [Health Connect 支援範圍](HEALTH_CONNECT_COMPATIBILITY_4_0.md) 與原廠輸出的邊界另有說明。test 31 Play 候選 AAB 已本機建置、尚未經 Console 接受；正式版號仍須核對 Console 既有紀錄。先前 test 25 雙端 APK 已安裝；舊手機資料橋接已完成一次實機匯入，手錶本機資料尚未搬遷。詳見 [對照文件](OEM_DATA_WINDOW_COMPARISON_4_0.md)。
+Current source / 目前原始碼：test 32 雙端 Debug 為 `4.0.0`／`versionCode 212`、套件 `net.ailisa.healthbridge`。包含血氧零值排除、未校驗分數移除與[每日資料報告](DAILY_HEALTH_REPORT_4_0.md)；本版按醒來日及量測日整理完整分期睡眠與有來源血氧，並修正手機傳檔「已送出」誤報與手錶接收失敗沒有顯示的問題。雙端單元測試、Debug 建置、APK 套件與簽章檢查通過；目前無 ADB 裝置可驗證安裝與量測。對 [Health Connect 支援範圍](HEALTH_CONNECT_COMPATIBILITY_4_0.md) 與原廠輸出的邊界另有說明。test 31 Play 候選 AAB 已過期，**不能代表 test 32**；正式上傳前須重建並核對 Console 既有版號。先前 test 25 雙端 APK 已安裝；舊手機資料橋接已完成一次實機匯入，手錶本機資料尚未搬遷。詳見 [對照文件](OEM_DATA_WINDOW_COMPARISON_4_0.md)。
 Package / 套件：`net.ailisa.healthbridge`
 
 The test 17 signed AABs have the old package ID. The new-package test 18–30 AABs are superseded by test 31 local candidates. Final codes, upload-certificate enrollment and Play Console health declarations still require Console inspection. / test 17 為舊套件、test 18–30 為舊候選，均已由 test 31 本機候選取代；尚未上傳或通過 Play 審核。

@@ -792,7 +792,7 @@ class AlgorithmicInsightsEngine(context: Context) {
         val oxygenSelection = AlgorithmicInsightProvenance.selectMostCompleteOrigin(
             windowOxygen,
             origin = { it.metadata.dataOrigin.packageName },
-            completeness = { if (it.percentage.value.isFinite() && it.percentage.value in 0.0..100.0) 1 else 0 },
+            completeness = { if (it.percentage.value.isFinite() && it.percentage.value > 0.0 && it.percentage.value <= 100.0) 1 else 0 },
             measuredAt = { it.time }
         )
         if (windowOxygen.orEmpty().map { it.metadata.dataOrigin.packageName }.distinct().size > 1) {
@@ -903,6 +903,13 @@ class AlgorithmicInsightsEngine(context: Context) {
         val sleepHours = HealthInsightInputPolicy.sleepHoursWhenStagesComplete(
             sleepStagesComplete, sleepSessionValues, sleepWindowStart, now
         )
+        val todaySleepSessions = sleepSessionValues.orEmpty().filter { it.end.atZone(localZone).toLocalDate() == today }
+        val todaySleepHours = HealthInsightInputPolicy.sleepHoursWhenStagesComplete(
+            todaySleepSessions.isNotEmpty() && HealthInsightInputPolicy.sleepStagesCoverSessions(todaySleepSessions, sleepWindowStart, now),
+            todaySleepSessions, sleepWindowStart, now
+        )
+        val todaySleepOrigin = sleep?.firstOrNull()?.metadata?.dataOrigin?.packageName
+        val todaySleepEndAt = todaySleepSessions.maxOfOrNull { it.end }
         val sleepSessionEndAt = uniqueSleep.orEmpty().asSequence()
             .filter { it.endTime.isAfter(sleepWindowStart) && !it.endTime.isAfter(now) && it.startTime.isBefore(now) }
             .maxOfOrNull { it.endTime }
@@ -994,6 +1001,8 @@ class AlgorithmicInsightsEngine(context: Context) {
             unavailableInputs += "血氧：$rejectedOxygenCount 筆樣本為零、非有限值或超過 100%，已排除"
         }
         val oxygenSummary = oxygenSamples?.let(SensorHealthAlgorithms::timedOxygenSampleSummary)
+        val todayOxygenSummary = oxygenSamples?.filter { (time, _) -> time.atZone(localZone).toLocalDate() == today }
+            ?.let(SensorHealthAlgorithms::timedOxygenSampleSummary)
         val oxygenWindowStartAt = oxygenSummary?.firstValidSampleAt
         val oxygenWindowEndAt = oxygenSummary?.lastValidSampleAt
         val wristTemperatureRecords = temperatures.orEmpty().filter {
@@ -1156,6 +1165,11 @@ class AlgorithmicInsightsEngine(context: Context) {
             sourceDataCutoffAt = now,
             generatedAt = Instant.now(),
             oxygenSampleSummary = oxygenSummary,
+            dailyOxygenSummary = todayOxygenSummary,
+            dailyOxygenOrigin = oxygenSelection?.origin,
+            dailySleepHours = todaySleepHours,
+            dailySleepOrigin = todaySleepOrigin,
+            dailySleepEndAt = todaySleepEndAt,
             temperatureDeviation = temperatureDeviation,
             gaitEfficiency = gaitEfficiency,
             trimp = trimp,
@@ -1233,6 +1247,11 @@ class AlgorithmicInsightsEngine(context: Context) {
         val latestObservedHrvOrigin: String? = null,
         val hrvPersonalBaselineDeviation: SensorHealthAlgorithms.PersonalBaselineDeviation? = null,
         val historicalSleepSessionHours: Double? = null,
+        val dailySleepHours: Double? = null,
+        val dailySleepOrigin: String? = null,
+        val dailySleepEndAt: Instant? = null,
+        val dailyOxygenSummary: SensorHealthAlgorithms.OxygenSampleSummary? = null,
+        val dailyOxygenOrigin: String? = null,
     ) {
         fun display() = buildString {
             append("演算法健康洞察（非醫療量測）\n")
