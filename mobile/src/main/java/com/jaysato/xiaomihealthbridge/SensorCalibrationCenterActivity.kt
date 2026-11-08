@@ -86,7 +86,21 @@ class SensorCalibrationCenterActivity : ComponentActivity() {
                             "量測時間：${java.text.DateFormat.getDateTimeInstance().format(java.util.Date(timestamp))} · 來源 $timestampSource"
                         else -> "時間欄位：${java.text.DateFormat.getDateTimeInstance().format(java.util.Date(timestamp))} · 來源未確認 (${timestampSource ?: "UNKNOWN"})"
                     }
-                    addView(text("$countSummary\n$timeSummary\n${if (kind == "whs_heart_rate") "來源：Health Services · 單位：bpm" else "來源：${prefs.getString("${kind}_source_sensor", "原始感測通道").orEmpty()} · 校準：未驗證"}\n${channel.explanation}", 12f, HealthVisuals.secondary), lp(top = 4))
+                    val plainStatus = when {
+                        kind == "whs_heart_rate" && latest != null -> "最近心率 ${"%.0f".format(latest)} bpm"
+                        hasEvidence -> "已收到手錶訊號，尚無可用的健康讀值"
+                        else -> "尚無量測紀錄"
+                    }
+                    addView(text(plainStatus, 13f, Color.WHITE), lp(top = 4))
+                    addView(text("查看技術詳情 ›", 12f, HealthVisuals.blue).apply {
+                        setOnClickListener {
+                            android.app.AlertDialog.Builder(this@SensorCalibrationCenterActivity)
+                                .setTitle(channel.title)
+                                .setMessage("$countSummary\n$timeSummary\n來源：${prefs.getString("${kind}_source_sensor", "感測通道").orEmpty()}\n\n${channel.explanation}")
+                                .setPositiveButton("關閉", null)
+                                .show()
+                        }
+                    }, lp(top = 4))
                 }
             }, lp(bottom = 14))
             channels.forEach { addView(channelPanel(it), lp(bottom = 12)) }
