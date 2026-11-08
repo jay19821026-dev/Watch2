@@ -32,7 +32,7 @@ class IrregularRhythmActivity : ComponentActivity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "手錶原始 ECG 研究量測與最近紀錄；不提供醫療診斷"
+            text = "查看這次 ECG 結果，或在手錶重新量測"
             textSize = 14f; setTextColor(Color.rgb(90, 90, 100))
             setPadding(0, dp(6), 0, dp(18))
         })
@@ -85,8 +85,8 @@ class IrregularRhythmActivity : ComponentActivity() {
             root.addView(card(displayedTitle, consumerStatus.detail, Color.rgb(142, 142, 147)))
         } else if (!estimateUsable || title.isNullOrBlank()) {
             root.addView(card(
-                "已完成這次 ECG 訊號擷取",
-                "手錶已保存 $eventCount 筆訊號。這次沒有產生可解讀的心律結果；請重新貼合電極再量一次。原始波形可在下方查看。",
+                "本次 ECG 檢測無效",
+                "這次不能判斷心律正常或異常。請把手錶戴妥，依手錶提示穩定接觸電極，保持不動後重新量測。",
                 Color.rgb(90, 200, 250)
             ))
         } else {
@@ -126,18 +126,18 @@ class IrregularRhythmActivity : ComponentActivity() {
         }
 
         root.addView(Button(this).apply {
-            text = "查看原廠 ECG 啟用說明"
+            text = "查看資料與原廠啟用說明"
             isAllCaps = false
             setOnClickListener {
                 android.app.AlertDialog.Builder(this@IrregularRhythmActivity)
                     .setTitle("原廠 ECG 啟用")
-                    .setMessage("原廠 ECG 由 Mi Fitness 和手錶健康服務管理。若手錶出現 Activation Guidance，請在 Mi Fitness 的裝置設定尋找 ECG 卡片；本 App 的原始訊號擷取不等於原廠心律分類已啟用。")
+                    .setMessage("本次收到 $eventCount 筆感測事件，但解碼波形點數為 $decodedSampleCount。原廠程式只在事件標記為 1000 且配戴狀態符合時，才把 ECG 欄位送入心律演算法；本次最近事件的標記是 ${raw.getString("ecg_latest", "").orEmpty().split(',').getOrNull(10) ?: "未知"}。若手錶出現 Activation Guidance，請在 Mi Fitness 的裝置設定尋找 ECG 卡片。")
                     .setPositiveButton("知道了", null).show()
             }
         })
 
         root.addView(Button(this).apply {
-            text = "啟動手錶 ECG 研究量測"
+            text = "重新量測 ECG"
             isAllCaps = false; setTextColor(Color.WHITE)
             background = GradientDrawable().apply {
                 cornerRadius = dp(14).toFloat(); setColor(Color.rgb(52, 199, 89))
@@ -151,7 +151,7 @@ class IrregularRhythmActivity : ComponentActivity() {
                     "/control/ecg-now"
                 ) { outcome ->
                     isEnabled = true
-                    text = "啟動手錶 ECG 研究量測"
+                    text = "重新量測 ECG"
                     commandFeedback.text = WearCommandDispatcher.feedback(outcome)
                     if (outcome !is WearCommandDispatcher.Outcome.Sent) {
                         android.widget.Toast.makeText(
@@ -187,7 +187,7 @@ class IrregularRhythmActivity : ComponentActivity() {
             layoutParams = LinearLayout.LayoutParams(-1, dp(48)).apply { topMargin = dp(8) }
         })
         root.addView(TextView(this).apply {
-            text = "若有胸痛、暈厥、呼吸困難，請立即就醫，不要依研究篩檢自行用藥。"
+            text = "手錶結果僅供參考；若有胸痛、暈厥或呼吸困難，請立即就醫。"
             textSize = 12f; setTextColor(Color.rgb(140, 90, 40)); setPadding(0, dp(16), 0, 0)
         })
 

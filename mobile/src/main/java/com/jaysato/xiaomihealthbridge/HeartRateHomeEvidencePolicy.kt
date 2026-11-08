@@ -1,6 +1,8 @@
 package com.jaysato.xiaomihealthbridge
 
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 internal object HeartRateHomeEvidencePolicy {
     fun describe(sourceKind: String, measuredAt: Long, timestampSource: String?): String {
@@ -16,9 +18,9 @@ internal object HeartRateHomeEvidencePolicy {
         }
         val timeLabel = when {
             measuredAt <= 0L -> "時間未知"
-            trusted -> "量測時間 ${runCatching { Instant.ofEpochMilli(measuredAt).toString() }.getOrDefault("無效時間")}"
-            else -> "時間欄位未確認 $measuredAt"
+            trusted -> "量測時間 ${runCatching { Instant.ofEpochMilli(measuredAt).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")) }.getOrDefault("無效時間")}"
+            else -> "量測時間未確認"
         }
-        return "來源 $sourceLabel · $timeLabel · timestamp_source=${timestampSource?.ifBlank { "UNKNOWN" } ?: "UNKNOWN"}"
+        return "來源 $sourceLabel · $timeLabel"
     }
 }

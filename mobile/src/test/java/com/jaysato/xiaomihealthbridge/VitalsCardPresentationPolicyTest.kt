@@ -23,10 +23,11 @@ class VitalsCardPresentationPolicyTest {
 
     @Test
     fun heartRateReferenceIsConditionalOnRestAndNeverCallsItADiagnosis() {
-        assertTrue(VitalsCardPresentationPolicy.heartRateReference(101.0).contains("高於成人安靜心率常見上限"))
-        assertTrue(VitalsCardPresentationPolicy.heartRateReference(59.0).contains("低於成人安靜心率常見下限"))
-        assertTrue(VitalsCardPresentationPolicy.heartRateReference(60.0).contains("常見範圍"))
-        assertTrue(VitalsCardPresentationPolicy.heartRateReference(100.0).contains("常見範圍"))
+        assertTrue(VitalsCardPresentationPolicy.heartRateReference(101.0).contains("高於上限"))
+        assertTrue(VitalsCardPresentationPolicy.heartRateReference(59.0).contains("低於下限"))
+        assertTrue(VitalsCardPresentationPolicy.heartRateReference(60.0).contains("落在範圍內"))
+        assertTrue(VitalsCardPresentationPolicy.heartRateReference(100.0).contains("落在範圍內"))
+        assertTrue(VitalsCardPresentationPolicy.heartRateReference(100.0).contains("60–100 bpm"))
         assertTrue(VitalsCardPresentationPolicy.heartRateReference(39.0).contains("重新量測"))
         assertTrue(VitalsCardPresentationPolicy.heartRateReference(null).contains("沒有可用讀值"))
     }
@@ -38,7 +39,8 @@ class VitalsCardPresentationPolicyTest {
         val detail = VitalsCardPresentationPolicy.recordedSpO2Detail("health_connect", "10/08 21:00")
         assertTrue(detail.contains("health_connect"))
         assertTrue(detail.contains("10/08 21:00"))
-        assertTrue(detail.contains("不代表目前值"))
+        assertTrue(detail.contains("95–100%"))
+        assertTrue(detail.contains("歷史紀錄"))
         assertFalse(detail.contains("未提供"))
     }
 }

@@ -19,13 +19,19 @@ internal object VitalsCardPresentationPolicy {
             value !in ClinicalReferenceTables.PLAUSIBLE_HR_BPM.min..ClinicalReferenceTables.PLAUSIBLE_HR_BPM.max ->
                 "讀值超出穿戴式心率合理參考窗；請確認佩戴並重新量測。"
             value > ClinicalReferenceTables.RESTING_HR_BPM.max ->
-                "高於成人安靜心率常見上限（若量測時正在休息）；活動、情緒或其他因素也會影響，建議安靜後複測。"
+                "成人靜息參考 60–100 bpm；這筆高於上限。若量測時正在活動，先休息再量一次。"
             value < ClinicalReferenceTables.RESTING_HR_BPM.min ->
-                "低於成人安靜心率常見下限（若量測時正在休息）；睡眠、訓練狀態或藥物也可能影響。"
-            else -> "落在成人安靜心率常見範圍（僅適用安靜狀態；不是疾病判定）。"
+                "成人靜息參考 60–100 bpm；這筆低於下限。睡眠、訓練與藥物可能影響心率。"
+            else -> "成人靜息參考 60–100 bpm；這筆落在範圍內。活動時的參考不同。"
         }
     }
 
-    fun recordedSpO2Detail(source: String?, timestamp: String?): String =
-        "來源：${source?.takeIf(String::isNotBlank) ?: "未提供"} · 記錄時間：${timestamp?.takeIf(String::isNotBlank) ?: "未提供"} · 時效尚未驗證，不代表目前值。"
+    fun recordedSpO2Detail(source: String?, timestamp: String?): String {
+        val label = when {
+            source?.contains("xiaomi", ignoreCase = true) == true -> "Mi Fitness"
+            source.isNullOrBlank() -> "來源未提供"
+            else -> source
+        }
+        return "多數健康成人常見參考 95–100%；這筆是歷史紀錄。來源 $label · ${timestamp ?: "時間未提供"}。"
+    }
 }

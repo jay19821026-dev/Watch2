@@ -255,10 +255,12 @@ class AiHealthAnalysisActivity : ComponentActivity() {
             addView(text("ECG＋BioZ 輔助分析", 20f, Color.WHITE, true))
             addView(text("ECG 提供電位波形；BioZ 可研究接觸與動作干擾。配對分析需要同步取樣與電極映射，目前兩通道分別顯示，不將阻抗換算成 ECG。", 13f, HealthVisuals.secondary), lp(top = 6))
         }, lp(bottom = 14))
-        content.addView(panel().apply {
-            addView(text("疾病風險篩查", 20f, Color.WHITE, true))
-            addView(text("只顯示可追溯測量的風險提示；不是診斷，也不會用未校準晶片資料推算疾病。", 12f, HealthVisuals.secondary), lp(top = 5, bottom = 10))
-            HealthRiskScreening.evaluate(this@AiHealthAnalysisActivity).forEach { screen ->
+        val availableHealthPrompts = HealthRiskScreening.evaluate(this@AiHealthAnalysisActivity).filter { screen ->
+            screen.state !in setOf("目前不可判讀", "需要新鮮袖帶讀值", "本次無效，請重測", "本次未取得結果")
+        }
+        if (availableHealthPrompts.isNotEmpty()) content.addView(panel().apply {
+            addView(text("本次健康提示", 20f, Color.WHITE, true))
+            availableHealthPrompts.forEach { screen ->
                 addView(LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
                     setPadding(dp(14), dp(12), dp(14), dp(12))

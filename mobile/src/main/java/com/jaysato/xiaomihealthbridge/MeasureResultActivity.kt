@@ -117,9 +117,9 @@ class MeasureResultActivity : ComponentActivity() {
             supplementalHeartRate != null && displayValue != "—" ->
                 "本次結果：手錶心率 $displayValue bpm（Wear Health Services）。PPG 光學波形是另一筆研究資料。"
             kind == "ecg" && resultPresentation.unit == "原始資料點／事件" ->
-                "本次結果：已記錄心電感測訊號；目前沒有可核對的心律分類。可查看波形，並保持電極接觸重新量測。"
+                "本次 ECG 檢測無效：無法判斷心律正常或異常。請穩定接觸電極並重新量測。"
             kind == "ppg" && resultPresentation.unit == "原始資料點／事件" ->
-                "本次結果：已記錄光學脈波，但這次沒有可信的心率數值。請貼緊手錶、保持靜止後重新量測。"
+                "本次 PPG 檢測無效：沒有可顯示的心率結果。請戴緊手錶、保持靜止後重新量測。"
             resultPresentation.unit == "原始資料點／事件" && displayValue != "—" ->
                 "本次結果：已取得 $title 感測資料；目前沒有可核對的生理數值，請查看量測狀態與來源。"
             displayValue == "—" ->
@@ -157,20 +157,26 @@ class MeasureResultActivity : ComponentActivity() {
             typedHeartRate?.let { root.addView(card(HeartRateMeaningPolicy.explain(it), Color.WHITE)) }
         }
         root.addView(TextView(this).apply {
-            text = displayValue; textSize = 56f; setTextColor(Color.BLACK)
+            text = if (resultPresentation.unit == "原始資料點／事件" || displayValue == "—") "重新量測" else displayValue
+            textSize = if (text == "重新量測") 36f else 56f; setTextColor(Color.BLACK)
             setTypeface(typeface, Typeface.BOLD)
             gravity = android.view.Gravity.CENTER
         })
         root.addView(TextView(this).apply {
-            text = resultPresentation.unit; textSize = 16f; setTextColor(Color.rgb(90, 90, 100))
+            text = if (resultPresentation.unit == "原始資料點／事件" || displayValue == "—") "" else resultPresentation.unit
+            textSize = 16f; setTextColor(Color.rgb(90, 90, 100))
             gravity = android.view.Gravity.CENTER
             setPadding(0, 0, 0, dp(12))
         })
-        root.addView(card(detail, Color.WHITE))
-        if (!resultPresentation.isCurrent || !feedback.receivedData) {
-            root.addView(card(resultPresentation.guidance ?: feedback.guidance, Color.WHITE))
-        }
-        note?.takeIf(String::isNotBlank)?.let { root.addView(card(it.take(220), Color.WHITE)) }
+        root.addView(Button(this).apply {
+            text = "查看數據與來源"; isAllCaps = false
+            setOnClickListener {
+                android.app.AlertDialog.Builder(this@MeasureResultActivity)
+                    .setTitle("$title · 量測詳情")
+                    .setMessage(listOfNotNull(detail, resultPresentation.guidance ?: feedback.guidance, note).joinToString("\n\n"))
+                    .setPositiveButton("知道了", null).show()
+            }
+        })
         val shouldOfferRetry = !resultPresentation.isCurrent || status in setOf(
             "invalid_optical", "invalid_sensor_values", "rejected_quality", "no_events", "error",
             "needs_contact", "needs_oem_mode", "off_wrist"

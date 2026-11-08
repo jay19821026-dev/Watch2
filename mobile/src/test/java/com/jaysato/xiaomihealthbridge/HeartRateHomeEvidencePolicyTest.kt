@@ -12,8 +12,8 @@ class HeartRateHomeEvidencePolicyTest {
         )
 
         assertTrue(label.contains("Health Services"))
-        assertTrue(label.contains("量測時間 2026-10-08T"))
-        assertTrue(label.contains("timestamp_source=health_services_datapoint_epoch"))
+        assertTrue(label.contains("量測時間"))
+        assertTrue(!label.contains("timestamp_source="))
     }
 
     @Test
@@ -23,7 +23,7 @@ class HeartRateHomeEvidencePolicyTest {
         )
 
         assertTrue(label.contains("手錶原始心率通道"))
-        assertTrue(label.contains("時間欄位未確認"))
-        assertTrue(!label.contains("量測時間"))
+        assertTrue(label.contains("量測時間未確認"))
+        assertTrue(!label.contains("timestamp_source="))
     }
 }

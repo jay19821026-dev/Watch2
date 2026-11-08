@@ -38,17 +38,23 @@ object HealthRiskScreening {
             wearQualified = raw.getBoolean("ppg_wear_qualified", false),
             timestampSource = raw.getString("ppg_timestamp_source", "UNKNOWN").orEmpty()
         )
-        val qualityText = result.ppgQualityScore?.let { "$it/100" } ?: "未評分"
-        val freshness = if (ppgFresh) "近期量測" else "非近期或時間來源未確認"
-        val agiText = result.appNormalizedApgIndex?.let {
-            "程式自訂 APG 形態指數 ${"%.3f".format(it)}（無單位；非標準 SDPPG AGI）"
-        } ?: "程式自訂 APG 形態指數未計算（${result.reasonCode}）"
-        return Result(
-            "血管年齡研究",
-            "$agiText · 血管年齡未估算 · PPG 品質 $qualityText · $freshness",
-            "$agiText；有效脈搏 ${result.acceptedBeatCount} 段。這是程式自訂研究形態指數，不是標準 SDPPG AGI、血管年齡、PWV、疾病風險或診斷。PPG 訊號品質：$qualityText。資料時間：$freshness。來源：${result.source}。方法：${result.method}。限制：${result.limitations}。${result.trend}。",
-            "此程式自訂形態指數不能換算血管年齡。此手錶尚無經驗證的 PWV／PTT 或血管年齡模型；如需血管評估，請使用經驗證的參考設備。若有腿痛、胸痛、呼吸困難或突發無力，請直接就醫。"
-        )
+        return when {
+            result.reasonCode == "PPG_GAP_PRESENT" -> Result(
+                "脈波檢測", "本次無效，請重測",
+                "這次光學脈波有中斷，無法提供可用的脈波形態結果。",
+                "戴緊手錶、保持手腕靜止，再量一次。"
+            )
+            !ppgFresh || result.appNormalizedApgIndex == null -> Result(
+                "脈波檢測", "本次未取得結果",
+                "這次沒有近期且完整的光學脈波。",
+                "戴緊手錶、保持靜止後重新量測。"
+            )
+            else -> Result(
+                "脈波檢測", "已取得脈波形態",
+                "已辨識 ${result.acceptedBeatCount} 段脈波；這項研究結果不能換算血管年齡。",
+                "可在量測詳情查看波形；若想了解血管健康，請使用經驗證的檢查方式。"
+            )
+        }
     }
 
     private fun bloodPressure(cuff: SharedPreferences, now: Long): Result {
