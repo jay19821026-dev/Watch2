@@ -114,7 +114,7 @@ class MeasureResultActivity : ComponentActivity() {
         } ?: "")
         val hasReadableValue = displayValue != "—"
         val resultConclusion = when {
-            !feedback.receivedData -> "$title 量測未完成 · 請確認佩戴與連線後重測"
+            !feedback.receivedData && !hasReadableValue -> "$title 量測未完成 · 請確認佩戴與連線後重測"
             supplementalHeartRate != null && displayValue != "—" ->
                 "心率 $displayValue bpm · ${ConsumerVitalsSummary.heartRateLabel(displayValue.toDoubleOrNull() ?: supplementalHeartRate.bpm.toDouble())}"
             kind == "ecg" && !hasReadableValue ->
@@ -130,6 +130,9 @@ class MeasureResultActivity : ComponentActivity() {
             !hasReadableValue -> "這次沒有$title 讀值 · 請重新量測"
             kind == "whs_heart_rate" ->
                 "心率 $displayValue bpm · ${ConsumerVitalsSummary.heartRateLabel(displayValue.toDoubleOrNull() ?: 0.0)}"
+            kind == "ecg" -> "估計心率 $displayValue bpm · 尚無心律分類"
+            kind in setOf("ppg", "max_hr", "lifeq_ott") && resultPresentation.unit.contains("研究估算") ->
+                "估計脈率 $displayValue bpm · 可與手錶心率紀錄比較"
             else -> "$title $displayValue ${resultPresentation.unit}"
         }
         val root = LinearLayout(this).apply {
