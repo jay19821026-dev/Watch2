@@ -11,6 +11,8 @@ This document identifies data sources, algorithms, and implementations. Listed p
 
 **OEM access boundary / 原廠存取界線：** The paired watch's Health Services declares `OEM_OPAQUE_DATA_ACCESS` as `signature|privileged` and reports a grant to Xiaomi Health, but not to this app. The exact grant mechanism and which OEM measurements depend on that permission remain unverified; the [4.0 OEM audit](WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md) records the package-manager evidence and the OEM APK's spelling discrepancy. A model-name or boolean change cannot be treated as access to typed OEM data. / 這是目前系統的權限證據，並非所有功能鎖定原因的完整解釋。
 
+比較 AILISA 與原廠的優劣需要同時段手錶輸出及獨立參考標準；公開論文或 FDA 其他產品的驗證不能替代。本專案另列[原廠比較驗證計畫](OEM_COMPARATIVE_VALIDATION_PLAN.md)，區分程式路徑、離線資料集與實機配對結果。 / Public studies inform methods, while superiority requires paired device and independent-reference results. See the [comparative validation plan](OEM_COMPARATIVE_VALIDATION_PLAN.md).
+
 ## Traceability matrix / 溯源對照表
 
 | Dataset or paper / 資料庫或論文 | Algorithm or use / 演算法或用途 | Implementation / 程式位置 | Boundary / 限制 |

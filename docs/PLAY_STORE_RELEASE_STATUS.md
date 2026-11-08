@@ -2,7 +2,7 @@
 
 Last verified / 最後驗證：2026-11-08
 Last built bundle / 上次已建置 AAB：test 28 原始碼，新套件手機 `versionCode 201`、手錶 `202`；候選 upload key 簽章，尚未上傳 Play。
-Current source / 目前原始碼：test 28 已在 GitHub Release 與 ailisa.net 公開；雙端 Debug 為 `4.0.0`／`versionCode 200`、套件 `net.ailisa.healthbridge`，手機版包含心率詳細頁跨日篩選修正。先前 test 25 雙端 APK 已安裝，手機已授權 AILISA 讀寫 Health Connect 心率、步數與熱量。資料時間窗修正詳見 [對照文件](OEM_DATA_WINDOW_COMPARISON_4_0.md)。舊手機資料橋接已完成一次實機匯入；手錶本機資料尚未搬遷。
+Current source / 目前原始碼：test 29 已在 GitHub Release 與 ailisa.net 公開；雙端 Debug 為 `4.0.0`／`versionCode 203`、套件 `net.ailisa.healthbridge`，手機版包含心率詳細頁跨日篩選與心率／血氧圖表分桶修正。test 28 的本機簽署 AAB 早於本次圖表改動，須重建才能作為 test 29 候選。先前 test 25 雙端 APK 已安裝，手機已授權 AILISA 讀寫 Health Connect 心率、步數與熱量。資料時間窗修正詳見 [對照文件](OEM_DATA_WINDOW_COMPARISON_4_0.md)。舊手機資料橋接已完成一次實機匯入；手錶本機資料尚未搬遷。
 Package / 套件：`net.ailisa.healthbridge`
 
 The test 17 signed AABs have the old package ID. The new-package test 18–27 AABs are superseded by test 28 local candidates. Final codes, upload-certificate enrollment and Play Console health declarations still require Console inspection. / test 17 為舊套件、test 18–27 為舊候選，均已由 test 28 本機候選取代；尚未上傳或通過 Play 審核。
