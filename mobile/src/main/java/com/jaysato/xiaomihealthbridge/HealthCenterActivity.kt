@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -325,8 +326,21 @@ class HealthCenterActivity : ComponentActivity() {
             ), margin(bottom = 10))
             val rawPrefs = RawSensorStore.open(this@HealthCenterActivity)
             val acquisitionPrefs = getSharedPreferences("sensor_acquisition_diagnostics", MODE_PRIVATE)
+            val sensorDetails = LinearLayout(this@HealthCenterActivity).apply {
+                orientation = LinearLayout.VERTICAL
+                visibility = View.GONE
+            }
+            body.addView(Button(this@HealthCenterActivity).apply {
+                text = "查看各項手錶量測"
+                isAllCaps = false
+                setOnClickListener {
+                    sensorDetails.visibility = if (sensorDetails.visibility == View.GONE) View.VISIBLE else View.GONE
+                    text = if (sensorDetails.visibility == View.VISIBLE) "收起手錶量測" else "查看各項手錶量測"
+                }
+            }, margin(bottom = 10))
+            body.addView(sensorDetails)
             WatchSensorCatalog.items.groupBy { it.group }.forEach { (group, items) ->
-                body.addView(text(group, 16f, Color.rgb(180, 190, 210), true), margin(top = 8, bottom = 8))
+                sensorDetails.addView(text(group, 16f, Color.rgb(180, 190, 210), true), margin(top = 8, bottom = 8))
                 items.forEach { item ->
                     val summary = rawPrefs.getString("${item.kind}_summary", null)
                     val hasSummary = !summary.isNullOrBlank()
@@ -443,7 +457,7 @@ class HealthCenterActivity : ComponentActivity() {
                         else -> if (hasSummary) Color.rgb(255, 190, 77) else Color.rgb(120, 130, 155)
                         }
                     }
-                    body.addView(card(item.label, subtitle, color) {
+                    sensorDetails.addView(card(item.label, subtitle, color) {
                         startActivity(Intent(this@HealthCenterActivity, RawSensorDetailActivity::class.java).putExtra("kind", item.kind))
                     }, margin(bottom = 10))
                 }
