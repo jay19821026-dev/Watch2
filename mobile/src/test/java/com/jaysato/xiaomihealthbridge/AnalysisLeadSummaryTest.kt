@@ -12,7 +12,7 @@ class AnalysisLeadSummaryTest {
                 "未校準", "已保存原始資料", HealthConclusionEngine.Level.RESEARCH, null, true)
         }
         val result = AnalysisLeadSummary.from(items)
-        assertTrue(result.recordedLines.isEmpty())
+        assertTrue(result.displayLines.isEmpty())
         assertTrue(result.researchLines.isEmpty())
         assertTrue(result.headline.contains("重新量測"))
         assertFalse(result.headline.contains("正常"))
@@ -28,7 +28,21 @@ class AnalysisLeadSummaryTest {
             null, true
         )
         val result = AnalysisLeadSummary.from(listOf(raw, measured))
-        assertEquals(listOf("心率：77 bpm"), result.recordedLines)
+        assertEquals(listOf("心率：77 bpm · 正常"), result.displayLines)
         assertTrue(result.researchLines.isEmpty())
+    }
+
+    @Test fun readableReferenceRecordsAppearWithoutRawCounts() {
+        val sleep = HealthConclusionEngine.Item(
+            "sleep", "睡眠", "近 7 日 42.2 小時紀錄區間", "", "",
+            HealthConclusionEngine.Level.RESEARCH, null, true
+        )
+        val ecg = HealthConclusionEngine.Item(
+            "ecg", "ECG", "216 個原始事件", "", "",
+            HealthConclusionEngine.Level.RESEARCH, null, true
+        )
+        val result = AnalysisLeadSummary.from(listOf(sleep, ecg))
+        assertEquals(listOf("睡眠：42.2 小時 · 7 日紀錄 · 已記錄"), result.displayLines)
+        assertFalse(result.headline.contains("216"))
     }
 }

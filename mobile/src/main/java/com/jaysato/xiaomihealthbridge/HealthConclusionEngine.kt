@@ -1052,7 +1052,7 @@ object HealthConclusionEngine {
             "$provenance · 手動袖帶單次讀值 · ACC/AHA 分類參考：${OpticalBloodPressureApi.categoryLabel(category)} · " +
                 ClinicalReferenceTables.AHA_SBP_NORMAL_MMHG.compare(sbp.toDouble()),
             "單次讀值不能診斷高血壓；需按臨床建議跨日重複測量。若有嚴重症狀請立即求助。",
-            level, score, true
+            level, score, true, EvidenceCategory.RECORDED_PHYSIOLOGICAL
         )
     }
 

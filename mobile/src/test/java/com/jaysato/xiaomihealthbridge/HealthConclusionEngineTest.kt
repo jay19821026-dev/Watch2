@@ -1263,7 +1263,7 @@ class HealthConclusionEngineTest {
         val results = HealthConclusionEngine.buildCoreSensorItems(raw, feature)
         val displays = results.map(ConsumerMetricPresentation::from)
 
-        assertEquals(listOf("心率", "血氧", "ECG", "腕部溫度", "體成分", "脈搏"), displays.map { it.title })
+        assertEquals(listOf("心率", "血氧", "心電圖", "腕部溫度", "體成分", "脈搏"), displays.map { it.title })
         displays.forEachIndexed { index, display ->
             assertTrue("${display.title} must show a result", display.value.isNotBlank() && display.value != "待量測")
             assertEquals("${display.title} remains a non-physiological result", "尚無健康結果", display.state)

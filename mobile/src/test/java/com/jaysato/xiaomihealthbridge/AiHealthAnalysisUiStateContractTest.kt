@@ -48,7 +48,8 @@ class AiHealthAnalysisUiStateContractTest {
     fun partialSensorFailureDoesNotHideOtherAvailableMeasurements() {
         val rendered = listOf(
             item("spo2", "—", HealthConclusionEngine.Level.UNAVAILABLE, available = false),
-            item("hr", "72 bpm", HealthConclusionEngine.Level.GOOD, score = 80)
+            item("hr", "72 bpm", HealthConclusionEngine.Level.GOOD, score = 80,
+                evidenceCategory = HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL)
         ).map(::display)
 
         assertEquals(2, rendered.size)
@@ -90,7 +91,8 @@ class AiHealthAnalysisUiStateContractTest {
         value: String,
         level: HealthConclusionEngine.Level,
         score: Int? = null,
-        available: Boolean = true
+        available: Boolean = true,
+        evidenceCategory: HealthConclusionEngine.EvidenceCategory = HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL
     ) = HealthConclusionEngine.Item(
         id = id,
         title = id,
@@ -99,6 +101,7 @@ class AiHealthAnalysisUiStateContractTest {
         conclusion = "",
         level = level,
         score = score,
-        available = available
+        available = available,
+        evidenceCategory = evidenceCategory
     )
 }

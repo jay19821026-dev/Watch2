@@ -4,7 +4,7 @@ package com.jaysato.xiaomihealthbridge
 internal object AnalysisLeadSummary {
     data class Result(
         val headline: String,
-        val recordedLines: List<String>,
+        val displayLines: List<String>,
         val researchLines: List<String>,
         val nextAction: String
     )
@@ -17,19 +17,26 @@ internal object AnalysisLeadSummary {
         val research = items.filter {
             it.available && it.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL
         }
+        val readableReference = research.filter {
+            ConsumerMetricPresentation.from(it).value !in setOf("重新量測", "待量測", "未支援")
+        }
         val headline = when {
-            recorded.isNotEmpty() -> "已有 ${recorded.size} 項可顯示的健康紀錄"
+            recorded.isNotEmpty() -> "已有 ${recorded.size} 項健康紀錄${if (readableReference.isNotEmpty()) "，另有 ${readableReference.size} 項參考資料" else ""}"
+            readableReference.isNotEmpty() -> "已有 ${readableReference.size} 項可查看的參考資料"
             research.isNotEmpty() -> "目前沒有可用健康結果，請重新量測"
             else -> "目前沒有新的可用量測"
         }
         val nextAction = when {
-            recorded.isNotEmpty() -> "點開單項結果查看來源與量測時間；其他項目可在手錶重新量測。"
-            research.isNotEmpty() -> "請在手錶重新量測並保持佩戴與電極接觸；原始波形不能換算成未校準的百分比或心律診斷。"
+            recorded.isNotEmpty() || readableReference.isNotEmpty() -> "點開單項結果查看讀值與參考說明；其他項目可在手錶重新量測。"
+            research.isNotEmpty() -> "請戴好手錶，依量測畫面操作後重試；可先查看已有的單項紀錄。"
             else -> "請在手錶啟動量測，保持與手機連線，並確認 Health Connect 權限。"
         }
         return Result(
             headline,
-            recorded.take(4).map { "${it.title}：${it.valueText}" },
+            (recorded + readableReference).take(4).map {
+                val display = ConsumerMetricPresentation.from(it)
+                "${display.title}：${display.value} · ${display.state}"
+            },
             emptyList(),
             nextAction
         )

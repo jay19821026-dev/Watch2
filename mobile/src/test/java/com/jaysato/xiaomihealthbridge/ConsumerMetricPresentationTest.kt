@@ -19,7 +19,8 @@ class ConsumerMetricPresentationTest {
     @Test fun oxygenKeepsPhysiologicalValueWithoutDatabaseWording() {
         val item = HealthConclusionEngine.Item(
             "spo2", "血氧 SpO₂", "97% · 已記錄", "", "",
-            HealthConclusionEngine.Level.GOOD, 80, true
+            HealthConclusionEngine.Level.GOOD, 80, true,
+            HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL
         )
         assertEquals("97%", ConsumerMetricPresentation.from(item).value)
         assertEquals("正常", ConsumerMetricPresentation.from(item).state)
@@ -43,5 +44,29 @@ class ConsumerMetricPresentationTest {
 
         assertEquals("重新量測", display.value)
         assertEquals("尚無健康結果", display.state)
+    }
+
+    @Test fun recordedSleepAndResearchHrvKeepReadableValuesWithoutClaimingNormalHealth() {
+        val sleep = HealthConclusionEngine.Item(
+            "sleep", "睡眠", "近 7 日 42.2 小時紀錄區間", "", "",
+            HealthConclusionEngine.Level.RESEARCH, null, true
+        )
+        val hrv = HealthConclusionEngine.Item(
+            "hrv", "HRV／壓力", "RMSSD 35 ms · SDNN 50 ms", "", "",
+            HealthConclusionEngine.Level.GOOD, 80, true
+        )
+        assertEquals("42.2 小時 · 7 日紀錄", ConsumerMetricPresentation.from(sleep).value)
+        assertEquals("已記錄", ConsumerMetricPresentation.from(sleep).state)
+        assertEquals("35 ms · 研究估算", ConsumerMetricPresentation.from(hrv).value)
+        assertEquals("研究估算", ConsumerMetricPresentation.from(hrv).state)
+    }
+
+    @Test fun unverifiedNumericTextIsNotAutomaticallyPresentedAsPhysiology() {
+        val item = HealthConclusionEngine.Item(
+            "temp", "腕部溫度", "36.6 °C · 原始資料", "", "",
+            HealthConclusionEngine.Level.GOOD, 80, true
+        )
+        assertEquals("重新量測", ConsumerMetricPresentation.from(item).value)
+        assertEquals("尚無健康結果", ConsumerMetricPresentation.from(item).state)
     }
 }

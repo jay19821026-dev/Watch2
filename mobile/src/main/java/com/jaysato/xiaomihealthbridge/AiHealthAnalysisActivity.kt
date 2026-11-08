@@ -128,7 +128,7 @@ class AiHealthAnalysisActivity : ComponentActivity() {
         content.addView(panel().apply {
             addView(text("目前結論", 16f, HealthVisuals.secondary, true))
             addView(text(lead.headline, 21f, Color.WHITE, true), lp(top = 8))
-            lead.recordedLines.forEach { addView(text(it, 16f, Color.WHITE), lp(top = 8)) }
+            lead.displayLines.forEach { addView(text(it, 16f, Color.WHITE), lp(top = 8)) }
             addView(text("下一步：${lead.nextAction}", 13f, HealthVisuals.blue), lp(top = 14))
             addView(Button(context).apply {
                 text = "查看來源與判讀依據"; isAllCaps = false

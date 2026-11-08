@@ -103,6 +103,8 @@ class HealthConclusionActivity : ComponentActivity() {
                     "${display.value} · ${ConsumerVitalsSummary.heartRateLabel(bpm)}"
                 item.id == "spo2" && percent != null && percent in 70.0..100.0 && item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL ->
                     "${display.value} · ${if (percent < 95.0) "偏低" else "正常範圍"}"
+                display.state in setOf("歷史紀錄", "研究估算", "心律未判定") &&
+                    display.value !in setOf("重新量測", "待量測") -> "${display.value} · ${display.state}"
                 else -> display.value
             }
             textSize = 28f; setTextColor(Color.BLACK); setTypeface(typeface, Typeface.BOLD)
