@@ -86,7 +86,7 @@ class AiHealthAnalysisActivity : ComponentActivity() {
                     .putString("exception_class", error.javaClass.name)
                     .putString("message", error.message.orEmpty().take(512))
                     .apply()
-                renderError(error.message ?: "無法讀取健康資料")
+                renderError()
             }
         }
     }
@@ -328,10 +328,10 @@ addView(text("HRV  ${if (insights.hrvAvailable) "已有實測" else "無有效 H
         AlertDialog.Builder(this).setTitle(title).setMessage(message).setPositiveButton("了解", null).show()
     }
 
-    private fun renderError(message: String) {
+    private fun renderError() {
         content.removeAllViews()
-        content.addView(text("無法完成分析", 26f, Color.WHITE, true))
-        content.addView(text(message, 14f, HealthVisuals.secondary), lp(top = 12, bottom = 20))
+        content.addView(text("這次分析未完成", 26f, Color.WHITE, true))
+        content.addView(text("健康資料暫時讀取失敗，請重新分析；已儲存的量測不會因此消失。", 14f, HealthVisuals.secondary), lp(top = 12, bottom = 20))
         content.addView(Button(this).apply { text = "返回"; setOnClickListener { finish() } })
         content.addView(Button(this).apply {
             text = "重新分析"

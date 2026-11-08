@@ -145,7 +145,8 @@ class HealthCenterActivity : ComponentActivity() {
         val filter = TimeRangeFilter.between(start, Instant.now())
         val loadErrorHandler = CoroutineExceptionHandler { _, error ->
             runOnUiThread {
-                body.addView(card("資料暫時無法讀取", "Health Connect：${error.message ?: "權限或服務未就緒"}\n請確認權限後點擊重新檢查。", Color.rgb(255, 190, 77)) {
+                android.util.Log.w("HealthCenter", "Health data load failed", error)
+                body.addView(card("健康資料暫時讀不到", "請確認健康資料權限與手錶連線，再點一下重新檢查。", Color.rgb(255, 190, 77)) {
                     recreate()
                 }, margin(top = 12, bottom = 12))
             }

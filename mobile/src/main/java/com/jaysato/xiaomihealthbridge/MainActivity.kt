@@ -499,7 +499,8 @@ class MainActivity : ComponentActivity() {
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                insightsStatus.text = "分析失敗：${error.message ?: "Health Connect 暫時無法讀取"}"
+                android.util.Log.w("MainActivity", "Health insights analysis failed", error)
+                insightsStatus.text = "這次分析未完成，請確認健康資料權限後重試。"
             }
         }
     }
