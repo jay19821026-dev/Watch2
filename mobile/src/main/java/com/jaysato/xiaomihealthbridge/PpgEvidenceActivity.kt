@@ -26,6 +26,7 @@ import java.util.Date
 
 class PpgEvidenceActivity : ComponentActivity() {
     private lateinit var body: LinearLayout
+    private var detailTarget: LinearLayout? = null
     private var loadJob: Job? = null
     private var selectedKind = "ppg"
 
@@ -35,7 +36,18 @@ class PpgEvidenceActivity : ComponentActivity() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(20), dp(20), dp(20), dp(32))
         }
-        setContentView(ScrollView(this).apply { setBackgroundColor(Color.rgb(12, 16, 24)); addView(body) })
+        val scroll = ScrollView(this).apply {
+            setBackgroundColor(Color.rgb(12, 16, 24))
+            clipToPadding = false
+            addView(body)
+        }
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(scroll) { view, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
+        setContentView(scroll)
+        scroll.requestApplyInsets()
     }
 
     override fun onResume() {
@@ -45,24 +57,29 @@ class PpgEvidenceActivity : ComponentActivity() {
 
     private fun load() {
         loadJob?.cancel()
+        detailTarget = null
         body.removeAllViews()
         body.addView(Button(this).apply { text = "返回"; setOnClickListener { finish() } })
         label("AILISA · 感測資料整理", 25f)
-        for ((kind, title) in listOf("ppg" to "PPG", "ecg" to "ECG", "bioz" to "BioZ",
-                "spo2_raw" to "SpO₂ 原始", "mi_spo2" to "小米 SpO₂ 原始",
-                "thermometer" to "溫度", "body_temperature_raw" to "體表原始通道")) {
+        label("這裡保存手錶訊號，健康判讀請看結果頁。")
+        body.addView(Button(this).apply {
+            text = "查看健康結果"
+            isAllCaps = false
+            setOnClickListener { startActivity(Intent(this@PpgEvidenceActivity, HealthConclusionActivity::class.java)) }
+        })
+        val kindTitles = listOf("ppg" to "脈搏訊號", "ecg" to "心電訊號", "bioz" to "體成分訊號",
+            "spo2_raw" to "血氧光學訊號", "mi_spo2" to "手錶血氧訊號",
+            "thermometer" to "溫度", "body_temperature_raw" to "腕部溫度訊號")
+        val selectedTitle = kindTitles.firstOrNull { it.first == selectedKind }?.second ?: "手錶訊號"
+        for ((kind, title) in kindTitles) {
             body.addView(Button(this).apply {
                 text = if (selectedKind == kind) "$title · 已選取" else title
                 setOnClickListener { selectedKind = kind; load() }
             })
         }
-        label(when (selectedKind) {
-            "thermometer", "body_temperature_raw" -> "溫度原始讀值按收到順序檢視；不保證是連續波形。單位及整機校準未驗證。"
-            "spo2_raw", "mi_spo2" -> "SpO₂ 原始光學預覽按索引呈現；不代表完整 ADC 串流或血氧百分比。"
-            else -> "收到的預覽不等於完整 ADC 串流。曲線橫軸是預覽索引；縱軸為未校準原始編碼。"
-        })
+        label("此頁只供檢查訊號；下方技術詳情可自行展開。")
         body.addView(Button(this).apply {
-            text = "開始 ${selectedKind} 量測"
+            text = "開始量測$selectedTitle"
             setOnClickListener { startActivity(Intent(this@PpgEvidenceActivity, ClinicalLabActivity::class.java)
                 .putExtra("preferred_spo2_kind", selectedKind.takeIf { it in setOf("spo2_raw", "mi_spo2") })
                 .putExtra("auto", when (selectedKind) {
@@ -79,8 +96,23 @@ class PpgEvidenceActivity : ComponentActivity() {
                 val recentSessions = dao.recentSessions(source)
                 val latestEvidence = dao.latestSessionWithRawEvidence(source)
                 val sessions = (recentSessions + listOfNotNull(latestEvidence)).distinctBy { it.sessionId }
-                status.text = if (sessions.isEmpty()) "尚無 Room 保存預覽；請啟動新量測並重新整理。舊偏好資料不會冒充新保存資料。" else "最近量測 ${recentSessions.size} 筆；另保留最近一次有原始資料的歷史紀錄"
+                status.text = if (sessions.isEmpty()) "尚無保存的訊號；可啟動量測後重新整理。" else "已保存 ${sessions.size} 次量測訊號"
                 for (session in sessions) {
+                    label("$selectedTitle · ${DateFormat.getDateTimeInstance().format(Date(session.createdAt))}")
+                    val details = LinearLayout(this@PpgEvidenceActivity).apply {
+                        orientation = LinearLayout.VERTICAL
+                        visibility = View.GONE
+                    }
+                    body.addView(Button(this@PpgEvidenceActivity).apply {
+                        text = "展開技術詳情"
+                        isAllCaps = false
+                        setOnClickListener {
+                            details.visibility = if (details.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                            text = if (details.visibility == View.VISIBLE) "收起技術詳情" else "展開技術詳情"
+                        }
+                    })
+                    body.addView(details)
+                    detailTarget = details
                     val rows = dao.readPreview(session.sessionId)
                     val values = rows.map { it.rawEncoding.toDoubleOrNull() }
                     val metadata = JSONObject(session.metadataJson)
@@ -334,7 +366,7 @@ class PpgEvidenceActivity : ComponentActivity() {
                         else "保存事件解碼狀態：${decoded.status}；不生成替代波形。")
                     if (selectedKind == "ecg" && ecgFieldSummaries.isNotEmpty()) {
                         label("ECG HAL 原始欄位 × 事件索引預覽：${decoded?.eventCount ?: 0} 個事件、${ecgFieldSummaries.size} 欄。每欄獨立 min–max 正規化；橫軸不是秒，欄位映射／ECG 波形／取樣率未驗證。", 14f)
-                        body.addView(IndexPreview(ecgFieldSummaries.map { it.normalizedEventIndexPreview }), LinearLayout.LayoutParams(-1, dp(190)))
+                        (detailTarget ?: body).addView(IndexPreview(ecgFieldSummaries.map { it.normalizedEventIndexPreview }), LinearLayout.LayoutParams(-1, dp(190)))
                         label("圖例：${ecgFieldSummaries.joinToString(" · ") { "欄位 ${it.fieldIndex + 1}" }}（色彩循環；相對幅值 0–1，不代表 mV 或心電圖）", 12f)
                         label("候選值 ${decoded?.candidateValueCount ?: 0} · 檢視原始欄位值 ${decoded?.inspectedFieldValueCount ?: 0} · mapping=unverified。此圖只協助檢查欄位連續性，不輸出 R 峰、RR、bpm、HRV 或診斷。", 12f)
                     }
@@ -343,7 +375,7 @@ class PpgEvidenceActivity : ComponentActivity() {
                             label("BioZ 原始封包欄位無法一致解讀；保留事件資料，不把扁平預覽拼成時間波形。相對指標：未評分。")
                         } else {
                             label("BioZ 原始欄位 × 事件序列 · NORMALIZED_INDEX（非秒）· 每欄獨立正規化，不代表 Ω")
-                            body.addView(IndexPreview(biozResearch.fields.map { it.relativeAmplitude }), LinearLayout.LayoutParams(-1, dp(170)))
+                            (detailTarget ?: body).addView(IndexPreview(biozResearch.fields.map { it.relativeAmplitude }), LinearLayout.LayoutParams(-1, dp(170)))
                             label("圖例：${biozResearch.fields.joinToString(" · ") { "欄位 ${it.index}" }}（色彩循環；欄位身分未驗證）", 12f)
                             for (field in biozResearch.fields) {
                                 label("欄位 ${field.index} · 有限值 ${field.finiteCount}/${field.eventCount} · " +
@@ -362,7 +394,7 @@ class PpgEvidenceActivity : ComponentActivity() {
                         val plottedTraces = if (filteredPpgSummary != null) {
                             listOf(researchSummary.relativeAmplitude, filteredPpgSummary.relativeAmplitude)
                         } else listOf(researchSummary.relativeAmplitude)
-                        body.addView(IndexPreview(plottedTraces), LinearLayout.LayoutParams(-1, dp(150)))
+                        (detailTarget ?: body).addView(IndexPreview(plottedTraces), LinearLayout.LayoutParams(-1, dp(150)))
                         if (filteredPpgSummary != null) {
                             label("PPG 比較：原始相對波形／3 點中值平滑 · ${ppgFilter?.filteredPointCount ?: 0} 點標記為 FILTERED · 依樣本索引處理，未假設取樣率，不換算 bpm", 12f)
                         }
@@ -380,11 +412,14 @@ class PpgEvidenceActivity : ComponentActivity() {
                         before?.isFinite() == true && after?.isFinite() == true
                     }
                     label("Full Coverage：停用（通道與索引順序尚未驗證）\n波形：${if (waveformAvailable) "LIMITED" else "FAIL"} · 趨勢／脈率／HRV／生理換算：FAIL\n不會將補值或原始編碼當成血氧、心率或阻抗。")
+                    detailTarget = null
                 }
             } catch (cancelled: CancellationException) {
+                detailTarget = null
                 throw cancelled
             } catch (_: Exception) {
-                status.text = "證據讀取失敗；既有原始資料未刪除。請重新整理或查看工程診斷。"
+                detailTarget = null
+                status.text = "訊號讀取失敗；請重新整理。"
             }
         }
         body.addView(Button(this).apply { text = "重新整理"; setOnClickListener { load() } })
@@ -393,7 +428,7 @@ class PpgEvidenceActivity : ComponentActivity() {
     private fun label(value: String, size: Float = 14f): TextView = TextView(this).apply {
         text = value; textSize = size; setTextColor(Color.WHITE)
         setPadding(0, dp(10), 0, dp(10))
-        body.addView(this)
+        (detailTarget ?: body).addView(this)
     }
 
     private inner class IndexPreview(private val traces: List<List<Double?>>) : View(this@PpgEvidenceActivity) {
