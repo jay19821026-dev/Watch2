@@ -55,8 +55,13 @@ class MeasureResultActivity : ComponentActivity() {
             !externalCalibrationVerified) "research_signal_unscaled" else storedStatus
         val samples = if (isHealthServicesHeartRate) {
             if (healthServicesBpm.isFinite()) 1 else 0
-        } else rawValueCount(raw, kind)
-        val feedback = MeasurementFeedbackFactory.create(status, samples ?: 0, receivedDataCount(raw, kind) > 0)
+        } else rawValueCount(raw, kind)?.takeIf { it > 0 }
+            ?: raw.getInt("${kind}_event_count", 0).takeIf {
+                RawSensorPayloadPolicy.isBiomedicalKind(kind) && raw.getInt("${kind}_event_count_known", 0) == 1 && it > 0
+            }
+        val hasReceivedData = if (isHealthServicesHeartRate) (samples ?: 0) > 0
+            else receivedDataCount(raw, kind) > 0
+        val feedback = MeasurementFeedbackFactory.create(status, samples ?: 0, hasReceivedData)
         val time = (if (isHealthServicesHeartRate) feature.getLong("whs_heart_rate_timestamp", 0L)
             else raw.getLong("${kind}_time", 0L)).takeIf { it > 0 }
             ?: raw.getLong("hrv_research_time", 0L).takeIf { kind == "hrv_research" && it > 0 }
@@ -93,6 +98,14 @@ class MeasureResultActivity : ComponentActivity() {
         )
         val displayValue = resultPresentation.value
         val detail = detailLine(kind, raw)
+        val resultConclusion = when {
+            !feedback.receivedData -> "本次結論：未收到可用的 $title 量測資料；請重新量測。"
+            resultPresentation.unit == "原始資料點／事件" && displayValue != "—" ->
+                "本次結論：已收到 $displayValue 個 $title 原始資料點／事件；目前只能確認資料擷取，尚不能換算成經驗證的生理值。"
+            displayValue == "—" ->
+                "本次結論：已收到 $title 資料，但目前無法提供可信的生理數值；請查看下方原因與量測時間。"
+            else -> "本次結論：$title $displayValue ${resultPresentation.unit}；請連同量測時間與來源查看。"
+        }
         val note = if (kind == "ecg") {
             "研究用途估算，非經裝置校準的 ECG／心率量測，不可用於診斷或醫療決策。原始波形與公式結果不代表臨床有效性。"
         } else if (OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
@@ -132,6 +145,7 @@ class MeasureResultActivity : ComponentActivity() {
             setPadding(0, 0, 0, dp(12))
         })
         root.addView(card(detail, Color.WHITE))
+        root.addView(card(resultConclusion, Color.rgb(232, 244, 252)))
         if (kind == "ecg" || OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
             root.addView(card(
                 "注意：本次研究判讀可能不準確，不能作為疾病診斷或排除疾病的依據。若有胸痛、暈厥、呼吸困難或持續不適，請就醫；健康疑慮以醫師評估為準。",
@@ -302,7 +316,12 @@ class MeasureResultActivity : ComponentActivity() {
                 "optical_bp" -> "—" to ""
                 "ppg", "max_hr", "heart_rate_raw", "lifeq_ott" -> {
                     if (OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
-                        (opticalEstimate?.let { "%.0f".format(it) } ?: "—") to "研究估算 bpm"
+                        val count = rawValueCount(raw, kind)?.takeIf { it > 0 }
+                            ?: raw.getInt("${kind}_event_count", 0).takeIf {
+                                raw.getInt("${kind}_event_count_known", 0) == 1 && it > 0
+                            }
+                        if (opticalEstimate != null) "%.0f".format(opticalEstimate) to "研究估算 bpm"
+                        else (count?.toString() ?: "—") to "原始資料點／事件"
                     } else {
                         val bpm = f("${kind}_formula_pulse_bpm") ?: f("${kind}_average")
                         (bpm?.let { "%.0f".format(it) } ?: "—") to "bpm"
@@ -326,8 +345,12 @@ class MeasureResultActivity : ComponentActivity() {
                         timelineSource = raw.getString("ecg_research_timeline_source", "NORMALIZED_INDEX").orEmpty()
                     )
                     val displayedBpm = bpm.takeIf { estimateUsable }
-                    (displayedBpm?.let { "%.0f".format(it) } ?: rawValueCount(raw, "ecg")?.takeIf { it > 0 }?.toString() ?: "—") to
-                        if (displayedBpm != null) "bpm" else "點"
+                    val count = rawValueCount(raw, "ecg")?.takeIf { it > 0 }
+                        ?: raw.getInt("ecg_event_count", 0).takeIf {
+                            raw.getInt("ecg_event_count_known", 0) == 1 && it > 0
+                        }
+                    (displayedBpm?.let { "%.0f".format(it) } ?: count?.toString() ?: "—") to
+                        if (displayedBpm != null) "bpm" else "原始資料點／事件"
                 }
                 "hrv_research" -> {
                     val sourceKind = raw.getString("hrv_research_source_kind", "").orEmpty()
@@ -468,7 +491,7 @@ internal object MeasureResultValuePolicy {
                 else -> null
             }
             return Presentation(
-                value = "—",
+                value = if (unit == "原始資料點／事件" && samples > 0 && value != "—") value else "—",
                 unit = if (kind == "ecg" && unit == "bpm") "研究估算 bpm" else unit,
                 isCurrent = false,
                 headline = message,

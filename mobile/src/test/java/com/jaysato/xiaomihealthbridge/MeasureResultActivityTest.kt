@@ -9,6 +9,29 @@ class MeasureResultActivityTest {
     private val now = 100_000_000L
 
     @Test
+    fun rawEventCountRemainsVisibleWhenTimestampIsUnknown() {
+        val result = MeasureResultValuePolicy.present(
+            kind = "ecg", value = "45", unit = "原始資料點／事件", samples = 45,
+            status = "research_signal_unscaled", measuredAtMillis = 0L, nowMillis = now
+        )
+        assertFalse(result.isCurrent)
+        assertEquals("45", result.value)
+        assertEquals("量測時間未知或無效，不能確認為目前值", result.headline)
+    }
+
+    @Test
+    fun oldPulseEstimateIsHiddenButRawCountCanBeShown() {
+        val staleTime = now - SensorDisplayState.APP_DISPLAY_FRESHNESS_MILLIS - 1L
+        val estimate = MeasureResultValuePolicy.present("ppg", "72", "研究估算 bpm", 45,
+            "research_optical", staleTime, now, "android_sensor_event_elapsed_realtime")
+        val count = MeasureResultValuePolicy.present("ppg", "45", "原始資料點／事件", 45,
+            "research_optical", staleTime, now, "android_sensor_event_elapsed_realtime")
+        assertEquals("—", estimate.value)
+        assertEquals("45", count.value)
+        assertFalse(count.isCurrent)
+    }
+
+    @Test
     fun resultDateRequiresTrustedEpochTimestamp() {
         val trusted = MeasureResultTimestampPresentation.label(
             timestampMillis = now - 1_000L,
