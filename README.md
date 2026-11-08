@@ -93,6 +93,8 @@ Mi Fitness 9.8.348i 的 clean-room 靜態反組譯、資料管線差異、可合
 
 Watch 2 Pro 4.0 原廠手錶 APK、ECG 啟用閘門與功能入口逐項盤點，請見 [`docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md`](docs/WATCH2PRO_4_0_OEM_FEATURE_AUDIT.md)。
 
+PPG、BioZ、ECG 的原廠感測器擷取與結果服務，以及 AILISA 可寫入 Health Connect 的資料邊界，請見[中英文訊號對照](docs/OEM_PPG_BIOZ_ECG_HEALTH_CONNECT_TRACE.md)。原始事件不會冒充經校準的生理或醫療結果。
+
 手機共用 APK 的完整功能類別、產品功能鍵與這隻 Watch 2 Pro 即時感測器清單的中英文對照，請見 [`docs/OEM_APK_CAPABILITY_BREAKDOWN.md`](docs/OEM_APK_CAPABILITY_BREAKDOWN.md)。
 
 - PhysioNet ECG-ID：同取樣率下的尺度無關 ECG 頻譜參考，不是手錶校準檔。
