@@ -42,8 +42,8 @@ internal object UserFacingMeasurementOutcome {
             )
             SensorDisplayState.SIGNAL_VALID_RESEARCH -> Outcome(
                 Kind.RAW_CAPTURED,
-                "已收到訊號",
-                "這次尚無可顯示的健康讀值",
+                capturedSignalLabel(metricKind),
+                rawOnlyConclusion(metricKind),
                 retryAction(metricKind)
             )
             SensorDisplayState.DERIVED_ESTIMATE -> Outcome(
@@ -55,7 +55,7 @@ internal object UserFacingMeasurementOutcome {
             SensorDisplayState.RAW_ONLY,
             SensorDisplayState.CALIBRATION_MISSING -> Outcome(
                 Kind.RAW_CAPTURED,
-                "這次沒有可顯示的讀值",
+                capturedSignalLabel(metricKind),
                 rawOnlyConclusion(metricKind),
                 retryAction(metricKind)
             )
@@ -97,13 +97,22 @@ internal object UserFacingMeasurementOutcome {
         }
     }
 
+    private fun capturedSignalLabel(metricKind: String): String = when (metricKind) {
+        "ecg" -> "已收到心電訊號"
+        "ppg", "max_hr", "lifeq_ott" -> "已收到脈搏訊號"
+        "spo2_raw", "mi_spo2" -> "已收到血氧訊號"
+        "bioz", "bioz_respiration" -> "已收到體成分訊號"
+        "body_temperature_raw", "thermometer" -> "已收到溫度訊號"
+        else -> "已收到手錶訊號"
+    }
+
     private fun rawOnlyConclusion(metricKind: String): String = when (metricKind) {
-        "ecg" -> "這次沒有可解讀的心律結果"
-        "ppg", "max_hr", "lifeq_ott" -> "這次沒有可顯示的脈搏或心率"
-        "spo2_raw", "mi_spo2" -> "這次沒有可顯示的血氧百分比"
-        "bioz", "bioz_respiration" -> "這次沒有可顯示的體成分結果"
-        "body_temperature_raw", "thermometer" -> "這次沒有可顯示的體溫讀值"
-        else -> "這次沒有可顯示的量測結果"
+        "ecg" -> "尚無可解讀的心律結果"
+        "ppg", "max_hr", "lifeq_ott" -> "尚無可用的脈率或心率讀值"
+        "spo2_raw", "mi_spo2" -> "尚無可用的血氧百分比"
+        "bioz", "bioz_respiration" -> "尚無可用的體成分讀值"
+        "body_temperature_raw", "thermometer" -> "尚無可用的體溫讀值"
+        else -> "尚無可用的健康讀值"
     }
 
     private fun retryAction(metricKind: String): String = when (metricKind) {

@@ -14,10 +14,26 @@ class UserFacingMeasurementOutcomeTest {
         )
 
         assertEquals(UserFacingMeasurementOutcome.Kind.RAW_CAPTURED, result.kind)
-        assertEquals("這次沒有可顯示的讀值", result.label)
-        assertEquals("這次沒有可解讀的心律結果", result.conclusion)
+        assertEquals("已收到心電訊號", result.label)
+        assertEquals("尚無可解讀的心律結果", result.conclusion)
         assertFalse(result.conclusion.contains("正常"))
         assertFalse(result.conclusion.contains("異常"))
+    }
+
+    @Test
+    fun capturedSensorKindsExplainWhatWasReceivedWithoutClaimingAReading() {
+        val expected = mapOf(
+            "spo2_raw" to ("已收到血氧訊號" to "尚無可用的血氧百分比"),
+            "bioz" to ("已收到體成分訊號" to "尚無可用的體成分讀值"),
+            "body_temperature_raw" to ("已收到溫度訊號" to "尚無可用的體溫讀值")
+        )
+        expected.forEach { (metric, labels) ->
+            val result = UserFacingMeasurementOutcome.from(
+                SensorDisplayState.RAW_ONLY, metric, "research_signal_unscaled"
+            )
+            assertEquals(labels.first, result.label)
+            assertEquals(labels.second, result.conclusion)
+        }
     }
 
     @Test
@@ -60,7 +76,8 @@ class UserFacingMeasurementOutcomeTest {
 
         assertEquals(UserFacingMeasurementOutcome.Kind.RAW_CAPTURED, research.kind)
         assertEquals(UserFacingMeasurementOutcome.Kind.RAW_CAPTURED, derived.kind)
-        assertEquals("這次尚無可顯示的健康讀值", research.conclusion)
+        assertEquals("已收到脈搏訊號", research.label)
+        assertEquals("尚無可用的脈率或心率讀值", research.conclusion)
         assertEquals("這是根據其他紀錄估算的結果", derived.conclusion)
     }
 
