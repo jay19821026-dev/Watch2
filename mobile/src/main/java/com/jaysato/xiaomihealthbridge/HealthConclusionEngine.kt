@@ -54,12 +54,12 @@ object HealthConclusionEngine {
         val raw = try {
             RawSensorStore.open(context)
         } catch (error: Exception) {
-            return unavailableReport("感測資料儲存讀取例外：${error.javaClass.simpleName}")
+            return unavailableReport("感測資料暫時無法讀取，請稍後重試。")
         }
         val feature = try {
             context.getSharedPreferences(WearDataProcessor.FEATURE_PREFS, Context.MODE_PRIVATE)
         } catch (error: Exception) {
-            return unavailableReport("健康資料讀取例外：${error.javaClass.simpleName}")
+            return unavailableReport("健康資料暫時無法讀取，請稍後重試。")
         }
         val items = buildCoreSensorItems(raw, feature) + listOf(
             buildSafely("hrv", "HRV") { hrvConclusion(raw) },

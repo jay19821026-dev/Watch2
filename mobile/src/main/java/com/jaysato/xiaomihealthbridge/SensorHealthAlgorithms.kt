@@ -113,7 +113,11 @@ object SensorHealthAlgorithms {
         if (dailyMedians.size < 3) return null
         val dailyEntries = dailyMedians.entries.toList()
         val latestEntry = dailyEntries.last()
-        val baselineValues = dailyEntries.dropLast(1).takeLast(6).map { it.value }
+        // Compare recent observations only; an old isolated record is not a current baseline.
+        val baselineStart = latestEntry.key.minusDays(21)
+        val baselineValues = dailyEntries.dropLast(1)
+            .filter { !it.key.isBefore(baselineStart) }
+            .takeLast(6).map { it.value }
         if (baselineValues.size < 2) return null
         val baseline = median(baselineValues)
         return PersonalBaselineDeviation(

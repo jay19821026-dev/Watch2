@@ -19,7 +19,7 @@ class AiHealthAnalysisPipelineTest {
         assertEquals(report, result.measurementReport)
         assertTrue(result.engineAnalysis.measurements.findings.any { it.id == "heart" })
         assertTrue(result.explanation.measurementDetail.isNotBlank())
-        assertTrue(result.warnings.any { it.contains("健康趨勢資料讀取暫不可用") })
+        assertTrue(result.warnings.any { it.contains("健康趨勢暫時無法讀取") && !it.contains("Exception") })
     }
 
     @Test fun statisticsFailurePreservesPerMetricResultsAndLeavesCompositeUnscored() = runBlocking {
@@ -32,7 +32,7 @@ class AiHealthAnalysisPipelineTest {
 
         assertEquals("heart", result.engineAnalysis.measurements.findings.single().id)
         assertNull(result.engineAnalysis.recovery.score)
-        assertTrue(result.warnings.any { it.contains("統計整合暫不可用") })
+        assertTrue(result.warnings.any { it.contains("綜合趨勢暫時無法產生") && !it.contains("Exception") })
     }
 
     @Test fun measurementReadFailureStillReturnsUnscoredReportAndTrendSummary() = runBlocking {
@@ -44,7 +44,7 @@ class AiHealthAnalysisPipelineTest {
         assertTrue(result.measurementReport.items.isNotEmpty())
         assertTrue(result.measurementReport.items.all { it.score == null && !it.available })
         assertNull(result.engineAnalysis.recovery.score)
-        assertTrue(result.warnings.any { it.contains("單項量測資料讀取暫不可用") })
+        assertTrue(result.warnings.any { it.contains("部分量測暫時無法讀取") && !it.contains("Exception") })
     }
 
     @Test fun explanationFailureDoesNotDiscardMeasurementOrStatisticsResults() = runBlocking {

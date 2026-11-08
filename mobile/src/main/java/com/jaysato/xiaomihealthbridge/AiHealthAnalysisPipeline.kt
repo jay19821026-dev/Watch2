@@ -28,7 +28,7 @@ internal object AiHealthAnalysisPipeline {
             throw cancelled
         } catch (error: Exception) {
             insightsAvailable = false
-            warnings += "健康趨勢資料讀取暫不可用（${error.javaClass.simpleName}）；其他單項判讀仍繼續。"
+            warnings += "健康趨勢暫時無法讀取；已保留其他量測結果。"
             emptyInsights()
         }
         val measurementReport = try {
@@ -36,15 +36,15 @@ internal object AiHealthAnalysisPipeline {
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: Exception) {
-            warnings += "單項量測資料讀取暫不可用（${error.javaClass.simpleName}）。"
-            HealthConclusionEngine.unavailableReport("健康量測資料讀取例外：${error.javaClass.simpleName}")
+            warnings += "部分量測暫時無法讀取，請稍後重試。"
+            HealthConclusionEngine.unavailableReport("健康量測暫時無法讀取，請稍後重試。")
         }
         val engineAnalysis = try {
             analyzeEngine(insights, measurementReport.items)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: Exception) {
-            warnings += "統計整合暫不可用（${error.javaClass.simpleName}）；保留逐項量測結果。"
+            warnings += "綜合趨勢暫時無法產生；仍可查看各項量測。"
             fallbackEngineAnalysis(measurementReport.items)
         }
         val explanation = try {
@@ -52,7 +52,7 @@ internal object AiHealthAnalysisPipeline {
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: Exception) {
-            warnings += "趨勢說明暫不可用（${error.javaClass.simpleName}）；保留量測與統計結果。"
+            warnings += "趨勢說明暫時無法產生；仍可查看各項結果。"
             fallbackExplanation(measurementReport)
         }
         return Result(insights, measurementReport, engineAnalysis, explanation, insightsAvailable, warnings)

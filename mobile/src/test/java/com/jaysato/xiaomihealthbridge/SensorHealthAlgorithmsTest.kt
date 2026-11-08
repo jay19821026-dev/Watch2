@@ -138,6 +138,17 @@ class SensorHealthAlgorithmsTest {
         )
     }
 
+    @Test fun hrvTrendDoesNotUseDistantDaysAsCurrentBaseline() {
+        val trend = SensorHealthAlgorithms.hrvDeviationFromPersonalBaseline(
+            listOf(
+                LocalDate.parse("2026-09-01") to 42.0,
+                LocalDate.parse("2026-09-02") to 44.0,
+                LocalDate.parse("2026-11-08") to 30.0
+            )
+        )
+        assertNull(trend)
+    }
+
     @Test fun constantChannelCannotBecomePulseSignal() {
         val quality = SensorHealthAlgorithms.waveformQuality(List(64) { 524287f }, 25f, "ppg")
         assertEquals(0, quality.score)
