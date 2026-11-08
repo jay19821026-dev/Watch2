@@ -53,7 +53,7 @@ class ClinicalLabActivity : ComponentActivity() {
             setOnClickListener { startActivity(Intent(this@ClinicalLabActivity, PpgEvidenceActivity::class.java)) }
         })
         body.addView(disclaimerBanner(), margins(top = 12, bottom = 16))
-        body.addView(LinearLayout(this).apply {
+        body.addView(advancedSection("光學通道技術資料", LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14), dp(14), dp(14), dp(14))
             setBackgroundColor(Color.rgb(24, 31, 44))
@@ -91,7 +91,7 @@ class ClinicalLabActivity : ComponentActivity() {
                 })
             }
             addView(state, margins(top = 6))
-        }, margins(bottom = 16))
+        }), margins(bottom = 16))
         body.addView(advancedSection("進階：ECG 校準工具", automaticEcgCalibrationPanel()), margins(bottom = 16))
         listOf(
             Modality("ppg", "PPG", "光學脈搏", Color.rgb(255, 90, 120), "/control/ppg-now"),
@@ -105,7 +105,7 @@ class ClinicalLabActivity : ComponentActivity() {
             cards[modality.id] = card
             body.addView(card.root, margins(bottom = 12))
         }
-        body.addView(watchFeaturePanel(), margins(top = 8))
+        body.addView(advancedSection("手錶功能技術清單", watchFeaturePanel()), margins(top = 8))
         setContentView(ScrollView(this).apply {
             setBackgroundColor(BG)
             addView(body)
@@ -634,7 +634,7 @@ class ClinicalLabActivity : ComponentActivity() {
                         setTextColor(Color.WHITE)
                     })
                     addView(TextView(this@ClinicalLabActivity).apply {
-                        text = "原始資料與分析狀態"
+                        text = "量測結果與說明"
                         textSize = 12f
                         setTextColor(Color.rgb(140, 170, 190))
                     })
@@ -651,15 +651,12 @@ class ClinicalLabActivity : ComponentActivity() {
             })
             if (modality.id == "ecg") {
                 addView(TextView(this@ClinicalLabActivity).apply {
-                    text = "原廠量測提示：將中指與無名指接觸手錶兩個按鍵，手臂平放並保持靜止；心率低於 50 或高於 150 次／分時，房顫結果可能無法判定。Mi Fitness 的 ECG 卡片、量測提醒與手錶啟用狀態分開判斷；本研究頁不會變更原廠授權，也不提供房顫診斷。"
+                    text = "戴好手錶，依畫面接觸電極並保持靜止。"
                     textSize = 12f
                     setTextColor(Color.rgb(255, 210, 140))
                     setPadding(0, dp(10), 0, 0)
                 })
             }
-            addView(chart, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(160)).apply {
-                topMargin = dp(12)
-            })
             addView(verdictTitle.apply {
                 textSize = 20f
                 setTextColor(modality.color)
@@ -669,6 +666,9 @@ class ClinicalLabActivity : ComponentActivity() {
                 textSize = 14f
                 setTextColor(Color.rgb(220, 230, 240))
                 setPadding(0, dp(6), 0, 0)
+            })
+            addView(chart, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(160)).apply {
+                topMargin = dp(12)
             })
             addView(meta.apply {
                 textSize = 12f
@@ -1055,7 +1055,7 @@ class ClinicalLabActivity : ComponentActivity() {
             val outcome = outcomeFor(prefs)
             verdictTitle.text = outcome.label
             verdictBody.text = "${outcome.conclusion}\n\n${outcome.nextAction}"
-            meta.text = "${verdict.title} · ${modality.command}"
+            meta.text = "點擊查看量測詳情"
             verdictBody.setOnClickListener {
                 startActivity(Intent(this@ClinicalLabActivity, RawSensorDetailActivity::class.java).putExtra("kind", kindKey()))
             }
