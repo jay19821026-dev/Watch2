@@ -30,6 +30,16 @@ internal object VitalsCardPresentationPolicy {
         "${ConsumerVitalsSummary.heartRateLabel(it)} · 成人靜息參考 60–100 bpm"
     } ?: "尚無心率讀值"
 
+    fun bloodPressureBrief(item: HealthConclusionEngine.Item?): String {
+        if (item == null) return "沒有近期袖帶讀值；可記錄袖帶量測結果。"
+        if (item.evidenceCategory != HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL) {
+            return "來源或量測方式未確認；這筆僅供參考。"
+        }
+        val numbers = item.valueText.substringBefore("mmHg").split('/').mapNotNull { it.trim().toDoubleOrNull() }
+        if (numbers.size != 2) return "血壓讀值格式有誤；請檢查紀錄。"
+        return "袖帶讀值：${OpticalBloodPressureApi.categoryLabel(OpticalBloodPressureApi.categorize(numbers[0], numbers[1]))}。"
+    }
+
     fun recordedSpO2Detail(source: String?, timestamp: String?): String {
         val label = when {
             source?.contains("xiaomi", ignoreCase = true) == true -> "Mi Fitness"

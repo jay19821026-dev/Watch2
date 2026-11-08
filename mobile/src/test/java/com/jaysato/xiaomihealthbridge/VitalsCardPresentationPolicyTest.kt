@@ -50,4 +50,17 @@ class VitalsCardPresentationPolicyTest {
         assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(94.0).contains("重測"))
         assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(null).contains("沒有可比較"))
     }
+
+    @Test
+    fun verifiedCuffPressureShowsCategoryWithoutDebugText() {
+        val cuff = HealthConclusionEngine.Item(
+            "bp", "血壓", "138 / 86 mmHg", "", "", HealthConclusionEngine.Level.WATCH,
+            null, true, HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL
+        )
+        assertEquals("袖帶讀值：高血壓第1期。", VitalsCardPresentationPolicy.bloodPressureBrief(cuff))
+        assertTrue(VitalsCardPresentationPolicy.bloodPressureBrief(null).contains("袖帶"))
+        assertTrue(VitalsCardPresentationPolicy.bloodPressureBrief(cuff.copy(
+            evidenceCategory = HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL
+        )).contains("僅供參考"))
+    }
 }

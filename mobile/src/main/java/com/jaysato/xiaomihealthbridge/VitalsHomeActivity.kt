@@ -269,7 +269,7 @@ class VitalsHomeActivity : ComponentActivity() {
         })
         val bp = report.items.firstOrNull { it.id == "bp" && it.available }
         val bpValue = bp?.valueText ?: "袖帶"
-        val bpCat = bp?.conclusion ?: "沒有 7 天內有效的袖帶讀值 · 請以袖帶血壓計量測"
+        val bpCat = VitalsCardPresentationPolicy.bloodPressureBrief(bp)
         root.addView(tile(
             "血壓",
             bpValue,
