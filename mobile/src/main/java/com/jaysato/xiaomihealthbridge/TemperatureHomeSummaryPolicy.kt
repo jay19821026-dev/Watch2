@@ -16,15 +16,12 @@ internal object TemperatureHomeSummaryPolicy {
             ?.let { RAW_VALUE.find(it)?.groupValues?.getOrNull(1)?.toDoubleOrNull() }
             ?.takeIf(Double::isFinite)
         if (rawValue != null) {
-            val source = researchItem?.valueText?.substringAfter(" · ", "")?.takeIf(String::isNotBlank)
-            val timeEvidence = researchItem?.clinicalCompare?.substringAfterLast(" · ")
-                ?.takeIf(String::isNotBlank)
             return Display(
-                "原始值 %.1f".format(rawValue),
-                buildString {
-                    append("裝置研究讀值 · 單位未驗證")
-                    source?.let { append(" · 來源：$it") }
-                    timeEvidence?.let { append(" · $it") }
+                "已收到溫度訊號",
+                when {
+                    researchItem?.clinicalCompare.orEmpty().contains("歷史量測時間") -> "這是較早的紀錄；單位未確認，不能當成攝氏體溫。"
+                    researchItem?.clinicalCompare.orEmpty().contains("量測時間未知") -> "量測時間未確認；單位也未確認，不能當成攝氏體溫。"
+                    else -> "單位未確認，不能當成攝氏體溫。"
                 }
             )
         }

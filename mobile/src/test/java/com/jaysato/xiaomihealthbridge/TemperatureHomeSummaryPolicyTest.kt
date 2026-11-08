@@ -17,11 +17,8 @@ class TemperatureHomeSummaryPolicyTest {
 
         val display = TemperatureHomeSummaryPolicy.resolve(null, item)
 
-        assertEquals("原始值 33.3", display.value)
-        assertEquals(
-            "裝置研究讀值 · 單位未驗證 · 來源：MAX86178 board channel · 量測時間未知；僅能按本次序列索引檢視",
-            display.detail
-        )
+        assertEquals("已收到溫度訊號", display.value)
+        assertEquals("量測時間未確認；單位也未確認，不能當成攝氏體溫。", display.detail)
     }
 
     @Test
@@ -68,6 +65,7 @@ class TemperatureHomeSummaryPolicyTest {
 
         val display = TemperatureHomeSummaryPolicy.resolve(null, item)
 
-        assertTrue(display.detail.contains("歷史量測時間"))
+        assertEquals("已收到溫度訊號", display.value)
+        assertTrue(display.detail.contains("較早的紀錄"))
     }
 }

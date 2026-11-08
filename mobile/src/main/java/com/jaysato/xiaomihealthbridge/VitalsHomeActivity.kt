@@ -209,8 +209,8 @@ class VitalsHomeActivity : ComponentActivity() {
             spo2Recorded -> VitalsCardPresentationPolicy.oxygenInterpretation(
                 raw.getFloat("spo2_trusted_percent", Float.NaN).toDouble()
             )
-            spo2.valueText.contains("歷史") -> "尚無可用的血氧讀值，請重新量測"
-            else -> "尚無可用的血氧讀值，請重新量測"
+            spo2.valueText.contains("歷史") -> "這是較早的血氧訊號；需要目前讀值時可重新量測。"
+            else -> "血氧訊號已收到，但尚無可顯示的百分比。"
         }
         root.addView(tile(
             "血氧",
@@ -223,8 +223,13 @@ class VitalsHomeActivity : ComponentActivity() {
         })
         root.addView(tile(
             "ECG 心電圖",
-            if (ecgAvailability == SensorResultAvailability.RESULT_AVAILABLE) ecgDisplayValue(raw)
-            else if (ecgAvailability == null) "待量測" else "重新量測",
+            when (ecgAvailability) {
+                SensorResultAvailability.RESULT_AVAILABLE -> ecgDisplayValue(raw)
+                SensorResultAvailability.RAW_CAPTURED -> "已收到心電訊號"
+                SensorResultAvailability.QUALITY_INSUFFICIENT -> "訊號不穩，請重測"
+                SensorResultAvailability.SYNC_FAILED -> "同步未完成"
+                null -> "待量測"
+            },
             EcgHomeCardPresentationPolicy.supportingText(ecg?.valueText, ecgAvailability),
             Color.rgb(52, 199, 89), measurementPath = "/control/ecg-now"
         ) {
@@ -498,7 +503,7 @@ class VitalsHomeActivity : ComponentActivity() {
     private fun rawSamplesLabel(raw: android.content.SharedPreferences, kind: String): String {
         val samples = raw.getInt("${kind}_raw_value_count", raw.getInt("${kind}_samples", 0))
         val events = raw.getInt("${kind}_event_count", 0)
-        return if (samples > 0 || events > 0) "尚無健康讀值，請重測" else "待量測"
+        return if (samples > 0 || events > 0) "已收到血氧訊號" else "待量測"
     }
 
     private fun ecgDisplayValue(raw: android.content.SharedPreferences): String {
