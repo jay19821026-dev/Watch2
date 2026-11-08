@@ -725,14 +725,14 @@ class MainActivity : ComponentActivity() {
                         it.metadata.dataOrigin.packageName, it.startTime, it.endTime, it.count
                     ) },
                     java.time.ZoneId.systemDefault(),
-                    java.time.LocalDate.now()
+                    endTime.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
                 )
                 val latestDailyCalories = RecentDailyEnergyFallback.latestDailyTotal(
                     calorieRecords.map { RecentDailyEnergyFallback.Record(
                         it.metadata.dataOrigin.packageName, it.startTime, it.endTime, it.energy.inKilocalories
                     ) },
                     java.time.ZoneId.systemDefault(),
-                    java.time.LocalDate.now()
+                    endTime.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
                 )
                 val distance = aggregateDistance?.inMeters?.takeIf { distanceAggregateAccepted }
                 val calories = aggregateCalories?.inKilocalories?.takeIf { caloriesAggregateAccepted }
@@ -741,7 +741,7 @@ class MainActivity : ComponentActivity() {
                 }
                 val weightRecords = readSafely("體重", HealthPermission.getReadPermission(WeightRecord::class)) {
                     client.readAllRecords(WeightRecord::class, historyFilter)
-                }.orEmpty()
+                }.orEmpty().filter { !it.time.isBefore(historyStart) && !it.time.isAfter(endTime) }
                 val latestWeight = weightRecords.maxByOrNull { it.time }
                 val weightTrendRecords = HealthConnectAggregatePolicy.recordsForOrigin(
                     weightRecords, latestWeight?.metadata?.dataOrigin?.packageName
@@ -774,15 +774,15 @@ class MainActivity : ComponentActivity() {
                 }
                 val latestRestingHeartRate = readSafely("靜止心率", HealthPermission.getReadPermission(RestingHeartRateRecord::class)) {
                     client.readAllRecords(RestingHeartRateRecord::class, filter)
-                }.orEmpty()
+                }.orEmpty().filter { !it.time.isBefore(todayStart) && !it.time.isAfter(endTime) }
                     .maxByOrNull { it.time }
                 val latestHrv = readSafely("HRV", HealthPermission.getReadPermission(HeartRateVariabilityRmssdRecord::class)) {
                     client.readAllRecords(HeartRateVariabilityRmssdRecord::class, filter)
-                }.orEmpty()
+                }.orEmpty().filter { !it.time.isBefore(todayStart) && !it.time.isAfter(endTime) }
                     .maxByOrNull { it.time }
                 val latestRespiratoryRate = readSafely("呼吸速率", HealthPermission.getReadPermission(RespiratoryRateRecord::class)) {
                     client.readAllRecords(RespiratoryRateRecord::class, filter)
-                }.orEmpty()
+                }.orEmpty().filter { !it.time.isBefore(todayStart) && !it.time.isAfter(endTime) }
                     .maxByOrNull { it.time }
                 val oxygenRecords = readSafely("血氧", HealthPermission.getReadPermission(OxygenSaturationRecord::class)) {
                     client.readAllRecords(OxygenSaturationRecord::class, historyFilter)
@@ -803,7 +803,7 @@ class MainActivity : ComponentActivity() {
                 val temperatureRecords = readSafely("體表溫度", HealthPermission.getReadPermission(BodyTemperatureRecord::class)) {
                     client.readAllRecords(BodyTemperatureRecord::class, historyFilter)
                         .filter { it.metadata.dataOrigin.packageName != packageName }
-                }.orEmpty()
+                }.orEmpty().filter { !it.time.isBefore(historyStart) && !it.time.isAfter(endTime) }
                 val latestTemperature = temperatureRecords.maxByOrNull { it.time }
                 val watchFeature = getSharedPreferences(WearDataProcessor.FEATURE_PREFS, MODE_PRIVATE)
                 val watchTemperature = DeviceMetricFallback.temperatureC(watchFeature, System.currentTimeMillis())
