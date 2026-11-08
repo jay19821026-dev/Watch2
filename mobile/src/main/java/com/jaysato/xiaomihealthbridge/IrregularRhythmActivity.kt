@@ -117,7 +117,7 @@ class IrregularRhythmActivity : ComponentActivity() {
             setOnClickListener {
                 android.app.AlertDialog.Builder(this@IrregularRhythmActivity)
                     .setTitle("原廠 ECG 啟用")
-                    .setMessage("手錶已擷取訊號，但沒有產生可供顯示的心律分析結果。原廠頁面顯示啟用提示時，需由 Mi Fitness 提供該手錶的 ECG 啟用卡片；目前 AILISA 無法替原廠完成這項啟用。")
+                    .setMessage("原廠 ECG 需要在 Mi Fitness 的 ECG 卡片啟用。目前這支手錶的裝置頁沒有該卡片；AILISA 的重新量測按鈕無法代替原廠啟用。")
                     .setPositiveButton("知道了", null).show()
             }
         })
@@ -177,9 +177,18 @@ class IrregularRhythmActivity : ComponentActivity() {
             textSize = 12f; setTextColor(Color.rgb(140, 90, 40)); setPadding(0, dp(16), 0, 0)
         })
 
-        setContentView(ScrollView(this).apply {
-            setBackgroundColor(Color.rgb(242, 242, 247)); addView(root)
-        })
+        val scroll = ScrollView(this).apply {
+            setBackgroundColor(Color.rgb(242, 242, 247))
+            clipToPadding = false
+            addView(root)
+        }
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(scroll) { view, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
+        setContentView(scroll)
+        scroll.requestApplyInsets()
     }
 
     private fun card(title: String, body: String, titleColor: Int) = LinearLayout(this).apply {

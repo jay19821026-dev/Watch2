@@ -239,10 +239,18 @@ class MeasureResultActivity : ComponentActivity() {
             }
             layoutParams = LinearLayout.LayoutParams(-1, dp(48)).apply { topMargin = dp(8) }
         })
-        setContentView(ScrollView(this).apply {
+        val scroll = ScrollView(this).apply {
             setBackgroundColor(Color.rgb(242, 242, 247))
+            clipToPadding = false
             addView(root)
-        })
+        }
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(scroll) { view, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
+        setContentView(scroll)
+        scroll.requestApplyInsets()
     }
 
     private fun card(body: String, bg: Int) = LinearLayout(this).apply {
