@@ -437,9 +437,9 @@ internal object MeasureResultTimestampPresentation {
     fun label(timestampMillis: Long, source: String?, nowMillis: Long): String? {
         if (timestampMillis <= 0L) return null
         if (source != HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE) {
-            return "量測時間未確認（來源未提供或非日曆時間）"
+            return "量測時間未確認"
         }
-        if (timestampMillis > nowMillis) return "量測時間異常（時間戳在未來）"
+        if (timestampMillis > nowMillis) return "量測時間未確認"
         return SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault()).format(Date(timestampMillis))
     }
 }
@@ -537,7 +537,7 @@ internal object MeasureResultValuePolicy {
             val message = when (state) {
                 SensorDisplayState.STALE -> "資料已過期，不能代表目前量測"
                 SensorDisplayState.TIMESTAMP_UNKNOWN, SensorDisplayState.FUTURE_TIMESTAMP ->
-                    "量測時間未知或無效，不能確認為目前值"
+                    "量測時間未確認"
                 else -> null
             }
             return Presentation(

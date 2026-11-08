@@ -186,7 +186,10 @@ class HealthCenterActivity : ComponentActivity() {
                     val newest = records.maxByOrNull { it.time }
                     oxygenLatestSummary = newest?.let {
                         val time = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(it.time.toEpochMilli()))
-                        "最新 ${"%.0f".format(it.percentage.value)}% · $time · ${it.metadata.dataOrigin.packageName}"
+                        val percent = it.percentage.value
+                        val result = if (percent in 70.0..100.0) ConsumerVitalsSummary.oxygen(percent).headline
+                            else "血氧紀錄數值異常，請重新量測"
+                        "$result · $time"
                     }
                     records.size
                 }),
@@ -210,12 +213,12 @@ class HealthCenterActivity : ComponentActivity() {
             results.forEach { (name, result) ->
                 val status = when (result) {
                     is HealthCenterMetricRead.Success -> if (name == "血氧") {
-                        "${result.count} 筆紀錄 · ${oxygenLatestSummary ?: "最近 7 天無有效 SpO₂ 值"} · 歷史紀錄，非目前量測"
-                    } else "${result.count} 筆紀錄，可點擊查看趨勢"
-                    HealthCenterMetricRead.Empty -> "讀取成功，最近 7 天沒有紀錄"
+                        "${oxygenLatestSummary ?: "最近 7 天沒有可顯示的血氧讀值"} · 歷史紀錄"
+                    } else "已有近期紀錄；點擊查看結果與趨勢"
+                    HealthCenterMetricRead.Empty -> "最近 7 天沒有紀錄"
                     HealthCenterMetricRead.PermissionDenied -> "未授權讀取此資料類型；可至資料與權限設定授權"
-                    is HealthCenterMetricRead.PermissionQueryFailed -> "權限狀態查詢失敗：${result.detail}；尚未判定是否授權"
-                    is HealthCenterMetricRead.ReadFailed -> "${result.detail}；不代表資料為零"
+                    is HealthCenterMetricRead.PermissionQueryFailed -> "暫時無法確認讀取權限；請稍後重試"
+                    is HealthCenterMetricRead.ReadFailed -> "暫時無法讀取紀錄；請稍後重試"
                 }
                 val metric = when (name) { "心率" -> "heart_rate"; "血氧" -> "oxygen"; "睡眠" -> "sleep"; "體溫" -> "temperature"; else -> null }
                 val color = if (result is HealthCenterMetricRead.Success) Color.rgb(67, 211, 166) else Color.rgb(255, 190, 77)
@@ -273,27 +276,13 @@ class HealthCenterActivity : ComponentActivity() {
                     ), featureNow
                 )
                 if (resolvedHeartRate.value != null) {
-                    val wearContext = HeartRatePresentationPolicy.wearContext(
-                        feature.contains("worn"), feature.getBoolean("worn", false),
-                        feature.getLong("worn_timestamp", 0L), featureNow,
-                        feature.getString("worn_timestamp_source", null)
-                    )
-                    add("心率 ${"%.0f".format(resolvedHeartRate.value)} bpm · ${resolvedHeartRate.source} · ${resolvedHeartRate.state.displayLabel} · $wearContext")
+                    val bpm = resolvedHeartRate.value
+                    val meaning = if (resolvedHeartRate.source == "HEALTH_SERVICES")
+                        ConsumerVitalsSummary.heartRateLabel(bpm) else "研究估算"
+                    add("心率 ${"%.0f".format(bpm)} bpm · $meaning")
                 }
                 if (feature.contains("temperature")) {
-                    val temperature = ResearchMetricResolver.resolve(
-                        listOf(
-                            ResearchMetricCandidate(
-                                ResearchNumericAdapter.finiteDouble(feature.getFloat("temperature", Float.NaN)),
-                                feature.getString("temperature_source", "TEMPERATURE_RAW") ?: "TEMPERATURE_RAW",
-                                feature.getLong("temperature_timestamp", 0L),
-                                feature.getString("temperature_timestamp_source", null),
-                                null,
-                                true
-                            )
-                        ), featureNow
-                    )
-                    temperature.value?.let { add("溫度原始值 ${"%.1f".format(it)}（單位未驗證）· ${temperature.source} · ${temperature.state.displayLabel}") }
+                    add("腕部溫度：目前沒有可比較的體溫結果")
                 }
                 if (feature.contains("heading") && isFreshSensorFeature("heading")) add("指南針 ${"%.0f".format(feature.getFloat("heading", 0f))}°")
                 if (feature.contains("altitude") && isFreshSensorFeature("altitude")) add("標準大氣公式估算高度 ${"%.1f".format(feature.getFloat("altitude", 0f))} m（非實際海拔／爬升）")

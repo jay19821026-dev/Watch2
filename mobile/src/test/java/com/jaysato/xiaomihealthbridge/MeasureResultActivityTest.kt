@@ -88,9 +88,9 @@ class MeasureResultActivityTest {
         )
 
         assertTrue(trusted!!.matches(Regex("\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}")))
-        assertEquals("量測時間未確認（來源未提供或非日曆時間）", sensorClock)
-        assertEquals("量測時間未確認（來源未提供或非日曆時間）", MeasureResultTimestampPresentation.label(now, null, now))
-        assertEquals("量測時間異常（時間戳在未來）", MeasureResultTimestampPresentation.label(
+        assertEquals("量測時間未確認", sensorClock)
+        assertEquals("量測時間未確認", MeasureResultTimestampPresentation.label(now, null, now))
+        assertEquals("量測時間未確認", MeasureResultTimestampPresentation.label(
             now + 1L, HealthAnalysisFreshnessPolicy.HEALTH_SERVICES_DATAPOINT_TIMESTAMP_SOURCE, now
         ))
     }
@@ -175,7 +175,7 @@ class MeasureResultActivityTest {
 
         assertFalse(result.isCurrent)
         assertEquals("—", result.value)
-        assertEquals("量測時間未知或無效，不能確認為目前值", result.headline)
+        assertEquals("量測時間未確認", result.headline)
     }
 
     @Test
@@ -193,7 +193,7 @@ class MeasureResultActivityTest {
 
         assertFalse(result.isCurrent)
         assertEquals("—", result.value)
-        assertEquals("量測時間未知或無效，不能確認為目前值", result.headline)
+        assertEquals("量測時間未確認", result.headline)
     }
 
     @Test
