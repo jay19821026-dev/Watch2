@@ -45,8 +45,8 @@ class VitalsCardPresentationPolicyTest {
 
     @Test
     fun recordedOxygenGetsPlainRangeInterpretation() {
-        assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(95.0).contains("在常見參考範圍內"))
-        assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(94.0).contains("低於常見參考範圍"))
+        assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(95.0).contains("正常範圍"))
+        assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(94.0).contains("偏低"))
         assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(94.0).contains("重測"))
         assertTrue(VitalsCardPresentationPolicy.oxygenInterpretation(null).contains("沒有可比較"))
     }

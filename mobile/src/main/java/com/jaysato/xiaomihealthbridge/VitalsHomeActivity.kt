@@ -94,18 +94,8 @@ class VitalsHomeActivity : ComponentActivity() {
             healthServicesHr?.let { it to healthServicesHrTime },
             rawHr?.let { it to rawHrTime }
         ).maxByOrNull { it.second }
-        val latestHrUsesHealthServices = healthServicesHr != null && latestHr?.second == healthServicesHrTime
         val hr = latestHr?.first
         val hrAgeMinutes = latestHr?.second?.let { ((now - it).coerceAtLeast(0L) / 60_000L) }
-        val hrEvidence = latestHr?.second?.let { measuredAt ->
-            val sourceKind = if (latestHrUsesHealthServices) "health_services" else "raw_sensor"
-            val timestampSource = if (latestHrUsesHealthServices) {
-                feature.getString("whs_heart_rate_timestamp_source", null)
-            } else {
-                raw.getString("heart_rate_raw_timestamp_source", null)
-            }
-            HeartRateHomeEvidencePolicy.describe(sourceKind, measuredAt, timestampSource)
-        }
         val hrConclusion = report.items.firstOrNull { it.id == "hr" && it.available }
         val spo2 = report.items.firstOrNull { it.id == "spo2" && it.available }
         val tempItem = report.items.firstOrNull { it.id == "temp" && it.available }
@@ -177,9 +167,8 @@ class VitalsHomeActivity : ComponentActivity() {
             fallbackValue = hrConclusion?.valueText
         )
         val heartRateDetail = (if (hr == null && hrConclusion == null) {
-            val evidence = rawSamplesLabel(raw, "heart_rate_raw")
             val reason = unavailableSensorReason(raw, "heart_rate_raw", now)
-            "$reason · $evidence"
+            reason
         } else when {
             hr == null && hrConclusion?.valueText?.contains("研究估算") == true -> "研究估算 · 非手錶直出"
             hr == null && hrConclusion?.valueText?.contains("歷史紀錄") == true -> "歷史讀值 · 非即時"
@@ -192,11 +181,10 @@ class VitalsHomeActivity : ComponentActivity() {
                         feature.getString("worn_timestamp_source", null)
                     )
                 } else ""
-                "bpm · 即時手錶讀值${if (wearContext.isBlank()) "" else " · $wearContext"}"
+                "即時手錶讀值${if (wearContext.isBlank()) "" else " · $wearContext"}"
             }
-            else -> "bpm · 最近 ${hrAgeMinutes} 分鐘 · 非即時"
-        }) + (hr?.let { "\n${VitalsCardPresentationPolicy.heartRateBrief(it.toDouble())}" } ?: "") +
-            (hrEvidence?.let { "\n$it" } ?: "")
+            else -> "最近 ${hrAgeMinutes} 分鐘的紀錄"
+        }) + (hr?.let { "\n${VitalsCardPresentationPolicy.heartRateBrief(it.toDouble())}" } ?: "")
         val heartRateTile = tile("心率", heartRateHeadline, heartRateDetail, Color.rgb(255, 59, 48), measurementPath = "/control/ppg-now") {
             startActivity(Intent(this, MetricDetailActivity::class.java).putExtra("metric", "heart_rate"))
         }
@@ -216,17 +204,10 @@ class VitalsHomeActivity : ComponentActivity() {
         val spo2Kind = listOf("spo2_raw", "mi_spo2")
             .maxByOrNull { raw.getLong("${it}_time", 0L) } ?: "spo2_raw"
         val spo2Recorded = spo2?.valueText?.contains("% · 已記錄") == true
-        val spo2RecordedAt = raw.getLong("spo2_trusted_time", 0L)
         val spo2Detail = when {
             spo2 == null -> unavailableSensorReason(raw, spo2Kind, now)
             spo2Recorded -> VitalsCardPresentationPolicy.oxygenInterpretation(
                 raw.getFloat("spo2_trusted_percent", Float.NaN).toDouble()
-            ) + "\n" + VitalsCardPresentationPolicy.recordedSpO2Detail(
-                raw.getString("spo2_trusted_origin", raw.getString("spo2_trusted_source", null)),
-                spo2RecordedAt.takeIf { it > 0L }?.let {
-                    java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.SHORT)
-                        .format(java.util.Date(it))
-                }
             )
             spo2.valueText.contains("歷史") -> "尚無可用的血氧讀值，請重新量測"
             else -> "尚無可用的血氧讀值，請重新量測"
@@ -283,7 +264,7 @@ class VitalsHomeActivity : ComponentActivity() {
         root.addView(tile("健康摘要", "查看", "今天的讀值、變化與生活建議", Color.rgb(48, 209, 200)) {
             startActivity(Intent(this, AiHealthAnalysisActivity::class.java))
         })
-        root.addView(tile("睡眠", "查看", "總時長 · 分期槽位", Color.rgb(94, 92, 230)) {
+        root.addView(tile("睡眠", "查看", "睡眠時長與變化", Color.rgb(94, 92, 230)) {
             startActivity(Intent(this, SleepSummaryActivity::class.java))
         })
         val bp = report.items.firstOrNull { it.id == "bp" && it.available }
