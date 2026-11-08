@@ -75,7 +75,7 @@ class ClinicalVerdictTest {
         val verdict = ClinicalVerdict.forPpg(80, 128, 50f, "research_optical", true)
         assertTrue(verdict.headline.contains("工程檢視"))
         assertTrue(verdict.findings.any { it.contains("PPG 波形指標 80/100") && it.contains("臨床品質") })
-        assertTrue(verdict.recommendation.contains("不足以可靠換算脈率"))
+        assertTrue(verdict.recommendation.contains("手錶心率量測"))
         assertEquals("—", verdict.grade)
     }
 
@@ -100,6 +100,8 @@ class ClinicalVerdictTest {
         val v = ClinicalVerdict.forPpg(80, 128, 50f, "valid_signal", true, 72.0)
         assertTrue(v.disclaimer.contains("非醫療用途"))
         assertEquals("良好", v.grade)
+        assertTrue(v.headline.contains("訊號品質良好"))
+        assertTrue(v.recommendation.contains("日常脈搏波形參考"))
         assertTrue(v.clinicalComparisons.isNotEmpty())
     }
 
@@ -107,7 +109,7 @@ class ClinicalVerdictTest {
     fun ppgRawDataStatusCannotMasqueradeAsValidPulseWaveform() {
         val v = ClinicalVerdict.forPpg(95, 512, 0f, "has_data", true, 72.0)
         assertEquals("—", v.grade)
-        assertTrue(v.headline.contains("PPG 原始波形參考"))
+        assertTrue(v.headline.contains("尚無可解讀的脈率"))
         assertTrue(v.findings.any { it.contains("未評分") || it.contains("不適用") })
         assertFalse(v.findings.any { it.contains("72 bpm") })
         assertFalse(v.clinicalComparisons.any { it.contains("72.0 bpm") })
@@ -116,8 +118,8 @@ class ClinicalVerdictTest {
     @Test
     fun ppgRawSamplesWithoutVerifiedClockAreNotReportedAsMissingAcquisition() {
         val verdict = ClinicalVerdict.forPpg(25, 128, 0f, "research_signal_unscaled", true)
-        assertTrue(verdict.headline.contains("PPG 原始波形參考"))
-        assertTrue(verdict.recommendation.contains("不足以可靠換算脈率"))
+        assertTrue(verdict.headline.contains("尚無可解讀的脈率"))
+        assertTrue(verdict.recommendation.contains("手錶心率量測"))
         assertEquals("—", verdict.grade)
     }
 

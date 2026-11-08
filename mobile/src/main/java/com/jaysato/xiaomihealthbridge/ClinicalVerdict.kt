@@ -126,10 +126,9 @@ object ClinicalVerdict {
                 wearQualified == false -> "佩戴未貼合，光學訊號不宜作為參考判定"
                 researchPulseUsable -> "PPG 研究估算脈率 ${"%.0f".format(pulseRateBpm)} bpm（非醫療校準）"
                 researchWaveformUsable -> "已收到可供工程檢視的 PPG 波形；未校準，不換算脈率／HRV／血氧"
-                rawSignalPresent -> "PPG 原始波形參考"
-                !valid -> "尚無可換算的有效 PPG 脈搏波形"
                 valid && qualityScore >= 75 -> "光學脈搏訊號品質良好，可供參考觀察"
                 valid && qualityScore >= 50 -> "光學脈搏訊號可用，仍受動作與光線影響"
+                rawSignalPresent -> "已取得光學訊號，尚無可解讀的脈率"
                 else -> "光學脈搏訊號偏弱，請重新貼合量測"
             },
             findings = buildList {
@@ -157,8 +156,8 @@ object ClinicalVerdict {
                 add(wearLine(wearQualified))
             },
             recommendation = if (researchPulseUsable) "此脈率是依研究演算法估算；不等同醫療量測，也不可用於疾病診斷。"
-            else if (researchWaveformUsable || rawSignalPresent) "以下原始波形僅供參考；現有資料不足以可靠換算脈率、HRV、SpO₂ 或疾病風險。"
             else if (valid) "可作為日常脈搏波形參考；若胸悶、暈厥或持續心悸請就醫。"
+            else if (researchWaveformUsable || rawSignalPresent) "可查看光學訊號；若想知道心率，請使用手錶心率量測。"
             else "請將錶帶貼合、手腕靜止、避開強光後重測。",
             clinicalComparisons = comps
         )
