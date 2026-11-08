@@ -1241,7 +1241,7 @@ class AlgorithmicInsightsEngine(context: Context) {
             val observedHrv = latestObservedHrvMs?.let { "%.1f ms".format(it) } ?: "無紀錄"
             append("獨立觀測（非複合分數）：靜息心率 $observedResting，${measurementTime(latestObservedRestingHeartRateAt)}，來源 ${latestObservedRestingHeartRateOrigin ?: "未提供"}；HRV $observedHrv，${measurementTime(latestObservedHrvAt)}，來源 ${latestObservedHrvOrigin ?: "未提供"}。\n")
             append("HRV 個人趨勢（每日中位數；最新有紀錄日相對此前 ${hrvPersonalBaselineDeviation?.baselineDays ?: 0} 個有紀錄日中位數，描述性、非壓力診斷）：${hrvPersonalBaselineDeviation?.let { "%+.1f ms（最新 %.1f / 個人基準 %.1f ms）".format(it.difference, it.latest, it.baseline) } ?: "需至少 3 個同來源有效紀錄日"}\n")
-            append("腕溫來源時間：${measurementTime(wristTemperatureMeasuredAt)}；訓練負荷區間：${trainingWindowStartAt?.let(::measurementTime) ?: "未取得"} 至 ${trainingWindowEndAt?.let(::measurementTime) ?: "未取得"}；TRIMP 所用靜息心率時間：${trimpBaselineWindowStartAt?.let(::measurementTime) ?: "未取得"} 至 ${trimpBaselineWindowEndAt?.let(::measurementTime) ?: "未取得"}\n")
+            append("Health Connect 腕部體溫紀錄時間：${measurementTime(wristTemperatureMeasuredAt)}；訓練負荷區間：${trainingWindowStartAt?.let(::measurementTime) ?: "未取得"} 至 ${trainingWindowEndAt?.let(::measurementTime) ?: "未取得"}；TRIMP 所用靜息心率時間：${trimpBaselineWindowStartAt?.let(::measurementTime) ?: "未取得"} 至 ${trimpBaselineWindowEndAt?.let(::measurementTime) ?: "未取得"}\n")
             append("血氧資料觀測區間：${oxygenWindowStartAt?.let(::measurementTime) ?: "未取得"} 至 ${oxygenWindowEndAt?.let(::measurementTime) ?: "未取得"}；每日能量計算區間：${dailyEnergyWindowStartAt?.let(::measurementTime) ?: "未取得"} 至 ${dailyEnergyWindowEndAt?.let(::measurementTime) ?: "未取得"}\n")
             append("Health Connect 活動資料使用平台 aggregate 去重；樣本日步數一致性只作探索規則分，不推導步態／負荷／ANS／TRIMP：\n")
             append(stepsObservation.display("步數", "步", ZoneId.systemDefault()).replace("\n", "\n  ") + "\n")
@@ -1250,7 +1250,7 @@ class AlgorithmicInsightsEngine(context: Context) {
             append("研究規則 ${ResearchCompositeModel.VERSION}（低信心、未臨床驗證）：壓力 ${stress ?: "待配對"}／身體能量 ${bodyEnergy ?: "待配對"}／恢復 ${recovery ?: "待配對"}／準備度 ${readiness ?: "待配對"}；有值時為模型估算\n")
             append("相鄰有睡眠紀錄日時段相似度（探索規則分；缺紀錄日不視為無睡眠）  ${sleepRegularity?.let { "$it/100" } ?: "沒有可比較的相鄰紀錄日"}\n")
             append("近 7 日有效血氧樣本範圍（n=${oxygenSampleSummary?.validSampleCount ?: 0}；非夜間專項）  ${oxygenSampleSummary?.let { "%.1f–%.1f%%".format(it.minimumPercent, it.maximumPercent) } ?: "等待血氧紀錄"}\n")
-            append("手腕溫度相對近 7 日個人中位數（描述性）  ${temperatureDeviation?.let { "%+.1f °C".format(it) } ?: "需至少 4 個有腕部紀錄日"}\n")
+            append("Health Connect 腕部體溫相對此前有紀錄日中位數（描述性；非原廠 skinTemp 日報表）  ${temperatureDeviation?.let { "%+.1f °C".format(it) } ?: "需至少 4 個有腕部紀錄日"}\n")
             append("平均步長  ${gaitEfficiency?.let { "%.2f m/步".format(it) } ?: "等待步數與距離"}\n")
             val trimpCoverage = if (trimpCandidateSessionCount > 0) "（納入 $trimpIncludedSessionCount/$trimpCandidateSessionCount 場）" else ""
             append("TRIMP  ${trimp?.let { "%.0f".format(it) } ?: "需要運動心率與個人資料"}$trimpCoverage\n")
