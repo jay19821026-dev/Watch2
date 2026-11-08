@@ -249,8 +249,8 @@ class MetricDetailActivity : ComponentActivity() {
             } catch (invalid: MetricDataIntegrityException) {
                 body.removeAllViews()
                 if (period == 3) addHistoryAccessNotice()
-                val card = card("資料完整性檢查未通過")
-                card.addView(text(invalid.message.orEmpty(), 15, muted))
+                val card = card("這段資料無法比較")
+                card.addView(text("這段紀錄有重複或時間不一致的資料，暫時不能產生可靠圖表。請切換日期或資料來源後重試。", 15, muted))
                 card.addView(button("重試", "重新讀取資料") { refresh() })
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (error: Exception) {
@@ -465,7 +465,7 @@ class MetricDetailActivity : ComponentActivity() {
             body.addView(sourceButton)
             methodButton?.let { body.addView(it, LinearLayout.LayoutParams(-1, dp(48))) }
             val empty = card("此期間沒有紀錄")
-            empty.addView(text("沒有符合目前日期、來源與量測方式的資料；沒有資料不代表數值為 0。切換篩選條件查看歷史。", 16, muted))
+            empty.addView(text("這段時間沒有符合篩選條件的紀錄。請切換日期或資料來源查看。", 16, muted))
             empty.addView(button("查看本週", "切換到本週") { period = 1; refresh() })
             return
         }
@@ -616,7 +616,7 @@ class MetricDetailActivity : ComponentActivity() {
         }
         if (metric == "temperature") {
             hero.addView(text(
-                "圖表按${TemperatureChartWindowPolicy.bucketLabel(period)}彙整同來源腕部紀錄的算術平均；上方最新值與下方原始紀錄仍為單筆量測。這不是原廠 skinTemp 圖表。",
+                "這是腕部溫度紀錄，不能當作核心體溫。",
                 12, muted
             ))
         }
@@ -628,14 +628,11 @@ class MetricDetailActivity : ComponentActivity() {
             hero.addView(chart, LinearLayout.LayoutParams(-1, dp(190)).apply { topMargin = dp(22) })
             hero.addView(text("拖曳探索  ·  查看每個時間點", 10, muted).apply { gravity = Gravity.CENTER; setPadding(0, dp(8), 0, 0) })
         } else {
-            hero.addView(text("沒有完整落在單一圖表分段內的紀錄；區間不做比例拆分。", 13, muted))
+            hero.addView(text("這段時間沒有可顯示的圖表資料。", 13, muted))
         }
         if (excludedBoundaryIntervals > 0) {
-            val boundaryMessage = if (metric == "sleep") {
-                "$excludedBoundaryIntervals 筆睡眠時段與選取範圍部分重疊，已裁切到範圍內。"
-            } else {
-                "另有 $excludedBoundaryIntervals 筆跨所選期間邊界的區間紀錄未納入，避免部分資料被當成完整總量。"
-            }
+            val boundaryMessage = if (metric == "sleep") "部分睡眠時段跨過所選日期，圖表只顯示範圍內的部分。"
+                else "部分紀錄跨過所選日期，未納入這段期間的統計。"
             hero.addView(text(boundaryMessage, 12, muted))
         }
         if (cumulative && metric != "sleep" && intervalMeasurements.isNotEmpty()) {
@@ -645,7 +642,7 @@ class MetricDetailActivity : ComponentActivity() {
                 bucketEnd = { bucketBounds(it).second }
             )
             if (bucketed.excludedCrossBucketIntervals > 0) {
-                hero.addView(text("${bucketed.excludedCrossBucketIntervals} 筆跨圖表分段的紀錄未分配到任何分段；期間總量仍按完整原始區間合計。", 12, muted))
+                hero.addView(text("部分紀錄跨越圖表日期，總量仍已計入。", 12, muted))
             }
         }
         body.addView(hero, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(12) })
@@ -653,11 +650,7 @@ class MetricDetailActivity : ComponentActivity() {
             val provenance = card("血氧紀錄方式")
             methodButton?.let { provenance.addView(it, LinearLayout.LayoutParams(-1, dp(48))) }
             val counts = sourcePoints.groupingBy { OxygenRecordingMethodPolicy.classify(it.recordingMethod) }.eachCount()
-            provenance.addView(text(
-                counts.entries.joinToString(" · ") { "${it.key.label} ${it.value} 筆" } +
-                    "。量測方式來自 Health Connect metadata；不代表已驗證感測器校準。",
-                13, muted
-            ))
+            provenance.addView(text("紀錄方式：${counts.keys.joinToString("、") { it.label }}。可切換上方篩選查看各類紀錄。", 13, muted))
         }
         val overview = card("${if(period == 0) "當日" else "期間"}概覽")
         val stats = if(cumulative) listOf("累計" to number(selected.sumOf { it.value })) + if (display.isNotEmpty()) listOf(
