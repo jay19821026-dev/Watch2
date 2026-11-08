@@ -1266,14 +1266,14 @@ class HealthConclusionEngineTest {
         assertEquals(listOf("心率", "血氧", "心電圖", "腕部溫度", "體成分", "脈搏"), displays.map { it.title })
         displays.forEachIndexed { index, display ->
             assertTrue("${display.title} must show a result", display.value.isNotBlank() && display.value != "待量測")
-            assertEquals("${display.title} remains a non-physiological result", "尚無健康結果", display.state)
+            assertTrue("${display.title} distinguishes a captured signal from a health reading", display.state.startsWith("尚無") || display.state == "溫度單位未確認")
             assertEquals("${display.title} result exists", true, results[index].available)
         }
-        assertEquals("重新量測", displays[1].value)
+        assertEquals("已收到血氧訊號", displays[1].value)
         assertFalse(Regex("\\d+\\s*%").containsMatchIn(displays[1].value))
-        assertEquals("重新量測", displays[2].value)
-        assertEquals("重新量測", displays[4].value)
-        assertEquals("重新量測", displays[5].value)
+        assertEquals("已收到心電訊號", displays[2].value)
+        assertEquals("已收到體成分訊號", displays[4].value)
+        assertEquals("已收到脈搏訊號", displays[5].value)
         assertTrue(results[5].clinicalCompare.contains("校準：未驗證"))
     }
 

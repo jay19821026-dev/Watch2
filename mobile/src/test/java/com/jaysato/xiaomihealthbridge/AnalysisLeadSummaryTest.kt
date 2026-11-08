@@ -14,7 +14,7 @@ class AnalysisLeadSummaryTest {
         val result = AnalysisLeadSummary.from(items)
         assertTrue(result.displayLines.isEmpty())
         assertTrue(result.researchLines.isEmpty())
-        assertTrue(result.headline.contains("重新量測"))
+        assertEquals("手錶訊號已收到，尚無可用健康讀值", result.headline)
         assertFalse(result.headline.contains("正常"))
     }
 

@@ -10,9 +10,9 @@ class ConsumerMetricPresentationTest {
             "ecg", "ECG", "3170 個原始事件 · 260 個研究解碼事件／2600 點",
             "", "", HealthConclusionEngine.Level.RESEARCH, null, true
         )
-        assertEquals("重新量測", ConsumerMetricPresentation.from(item).value)
-        assertEquals("尚無健康結果", ConsumerMetricPresentation.from(item).state)
-        assertEquals("這次沒有可解讀的心律結果；請在手錶重新量測。", ConsumerMetricPresentation.explanation(item))
+        assertEquals("已收到心電訊號", ConsumerMetricPresentation.from(item).value)
+        assertEquals("尚無心律結果", ConsumerMetricPresentation.from(item).state)
+        assertEquals("心電訊號已收到，但尚無可解讀的心律結果。", ConsumerMetricPresentation.explanation(item))
         assertFalse(ConsumerMetricPresentation.explanation(item).contains("事件"))
     }
 
@@ -43,6 +43,17 @@ class ConsumerMetricPresentationTest {
         assertEquals("單次袖帶讀值：高血壓第1期。可與近期紀錄比較。", ConsumerMetricPresentation.explanation(item))
     }
 
+    @Test fun unavailableHrvAndBloodPressureGiveCorrectNextSteps() {
+        val hrv = HealthConclusionEngine.Item("hrv", "HRV／壓力", "原始樣本", "", "",
+            HealthConclusionEngine.Level.RESEARCH, null, true)
+        val pressure = HealthConclusionEngine.Item("bp", "血壓", "—", "", "",
+            HealthConclusionEngine.Level.UNAVAILABLE, null, false)
+        assertEquals("尚無 HRV 讀值", ConsumerMetricPresentation.from(hrv).state)
+        assertEquals("已取得心率變化資料，但尚無可信的 HRV 讀值。", ConsumerMetricPresentation.explanation(hrv))
+        assertEquals("尚無紀錄", ConsumerMetricPresentation.from(pressure).value)
+        assertEquals("尚無袖帶血壓紀錄；可輸入外部血壓計的讀值。", ConsumerMetricPresentation.explanation(pressure))
+    }
+
     @Test fun physiologicalLookingNumberRemainsResearchOnlyWhenEvidenceIsUncalibrated() {
         val item = HealthConclusionEngine.Item(
             "hr", "心率", "72 bpm · 研究估算", "", "",
@@ -51,8 +62,8 @@ class ConsumerMetricPresentationTest {
 
         val display = ConsumerMetricPresentation.from(item)
 
-        assertEquals("重新量測", display.value)
-        assertEquals("尚無健康結果", display.state)
+        assertEquals("已收到心率訊號", display.value)
+        assertEquals("尚無脈率讀值", display.state)
     }
 
     @Test fun recordedSleepAndResearchHrvKeepReadableValuesWithoutClaimingNormalHealth() {
@@ -75,7 +86,7 @@ class ConsumerMetricPresentationTest {
             "temp", "腕部溫度", "36.6 °C · 原始資料", "", "",
             HealthConclusionEngine.Level.GOOD, 80, true
         )
-        assertEquals("重新量測", ConsumerMetricPresentation.from(item).value)
-        assertEquals("尚無健康結果", ConsumerMetricPresentation.from(item).state)
+        assertEquals("已收到溫度訊號", ConsumerMetricPresentation.from(item).value)
+        assertEquals("溫度單位未確認", ConsumerMetricPresentation.from(item).state)
     }
 }

@@ -40,10 +40,13 @@ object ConsumerMetricPresentation {
         }
         if (item.level == HealthConclusionEngine.Level.RESEARCH || item.level == HealthConclusionEngine.Level.UNAVAILABLE) {
             return when (item.id) {
-                "ecg" -> "這次沒有可解讀的心律結果；請在手錶重新量測。"
-                "ppg", "hr", "hrv" -> "這次沒有心率相關讀值；請戴好手錶後重測。"
-                "spo2" -> "這次沒有血氧讀值；請戴好手錶後重測。"
-                "bioz" -> "這次沒有可顯示的體成分結果；可在手錶重測。"
+                "ecg" -> if (item.available) "心電訊號已收到，但尚無可解讀的心律結果。" else "這次沒有心電訊號；請在手錶重新量測。"
+                "ppg", "hr" -> if (item.available) "訊號已收到，但尚無可信的脈率讀值。" else "這次沒有心率相關讀值；請戴好手錶後重測。"
+                "hrv" -> if (item.available) "已取得心率變化資料，但尚無可信的 HRV 讀值。" else "尚無 HRV 讀值；可在睡眠或靜止時佩戴手錶。"
+                "spo2" -> if (item.available) "血氧訊號已收到，但尚無可顯示的百分比。" else "這次沒有血氧讀值；請戴好手錶後重測。"
+                "bioz" -> if (item.available) "體成分訊號已收到，但尚無可顯示的體成分讀值。" else "這次沒有體成分結果；可在手錶重測。"
+                "temp" -> if (item.available) "溫度訊號已收到，但單位尚未確認，不能顯示為體溫。" else "這次沒有溫度讀值；可在手錶重測。"
+                "bp" -> "尚無袖帶血壓紀錄；可輸入外部血壓計的讀值。"
                 "glucose" -> "這支手錶沒有血糖量測功能。"
                 else -> "這次沒有可顯示的讀值；可重新量測。"
             }
@@ -81,7 +84,17 @@ object ConsumerMetricPresentation {
             physiologicalValue != null -> physiologicalValue
             researchValue != null -> researchValue
             item.id == "glucose" -> "未支援"
-            item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL && item.available -> "重新量測"
+            item.id == "bp" && !item.available -> "尚無紀錄"
+            item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL && item.available -> when (item.id) {
+                "ecg" -> "已收到心電訊號"
+                "ppg" -> "已收到脈搏訊號"
+                "spo2" -> "已收到血氧訊號"
+                "bioz" -> "已收到體成分訊號"
+                "temp" -> "已收到溫度訊號"
+                "hr" -> "已收到心率訊號"
+                "hrv" -> "已取得心率變化資料"
+                else -> "已收到手錶訊號"
+            }
             else -> "待量測"
         }
         val state = when {
@@ -93,7 +106,15 @@ object ConsumerMetricPresentation {
                 else -> "研究估算"
             }
             item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL ->
-                if (item.available) "尚無健康結果" else "尚無結果"
+                if (item.available) when (item.id) {
+                    "ecg" -> "尚無心律結果"
+                    "ppg", "hr" -> "尚無脈率讀值"
+                    "spo2" -> "尚無血氧百分比"
+                    "bioz" -> "尚無體成分讀值"
+                    "temp" -> "溫度單位未確認"
+                    "hrv" -> "尚無 HRV 讀值"
+                    else -> "尚無可用讀值"
+                } else "尚無結果"
             else -> when (item.userState) {
                 HealthConclusionEngine.UserState.NORMAL -> "正常"
                 HealthConclusionEngine.UserState.ATTENTION -> "需留意"
