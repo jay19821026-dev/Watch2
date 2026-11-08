@@ -243,7 +243,9 @@ class WearMeasurePageActivity : ComponentActivity() {
                 }, LinearLayout.LayoutParams(-1, dp(46)).apply { topMargin = dp(8) })
             }
             addView(TextView(context).apply {
-                text = "本程式提供參考，非醫療用途。"
+                text = if (mode == Mode.PPG) {
+                    "本次 PPG 研究判讀可能不準確，不能診斷或排除疾病；身體不適請就醫，以醫師評估為準。"
+                } else "本程式提供參考，非醫療用途。"
                 textSize = 11f; setTextColor(Color.rgb(255, 190, 120)); setPadding(0, dp(14), 0, 0)
             })
         }

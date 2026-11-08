@@ -138,7 +138,7 @@ class WearEcgActivity : ComponentActivity() {
                 setOnClickListener { finish() }
             }.also { doneButton = it }, LinearLayout.LayoutParams(-1, dp(42)).apply { topMargin = dp(6) })
             addView(TextView(context).apply {
-                text = "研究級參考，非醫療診斷、非原廠 AF。胸痛／暈厥請就醫。"
+                text = "研究判讀可能不準確，不能診斷或排除疾病。胸痛、暈厥、呼吸困難或持續不適請就醫；以醫師評估為準。"
                 textSize = 10f; setTextColor(Color.rgb(255, 170, 110)); setPadding(0, dp(10), 0, 0)
             })
         }

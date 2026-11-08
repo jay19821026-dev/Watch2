@@ -132,6 +132,12 @@ class MeasureResultActivity : ComponentActivity() {
             setPadding(0, 0, 0, dp(12))
         })
         root.addView(card(detail, Color.WHITE))
+        if (kind == "ecg" || OpticalPulseDisplayPolicy.isOpticalKind(kind)) {
+            root.addView(card(
+                "注意：本次研究判讀可能不準確，不能作為疾病診斷或排除疾病的依據。若有胸痛、暈厥、呼吸困難或持續不適，請就醫；健康疑慮以醫師評估為準。",
+                Color.rgb(255, 242, 225)
+            ))
+        }
         root.addView(card(resultPresentation.guidance ?: feedback.guidance, Color.WHITE))
         root.addView(card(note.take(220), Color.WHITE))
         if (!resultPresentation.isCurrent) {

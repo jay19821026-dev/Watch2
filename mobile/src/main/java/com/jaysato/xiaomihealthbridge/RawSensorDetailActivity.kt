@@ -891,6 +891,10 @@ class RawSensorDetailActivity : ComponentActivity() {
             addView(panel().apply {
                 addView(label("重要限制", 18f, Color.rgb(255, 190, 95)))
                 addView(label(disclaimer(kind), 13f, HealthVisuals.secondary), margins(top = 8))
+                if (kind == "ecg" || kind == "ppg") addView(label(
+                    "本次研究判讀可能不準確，不能診斷或排除疾病。若有胸痛、暈厥、呼吸困難或持續不適，請就醫；以醫師評估為準。",
+                    13f, Color.rgb(255, 200, 120)
+                ), margins(top = 8))
                 addView(label(ClinicalVerdict.DISCLAIMER, 12f, Color.rgb(255, 200, 120)), margins(top = 10))
             }, margins(top = 12))
             if (kind == "ecg") addView(panel().apply {
