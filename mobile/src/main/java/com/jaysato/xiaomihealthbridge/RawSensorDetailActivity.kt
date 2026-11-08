@@ -467,11 +467,30 @@ class RawSensorDetailActivity : ComponentActivity() {
                 metricKind = kind,
                 sourceStatus = status
             )
+            val readableReading = when {
+                displayState == SensorDisplayState.AVAILABLE && kind in setOf("heart_rate_raw", "whs_heart_rate") -> {
+                    val bpm = rawAverage?.toFloat() ?: latestValues.lastOrNull()?.toFloat()
+                    bpm?.let {
+                        HeartRatePresentationPolicy.visibleDetailBpm(
+                            kind, it, status, measurementTime, timestampSource, System.currentTimeMillis()
+                        )
+                    }?.let { "心率 ${"%.0f".format(it)} bpm · ${ConsumerVitalsSummary.heartRateLabel(it.toDouble())}" }
+                }
+                displayState == SensorDisplayState.AVAILABLE && kind == "pressure" ->
+                    rawAverage?.takeIf { it in 300.0..1100.0 }?.let { "環境氣壓 ${"%.0f".format(it)} hPa" }
+                kind in setOf("ppg", "max_hr", "lifeq_ott") ->
+                    opticalEstimate?.let { "脈搏估算 ${"%.0f".format(it)} bpm · 研究參考" }
+                else -> null
+            }
             addView(panel().apply {
                 addView(label("量測結果", 20f, accent))
-                addView(label(outcome.label, 28f, Color.WHITE), margins(top = 8))
-                addView(label(outcome.conclusion, 18f, Color.rgb(230, 235, 245)), margins(top = 10))
-                addView(label(outcome.nextAction, 14f, Color.rgb(200, 220, 200)), margins(top = 10))
+                addView(label(readableReading ?: outcome.label, 28f, Color.WHITE), margins(top = 8))
+                if (readableReading == null) {
+                    addView(label(outcome.conclusion, 18f, Color.rgb(230, 235, 245)), margins(top = 10))
+                    addView(label(outcome.nextAction, 14f, Color.rgb(200, 220, 200)), margins(top = 10))
+                } else {
+                    addView(label("可查看時間與近期趨勢", 14f, Color.rgb(200, 220, 200)), margins(top = 10))
+                }
                 val details = LinearLayout(this@RawSensorDetailActivity).apply {
                     orientation = LinearLayout.VERTICAL
                     visibility = View.GONE
@@ -944,7 +963,16 @@ class RawSensorDetailActivity : ComponentActivity() {
         else -> "原始感測資料僅供研究參考。"
     }
 
-    private fun title(kind: String) = WatchSensorCatalog.items.firstOrNull { it.kind == kind }?.label ?: kind
+    private fun title(kind: String) = when (kind) {
+        "heart_rate_raw", "whs_heart_rate", "max_hr" -> "心率"
+        "ppg", "lifeq_ott" -> "脈搏"
+        "ecg" -> "心電圖"
+        "spo2_raw", "mi_spo2" -> "血氧"
+        "bioz", "bioz_respiration" -> "體成分"
+        "body_temperature_raw", "thermometer" -> "腕部溫度"
+        "pressure" -> "環境氣壓"
+        else -> WatchSensorCatalog.items.firstOrNull { it.kind == kind }?.label ?: kind
+    }
     private fun wearLine(wearQualified: Boolean?): String = when (wearQualified) {
         true -> "佩戴校正：合格"
         false -> "佩戴校正：未貼合"
