@@ -586,11 +586,14 @@ class MainActivity : ComponentActivity() {
                 return@launch
             }
             val endTime = Instant.now()
-            val todayStart = java.time.LocalDate.now().atStartOfDay(java.time.ZoneId.systemDefault()).toInstant()
+            val todayStart = endTime.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                .atStartOfDay(java.time.ZoneId.systemDefault()).toInstant()
             val filter = TimeRangeFilter.between(todayStart, endTime)
             val heartRate24hStart = endTime.minusMillis(HeartRatePresentationPolicy.HOME_HISTORY_WINDOW_MILLIS)
             val heartRate24hFilter = TimeRangeFilter.between(heartRate24hStart, endTime)
-            val historyStart = endTime.minus(7, ChronoUnit.DAYS)
+            val historyStart = HealthInsightWindowPolicy.lastSevenLocalDatesStart(
+                endTime, java.time.ZoneId.systemDefault()
+            )
             val historyFilter = TimeRangeFilter.between(historyStart, endTime)
             val readErrors = linkedSetOf<String>()
             val missingPermissions = linkedSetOf<String>()
