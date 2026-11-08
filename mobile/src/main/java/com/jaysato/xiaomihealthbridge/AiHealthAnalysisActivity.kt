@@ -110,9 +110,10 @@ class AiHealthAnalysisActivity : ComponentActivity() {
             addView(text("每日資料報告 · ${daily.date}", 20f, Color.WHITE, true))
             addView(text(daily.explanation, 14f, HealthVisuals.secondary), lp(top = 8))
             daily.observations.forEach { addView(text("• $it", 14f, Color.WHITE), lp(top = 8)) }
-            addView(text("資料缺口", 14f, HealthVisuals.secondary, true), lp(top = 14))
-            daily.missing.forEach { addView(text("• $it", 12f, HealthVisuals.secondary), lp(top = 5)) }
-            addView(text("產生時間：${daily.generatedAt.atZone(java.time.ZoneId.systemDefault()).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))} · 本機規則產生，未呼叫雲端生成式 AI", 11f, HealthVisuals.secondary), lp(top = 12))
+            if (daily.missing.isNotEmpty()) addView(Button(context).apply {
+                text = "查看尚未取得的資料"; isAllCaps = false
+                setOnClickListener { showDetail("尚未取得的資料", daily.missing.joinToString("\n")) }
+            }, lp(top = 12))
         }, lp(bottom = 14))
         if (pipelineWarnings.isNotEmpty()) {
             content.addView(panel().apply {
@@ -128,10 +129,6 @@ class AiHealthAnalysisActivity : ComponentActivity() {
             addView(text("目前結論", 16f, HealthVisuals.secondary, true))
             addView(text(lead.headline, 21f, Color.WHITE, true), lp(top = 8))
             lead.recordedLines.forEach { addView(text(it, 16f, Color.WHITE), lp(top = 8)) }
-            if (lead.researchLines.isNotEmpty()) {
-                addView(text("原始訊號", 14f, HealthVisuals.secondary, true), lp(top = 12))
-                lead.researchLines.forEach { addView(text(it, 14f, Color.WHITE), lp(top = 6)) }
-            }
             addView(text("下一步：${lead.nextAction}", 13f, HealthVisuals.blue), lp(top = 14))
             addView(Button(context).apply {
                 text = "查看來源與判讀依據"; isAllCaps = false
@@ -140,18 +137,6 @@ class AiHealthAnalysisActivity : ComponentActivity() {
                 }
             }, lp(top = 8))
         }, lp(bottom = 14))
-        if (insights.readiness == null) {
-            content.addView(panel().apply {
-                addView(text("恢復分數等待資料", 16f, Color.WHITE, true))
-                addView(text("需要近期 HRV、睡眠與時間配對資料；上方已取得的單項結果仍可查看。", 13f, HealthVisuals.secondary), lp(top = 6))
-                addView(Button(context).apply {
-                    text = "查看缺少的輸入"; isAllCaps = false
-                    setOnClickListener {
-                        showDetail("尚未納入恢復分數的輸入", insights.unavailableInputs.joinToString("\n").ifBlank { "沒有額外缺口。" } + "\n\n使用量測時間與來源證據；不以發布時間替代感測時間。")
-                    }
-                })
-            }, lp(bottom = 14))
-        }
 
         val color = when (result.level) {
             LocalAiHealthAnalyzer.Level.INSUFFICIENT -> HealthVisuals.secondary

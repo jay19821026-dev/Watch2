@@ -99,7 +99,13 @@ class HealthConclusionActivity : ComponentActivity() {
                 val bpm = item.valueText.substringBefore("bpm").trim().toDoubleOrNull()
                 if (bpm == null) "尚無心率讀值" else VitalsCardPresentationPolicy.heartRateReference(bpm)
             } else if (item.level == HealthConclusionEngine.Level.RESEARCH || item.level == HealthConclusionEngine.Level.UNAVAILABLE) {
-                "這次沒有可用的健康判讀；請重新量測。"
+                when (item.id) {
+                    "ecg" -> "這次沒有心律結果；可在手錶重新量測。"
+                    "ppg", "hr", "hrv" -> "這次沒有心率相關讀值；請戴好手錶後重測。"
+                    "spo2" -> "這次沒有血氧讀值；請戴好手錶後重測。"
+                    "glucose" -> "這支手錶沒有血糖量測功能。"
+                    else -> "${display.state}；點選查看量測方式。"
+                }
             } else when (item.id) {
                 "hr" -> "成人靜息心率參考 60–100 bpm；活動時不使用此範圍判斷。"
                 "spo2" -> "多數健康成人血氧常見參考 95–100%。"

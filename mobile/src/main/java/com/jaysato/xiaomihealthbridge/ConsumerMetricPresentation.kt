@@ -17,7 +17,7 @@ object ConsumerMetricPresentation {
             .replace(Regex("\\s*·\\s*已記錄.*$"), "")
             .takeIf { value ->
                 value.contains(Regex("\\d")) &&
-                    listOf("%", "bpm", "ms", "mmHg", "°C", "kg", "kcal").any(value::contains) &&
+                    listOf("%", "bpm", "ms", "mmHg", "°C", "kg", "kcal", "步", "小時", "km", "hPa", "mL").any(value::contains) &&
                     listOf("事件", "樣本", "原始", "解碼", "點").none(value::contains)
             }
         val value = when {
@@ -25,7 +25,6 @@ object ConsumerMetricPresentation {
                 item.evidenceCategory == HealthConclusionEngine.EvidenceCategory.RESEARCH_SIGNAL -> "重新量測"
             physiologicalValue != null -> physiologicalValue
             item.id == "glucose" -> "未支援"
-            item.available && item.valueText.isNotBlank() && item.valueText !in setOf("—", "不可用") -> item.valueText
             else -> "待量測"
         }
         val state = when {

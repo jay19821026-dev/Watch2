@@ -41,7 +41,7 @@ class SleepSummaryActivity : ComponentActivity() {
             text = "睡眠"; textSize = 34f; setTextColor(Color.BLACK); setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "顯示已記錄的睡眠時段；若沒有睡眠分期資料，會明確標示未提供。"
+            text = "查看最近睡眠時間與紀錄。"
             textSize = 14f; setTextColor(Color.rgb(90, 90, 100))
             setPadding(0, dp(6), 0, dp(16))
         })
@@ -57,7 +57,7 @@ class SleepSummaryActivity : ComponentActivity() {
         }
         stagesView = TextView(this).apply {
             textSize = 14f; setTextColor(Color.rgb(60, 60, 67))
-            text = "REM／核心／深睡：此裝置無經驗證分期 API，不推算假分期。"
+            text = "睡眠階段讀取中…"
         }
         root.addView(card("過去 7 日睡眠") {
             addView(hoursView)
@@ -143,9 +143,9 @@ class SleepSummaryActivity : ComponentActivity() {
                     (summary.sleepMinutes ?: summary.sessionMinutes) / 60.0
                 )
                 hoursMeaningView.text = if (summary.stagesComplete) {
-                    "小時 · 完整分期已扣除清醒；時段共 %.1f 小時".format(summary.sessionMinutes / 60.0)
+                    "小時 · 已扣除紀錄中的清醒時間"
                 } else {
-                    "小時 · 睡眠時段聯集，可能包含清醒；不作實際睡眠時長"
+                    "小時 · 記錄的睡眠時段，可能包含醒來時間"
                 }
                 val fmt = DateTimeFormatter.ofPattern("M/d HH:mm").withZone(ZoneId.systemDefault())
                 sessionsView.text = if (sessions.isEmpty()) {
@@ -155,15 +155,15 @@ class SleepSummaryActivity : ComponentActivity() {
                         val clippedStart = maxOf(s.startTime, start)
                         val clippedEnd = minOf(s.endTime, end)
                         val h = java.time.Duration.between(clippedStart, clippedEnd).toMinutes() / 60.0
-                        "${fmt.format(clippedStart)}–${fmt.format(clippedEnd)} · %.1f 小時時段 · ${s.metadata.dataOrigin.packageName}".format(h)
+                        "${fmt.format(clippedStart)}–${fmt.format(clippedEnd)} · %.1f 小時".format(h)
                     }
                 }
                 stagesView.text = if (summary.stagesComplete) {
-                    "Health Connect 分期完整覆蓋所示時段，已扣除清醒；分期由來源 App 提供，未經本 App 臨床驗證。"
+                    "已取得睡眠階段紀錄。"
                 } else if (sessions.any { it.stages.isNotEmpty() }) {
-                    "來源有分期，但有缺口、重疊、未知類型或不完整時段；不推算實際睡眠或 REM／深睡。"
+                    "睡眠階段紀錄不完整，先顯示睡眠時段。"
                 } else {
-                    "REM／核心／深睡：此裝置沒有可讀取的分期資料，因此不顯示推算分期。"
+                    "這段時間沒有睡眠階段紀錄。"
                 }
             }.onFailure {
                 hoursView.text = "—"
