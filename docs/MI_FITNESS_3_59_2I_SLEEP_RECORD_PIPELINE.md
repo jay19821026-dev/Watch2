@@ -17,6 +17,8 @@ This is a static trace of the installed Mi Fitness 3.59.2i phone APK, SHA-256 `D
 | Context and provenance | `SleepSegmentUtils.java::convertToSleepSegmentReport` | Adds time-zone offset, device bed/wake metadata, sleep efficiency, HRV, and conditional HR/SpO₂ summaries. These are source-specific report fields, not evidence that Health Connect or our raw sensors expose the same values. |
 | Device write-back | `SleepSegmentUtils.java::writeBackSleepToDevice` | Uses a separate capability-dependent one- or seven-day write-back path. Its existence does not grant this app access to the OEM protocol. |
 
+The readable `repo.healthconnect.biz.daily.SleepSyncBiz` in **both 3.53.0i and 3.59.2i** maps internal sleep states `2 → 5` (Health Connect deep), `3 → 4` (light), `4 → 6` (REM), and `5 → 1` (awake); other states become `0` (unknown). If the report's stage list is `null`, it creates one **unknown** stage spanning bed to wake; an empty but non-null list stays empty. These are writer mappings, not a decoded Watch 2 Pro sensor algorithm. The constant meanings were checked against the [AndroidX Health Connect `SleepSessionRecord` reference](https://developer.android.com/reference/kotlin/androidx/health/connect/client/records/SleepSessionRecord). / 兩版可讀匯出程式的睡眠狀態映射相同；缺少分期時會用「未知」涵蓋整個就寢區間，不能把未知分期當成實睡時數。
+
 ## 4.0 correction / 4.0 修正
 
 Before this change, the phone Sleep page always placed the union of Health Connect session intervals in its large number, even when complete stage intervals could support subtracting awake time. The OEM report's separate sleep and wake durations make that presentation ambiguity clear; its numeric values and native algorithm are **not** reused.
