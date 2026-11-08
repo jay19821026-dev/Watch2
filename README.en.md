@@ -10,7 +10,7 @@ This independent project is not affiliated with, endorsed by, or sponsored by Xi
 
 > The hero is a privacy-safe illustrative mockup. Actual features and support depend on the source, device capabilities, and `SUPPORT_MATRIX.md`.
 
-Current test version: `4.0.0` test 28 (matching Debug versionCode `200`; paired-device validation pending). The source tree contains:
+Current test version: `4.0.0` test 29 (matching Debug versionCode `203`; paired-device validation pending). The source tree contains:
 
 - `mobile/` — Android phone app
 - `wear/` — Wear OS watch app
@@ -48,13 +48,13 @@ ECG remains research-only unless device-specific lead mapping, ADC timing, and r
 
 ## APKs
 
-Matching 4.0.0 test 28 APKs are available from the [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.28):
+Matching 4.0.0 test 29 APKs are available from the [GitHub Release](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.29):
 
-- `AILISAHealthBridge-Mobile-4.0.0-vc200-test28-debug.apk` — Android phone
-- `AILISAHealthBridge-Wear-4.0.0-vc200-test28-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
+- `AILISAHealthBridge-Mobile-4.0.0-vc203-test29-debug.apk` — Android phone
+- `AILISAHealthBridge-Wear-4.0.0-vc203-test29-debug.apk` — Xiaomi Watch 2 Pro / compatible Wear OS device
 - [test 18 legacy migration bridge](https://github.com/jay19821026-dev/Watch2/releases/tag/v4.0.0-test.18) — update the old phone app first if migrating encrypted records
 
-Debug APKs use an Android development signature and are not Play Store releases. The new `net.ailisa.healthbridge` package coexists with the old app. Read the [migration guide](docs/PACKAGE_MIGRATION_4_0.en.md) and keep the old installations. Verify the [test 28 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.28/SHA256SUMS-4.0.0-test.28.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
+Debug APKs use an Android development signature and are not Play Store releases. The new `net.ailisa.healthbridge` package coexists with the old app. Read the [migration guide](docs/PACKAGE_MIGRATION_4_0.en.md) and keep the old installations. Verify the [test 29 SHA-256 file](https://github.com/jay19821026-dev/Watch2/releases/download/v4.0.0-test.29/SHA256SUMS-4.0.0-test.29.txt) before installation; see the [bilingual install and test guide](docs/4.0_TEST_INSTALL.md).
 
 The ready-to-paste bilingual Play Store listing, console selections, release notes, and graphic-asset inventory are in [`docs/PLAY_STORE_LISTING_COPY.md`](docs/PLAY_STORE_LISTING_COPY.md). Release flow, privacy, Data safety, and Health apps declaration materials are in [`docs/PLAY_STORE_RELEASE_GUIDE.en.md`](docs/PLAY_STORE_RELEASE_GUIDE.en.md), [`docs/PRIVACY_POLICY.en.md`](docs/PRIVACY_POLICY.en.md), and [`docs/DATA_SAFETY_DECLARATION.md`](docs/DATA_SAFETY_DECLARATION.md).
 
