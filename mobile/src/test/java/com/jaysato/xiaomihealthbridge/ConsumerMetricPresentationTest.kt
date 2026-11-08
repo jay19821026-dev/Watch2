@@ -34,6 +34,15 @@ class ConsumerMetricPresentationTest {
         assertEquals("未支援", ConsumerMetricPresentation.from(item).value)
     }
 
+    @Test fun recordedCuffPressureShowsSingleReadingCategory() {
+        val item = HealthConclusionEngine.Item(
+            "bp", "血壓（袖帶）", "135 / 85 mmHg", "", "",
+            HealthConclusionEngine.Level.WATCH, null, true,
+            HealthConclusionEngine.EvidenceCategory.RECORDED_PHYSIOLOGICAL
+        )
+        assertEquals("單次袖帶讀值：高血壓第1期。可與近期紀錄比較。", ConsumerMetricPresentation.explanation(item))
+    }
+
     @Test fun physiologicalLookingNumberRemainsResearchOnlyWhenEvidenceIsUncalibrated() {
         val item = HealthConclusionEngine.Item(
             "hr", "心率", "72 bpm · 研究估算", "", "",

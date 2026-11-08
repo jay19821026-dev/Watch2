@@ -15,7 +15,14 @@ object ConsumerMetricPresentation {
             return if (bpm == null) "尚無心率讀值。" else
                 "${ConsumerVitalsSummary.heartRateLabel(bpm)}。成人安靜時常見參考為 60–100 bpm；活動時不同。"
         }
-        if (recorded && item.id == "bp") return "這是外部血壓計的單次紀錄；可對照近期紀錄，必要時再次量測。"
+        if (recorded && item.id == "bp") {
+            val numbers = item.valueText.substringBefore("mmHg").split('/').mapNotNull { it.trim().toDoubleOrNull() }
+            if (numbers.size == 2) {
+                val category = OpticalBloodPressureApi.categorize(numbers[0], numbers[1])
+                return "單次袖帶讀值：${OpticalBloodPressureApi.categoryLabel(category)}。可與近期紀錄比較。"
+            }
+            return "這筆血壓紀錄格式有誤，請重新檢查。"
+        }
         val researchValue = researchValue(item)
         if (researchValue != null) return when (item.id) {
             "sleep" -> "這是近 7 日已記錄的睡眠時段，不等於實際睡眠時數。"
