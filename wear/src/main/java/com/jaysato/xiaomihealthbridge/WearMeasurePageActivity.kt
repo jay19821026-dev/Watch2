@@ -802,8 +802,8 @@ class WearMeasurePageActivity : ComponentActivity() {
         }
         val manufacturer = WearManufacturerSelfTest.evaluate(snapshot)?.compact()
         val stopDetail = when (snapshot.acquisitionStopReason) {
-            "time_limit_reached" -> "逾時停止：達到量測時限；以上為部分原始資料，不代表分析完成"
-            "candidate_timeout" -> "候選通道逾時：已保留目前原始資料"
+            "time_limit_reached" -> "這次量測未完成，請重新測量"
+            "candidate_timeout" -> "這次量測未完成，請重新測量"
             else -> null
         }
         detail.text = when {

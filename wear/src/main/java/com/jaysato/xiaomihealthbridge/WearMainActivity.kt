@@ -963,7 +963,10 @@ class WearMainActivity : ComponentActivity() {
                     status.text = "$label 處理中"
                     runCatching {
                         startForegroundService(WearControlCommandAuth.createIntent(this@WearMainActivity, action))
-                    }.onFailure { error -> status.text = "$label 啟動失敗：${error.javaClass.simpleName}" }
+                    }.onFailure { error ->
+                        android.util.Log.w("WearMainActivity", "$label start failed", error)
+                        status.text = "$label 無法啟動，請稍後重試"
+                    }
                 }
             }
         }

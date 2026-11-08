@@ -352,7 +352,7 @@ class WearWorkoutActivity : ComponentActivity() {
                 syncTask
                     .addOnSuccessListener {
                         WearHealthStore.markSync(this, true, "運動與路線已同步")
-                        runOnUiThread { metaView.text = "已同步 · ${zone(avg)} · ${routePoints.size} 點路線" }
+                        runOnUiThread { metaView.text = "已同步 · ${zone(avg)} · ${if (routePoints.isEmpty()) "未記錄路線" else "路線已記錄"}" }
                     }
                     .addOnFailureListener { error ->
                         WearHealthStore.markSync(this, false, "運動已儲存；手機同步失敗")

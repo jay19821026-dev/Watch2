@@ -56,7 +56,7 @@ class WearHeartHistoryActivity : ComponentActivity() {
                 item {
                     WearComposeUi.HealthButton(
                         listOf("日", "週", "月", "年")[period],
-                        "點一下切換期間 · ${filtered.size} 點",
+                        "點一下切換期間",
                         Color(0xFFFF3B30),
                         "⏱"
                     ) { period = (period + 1) % 4 }
