@@ -221,7 +221,7 @@ class WearEcgActivity : ComponentActivity() {
         stopButton.isEnabled = true
         stopButton.text = "結束量測"
         if (::doneButton.isInitialized) doneButton.visibility = android.view.View.GONE
-        headline.text = "持續收集中 · 第 ${completedSegments + 1} 區段"
+        headline.text = "正在量測心電訊號"
         detail.text = "雙指穩定接觸錶冠與側鍵，手臂平放並保持不動。"
         rhythmStatus.text = "正在等待量測結果"
         chart.setSamples(emptyList())
@@ -256,8 +256,8 @@ class WearEcgActivity : ComponentActivity() {
         val snapshot = try {
             session.stop(stopReason)
         } catch (error: RuntimeException) {
-            headline.text = "停止或快照建立失敗"
-            detail.text = "${error.javaClass.simpleName}；沒有確認保存成功，可重新量測。"
+            headline.text = "這次量測未完成"
+            detail.text = "請保持手錶貼合手腕，重新量測。"
             stopButton.text = "停止失敗，請重新量測"
             return
         } finally {
@@ -273,7 +273,7 @@ class WearEcgActivity : ComponentActivity() {
         )
         startButton.text = "重新量測"
         if (continueAutomatically) {
-            headline.text = "持續收集中 · 已保存第 ${completedSegments} 區段"
+            headline.text = "正在繼續量測"
             detail.append("\n即將繼續量測；可隨時按「結束量測」。")
             continuationPending = true
             startButton.isEnabled = false
@@ -281,7 +281,7 @@ class WearEcgActivity : ComponentActivity() {
             stopButton.text = "結束連續收集"
             handler.postDelayed(scheduledStart, 250L)
         } else if (snapshot.acquisitionStopReason == "time_limit_reached" && completedSegments >= EcgCapturePolicy.MAX_AUTO_SEGMENTS) {
-            detail.append("\n已達本次連續收集上限 ${EcgCapturePolicy.MAX_AUTO_SEGMENTS} 區段，請按「完成」或重新開始。")
+            detail.append("\n本次量測已結束；可按「完成」或重新開始。")
         }
         if (!published) detail.append("\n資料送出失敗；尚未確認保存成功，請重試。")
     }
