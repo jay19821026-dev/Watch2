@@ -786,7 +786,7 @@ class MainActivity : ComponentActivity() {
                     .maxByOrNull { it.time }
                 val oxygenRecords = readSafely("血氧", HealthPermission.getReadPermission(OxygenSaturationRecord::class)) {
                     client.readAllRecords(OxygenSaturationRecord::class, historyFilter)
-                }.orEmpty()
+                }.orEmpty().filter { !it.time.isBefore(historyStart) && !it.time.isAfter(endTime) }
                 val latestOxygen = oxygenRecords.maxByOrNull { it.time }
                 val oxygenTrendRecords = HealthConnectAggregatePolicy.recordsForOrigin(
                     oxygenRecords, latestOxygen?.metadata?.dataOrigin?.packageName

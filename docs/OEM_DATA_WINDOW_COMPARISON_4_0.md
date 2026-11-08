@@ -17,4 +17,6 @@ AILISA 的「目前感測資料 10 分鐘」及「近期睡眠 30 小時」是�
 
 The phone home summary now applies the same overlap-and-clip rule to sleep-session fallback totals. Its label says *recorded interval*, because the OEM `SleepSyncBiz` uses bed/wake timestamps and stage records separately; the interval sum is not verified actual sleep. / 手機首頁的睡眠備援總時長也改為保留交集、按查詢界線裁切，並標明是紀錄區間，不能當作原廠實睡時長。
 
+Mi Fitness's `Spo2SyncBiz.java` writes each `Spo2Item.time` as the `OxygenSaturationRecord.time` and its typed `spo2` value as `percentage`; the metadata modification time is separate. AILISA's phone home now checks this measurement time against its local seven-date query before selecting the newest oxygen record. The typed percentage remains separate from raw optical `65596` events. / 原廠逐筆血氧使用 `Spo2Item.time` 作量測時間、`spo2` 作百分比；AILISA 首頁先按該量測時間篩選，再挑最新紀錄，不將光學原始事件轉成百分比。
+
 Verification / 驗證：`mobile:testDebugUnitTest`, `wear:testDebugUnitTest`, `mobile:assembleDebug`, `wear:assembleDebug` passed after the window correction. `HealthInsightWindowPolicyTest` covers local midnight, daylight saving and a sleep session crossing the boundary. / 修正後雙端單元測試與 Debug 建置通過，測試涵蓋本地午夜、夏令時間及跨界睡眠。
