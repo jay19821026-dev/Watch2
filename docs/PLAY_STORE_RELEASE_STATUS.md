@@ -38,6 +38,8 @@ The test 17 signed AABs have the old package ID and are superseded. The new-pack
 
 As of 2026-11-08, another search of the connected Gmail account for recent Play Console/developer and identity-verification messages returned no results. This does **not** prove the Console review is still pending; the current Console UI has not been rechecked. Do not treat this email search as approval or rejection.
 
+After test 21 publication, a 2026-11-08 search of the connected Gmail account for recent Google Play Console/developer-account verification messages again returned no results. The absence of a matching email does not establish the live Console status; no Play action was taken.
+
 個人開發者帳戶已建立，但 Google 仍在審查身分文件。審查完成前無法驗證聯絡電話，也無法建立應用程式；因此目前不能進入商店資訊、健康 App 聲明、測試軌或 AAB 上傳頁面。這是 Google 帳戶驗證閘門，不是 Android 專案建置失敗。
 
 ## Required before Play Console upload / 上傳前必要條件
