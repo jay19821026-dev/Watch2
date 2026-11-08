@@ -6,12 +6,11 @@ package com.jaysato.xiaomihealthbridge
  */
 object WearHealthConclusion {
     fun forHeartRateBpm(bpm: Double?): String {
-        if (bpm == null || !bpm.isFinite()) return "這次沒有量到心率，請重新量測。"
+        if (bpm == null || !bpm.isFinite() || bpm !in 30.0..220.0) return "這次沒有可解讀的心率，請重新量測。"
         return when {
-            bpm in 60.0..100.0 -> "在成人靜息心率參考範圍內（60–100 bpm）。"
-            bpm in 40.0..59.0 -> "低於成人靜息參考範圍；休息後再量一次。"
-            bpm in 101.0..180.0 -> "高於成人靜息參考範圍；若剛活動過，休息後再量。"
-            else -> "這筆心率超出常見量測範圍，請重新量測。"
+            bpm < 60.0 -> "低於成人靜息參考 60–100 bpm；休息後可再量一次。"
+            bpm <= 100.0 -> "在成人靜息參考 60–100 bpm 內。"
+            else -> "高於成人靜息參考 60–100 bpm；若剛活動過，休息後可再量。"
         }
     }
 

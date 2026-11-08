@@ -820,7 +820,8 @@ class WearMeasurePageActivity : ComponentActivity() {
             primary != null && mode == Mode.HEART_RATE -> WearHealthConclusion.forHeartRateBpm(
                 WearMeasurementPolicy.directHeartRateBpm(snapshot) ?: optical?.pulseRateBpm
             )
-            primary != null && mode == Mode.PPG -> "已取得心率讀值；可在手機查看趨勢。"
+            primary != null && mode == Mode.PPG && supplementalHeartRate != null -> "心率已取得；可在手機查看趨勢。"
+            primary != null && mode in setOf(Mode.PPG, Mode.LIFE_Q_OTT) -> "已取得脈搏參考值；可在手機查看趨勢。"
             snapshot.worn == false -> "請戴好手錶後重新量測。"
             hasCapturedSignal && mode == Mode.TEMPERATURE -> "尚無可用的體溫讀值；可在手機查看訊號。"
             hasCapturedSignal && mode == Mode.SPO2 -> "尚無可用的血氧百分比；可在手機查看訊號。"

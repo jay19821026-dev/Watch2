@@ -11,6 +11,14 @@ import org.junit.Test
 
 class WearMeasurementPolicyTest {
     @Test
+    fun heartRateConclusionHasNoUnclassifiedFractionalGaps() {
+        assertTrue(WearHealthConclusion.forHeartRateBpm(59.5).contains("低於"))
+        assertTrue(WearHealthConclusion.forHeartRateBpm(100.5).contains("高於"))
+        assertTrue(WearHealthConclusion.forHeartRateBpm(101.0).contains("高於"))
+        assertTrue(WearHealthConclusion.forHeartRateBpm(221.0).contains("重新量測"))
+    }
+
+    @Test
     fun biozRawCaptureNeedsRecentConfirmedWearAsWellAsEnoughEvents() {
         assertTrue(WearMeasurementPolicy.hasWornBiozRawCapture(true, 40, 40))
         assertFalse(WearMeasurementPolicy.hasWornBiozRawCapture(false, 40, 40))
