@@ -229,6 +229,7 @@ class WearMainActivity : ComponentActivity() {
             text = "正在檢查健康功能…"; textSize = 12f; setTextColor(Color.parseColor("#C8D0E0"))
             setPadding(dp(14), dp(14), dp(14), dp(18))
             background = buttonBackground("#17213A", "#0F172A")
+            visibility = View.GONE
         }
         clearQuarantineAction = Button(this).apply {
             textSize = 12f
@@ -418,10 +419,14 @@ class WearMainActivity : ComponentActivity() {
                 background = buttonBackground("#343438", "#232326")
                 setOnClickListener { startActivity(Intent(this@WearMainActivity, WearHistoryActivity::class.java)) }
             }, LinearLayout.LayoutParams(dp(190), dp(48)).apply { setMargins(0, dp(10), 0, 0) })
-            addView(TextView(context).apply {
-                text = "裝置能力"; textSize = 14f; setTextColor(Color.WHITE); gravity = Gravity.CENTER
-                setPadding(0, dp(28), 0, dp(12))
-            })
+            addView(Button(context).apply {
+                text = "查看裝置能力與技術狀態"; textSize = 13f; isAllCaps = false; setTextColor(Color.WHITE)
+                background = buttonBackground("#343438", "#232326")
+                setOnClickListener {
+                    capabilities.visibility = if (capabilities.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                    text = if (capabilities.visibility == View.VISIBLE) "收起裝置技術狀態" else "查看裝置能力與技術狀態"
+                }
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48)).apply { topMargin = dp(28) })
             addView(capabilities, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             addView(clearQuarantineAction, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(44)).apply {
                 topMargin = dp(6)
