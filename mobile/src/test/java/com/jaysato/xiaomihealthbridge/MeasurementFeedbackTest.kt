@@ -20,8 +20,8 @@ class MeasurementFeedbackTest {
     fun unscaledOpticalFramesAreDescribedAsResearchOnly() {
         val result = MeasurementFeedbackFactory.create("unscaled_optical", 160)
         assertTrue(result.receivedData)
-        assertEquals("這次沒有可顯示的讀值", result.headline)
-        assertTrue(result.guidance.contains("原廠量測頁重測"))
+        assertEquals("已收到訊號，尚無可用讀值", result.headline)
+        assertTrue(result.guidance.contains("查看波形"))
     }
 
     @Test

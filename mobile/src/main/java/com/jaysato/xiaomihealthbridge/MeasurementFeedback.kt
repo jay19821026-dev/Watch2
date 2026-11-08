@@ -13,7 +13,7 @@ internal object MeasurementFeedbackFactory {
             status == "off_wrist" -> "手錶沒有戴好"
             status == "invalid_optical" -> "這次訊號不清楚"
             !dataReceived -> "這次沒有可顯示的量測值"
-            status in setOf("research_signal_unscaled", "research_optical", "unscaled_optical") -> "這次沒有可顯示的讀值"
+            status in setOf("research_signal_unscaled", "research_optical", "unscaled_optical") -> "已收到訊號，尚無可用讀值"
             status == "calibrated_external_reference" -> "已有參考讀值"
             else -> "量測已完成"
         }
@@ -27,7 +27,7 @@ internal object MeasurementFeedbackFactory {
             "missing" -> "目前無法從這支手錶讀取此項結果。"
             "derived_estimate" -> "這是依其他紀錄估算的參考值，並非這次直接量到的結果。"
             "invalid_optical" -> "戴好手錶、保持手腕靜止後再量一次。"
-            "research_signal_unscaled", "research_optical", "unscaled_optical" -> "請使用手錶原廠量測頁重測，再查看結果。"
+            "research_signal_unscaled", "research_optical", "unscaled_optical" -> "這次訊號已保存；可查看波形，或在手錶重新量測。"
             "calibrated_external_reference" -> "這是外部參考量測的紀錄。"
             else -> if (dataReceived) "請查看下方讀值與說明。"
                 else "請戴好手錶並重新量測。"

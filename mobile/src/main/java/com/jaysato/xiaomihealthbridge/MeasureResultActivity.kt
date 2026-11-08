@@ -118,15 +118,15 @@ class MeasureResultActivity : ComponentActivity() {
             supplementalHeartRate != null && displayValue != "—" ->
                 "心率 $displayValue bpm · ${ConsumerVitalsSummary.heartRateLabel(displayValue.toDoubleOrNull() ?: supplementalHeartRate.bpm.toDouble())}"
             kind == "ecg" && !hasReadableValue ->
-                "這次沒有心律結果 · 請穩定接觸電極後重測"
+                "已收到心電訊號 · 尚無心律結果"
             kind == "ppg" && !hasReadableValue ->
-                "這次沒有心率結果 · 請戴緊手錶後重測"
+                "已收到脈搏訊號 · 尚無脈率讀值"
             kind in setOf("spo2_raw", "spo2") && !hasReadableValue ->
-                "這次沒有血氧百分比 · 請戴好手錶後重測"
+                "已收到血氧訊號 · 尚無血氧百分比"
             kind in setOf("body_temperature_raw", "body_temperature") && !hasReadableValue ->
-                "這次沒有可顯示的體溫 · 請重新量測"
+                "已收到溫度訊號 · 尚無可用體溫讀值"
             kind == "bioz" && !hasReadableValue ->
-                "這次沒有體成分結果 · 請重新量測"
+                "已收到體成分訊號 · 尚無體成分讀值"
             !hasReadableValue -> "這次沒有$title 讀值 · 請重新量測"
             kind == "whs_heart_rate" ->
                 "心率 $displayValue bpm · ${ConsumerVitalsSummary.heartRateLabel(displayValue.toDoubleOrNull() ?: 0.0)}"
